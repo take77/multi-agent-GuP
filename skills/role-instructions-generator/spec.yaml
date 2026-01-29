@@ -1,0 +1,296 @@
+# role-instructions-generator Skill Specification
+# Version: 1.0
+
+skill:
+  name: role-instructions-generator
+  version: "1.0"
+  description: |
+    キャラクターYAMLから役職別のinstructions.mdを自動生成するスキル。
+    YAML Front Matter形式とMarkdown本文を組み合わせた統一フォーマットで出力する。
+    口調設定、禁止事項、ワークフロー、通信プロトコルを自動構築。
+  author: member7
+  created: "2026-01-29"
+  tags:
+    - instructions
+    - role-based
+    - character
+    - documentation
+    - multi-agent
+
+inputs:
+  - name: character_yaml
+    type: file
+    required: true
+    description: |
+      キャラクター設定YAML。以下の構造を期待：
+      - character.id: キャラクターID
+      - character.name: 名前情報
+      - character.role: 役職
+      - personality: 性格特性
+      - speech_patterns: 口調パターン
+      - responsibilities: 責務
+      - communication: 通信設定
+
+  - name: role_template
+    type: string
+    required: true
+    description: |
+      役職テンプレート名。以下のいずれか：
+      - battalion_commander: 大隊長
+      - chief_of_staff: 参謀長
+      - intelligence_officer: 情報参謀
+      - communications_officer: 通信参謀
+      - records_officer: 記録参謀
+      - technical_officer: 技術参謀
+      - platoon_leader: 中隊長
+      - platoon_deputy: 副中隊長
+      - frontend: フロントエンドエンジニア
+      - backend: バックエンドエンジニア
+      - design: デザイナー
+      - tester: テスター
+    enum:
+      - battalion_commander
+      - chief_of_staff
+      - intelligence_officer
+      - communications_officer
+      - records_officer
+      - technical_officer
+      - platoon_leader
+      - platoon_deputy
+      - frontend
+      - backend
+      - design
+      - tester
+
+  - name: output_path
+    type: string
+    required: false
+    default: "instructions/{role}.md"
+    description: 出力先パス
+
+  - name: include_workflow_diagram
+    type: boolean
+    required: false
+    default: true
+    description: ワークフロー図（ASCII）を含めるか
+
+  - name: include_speech_examples
+    type: boolean
+    required: false
+    default: true
+    description: 口調の例文を含めるか
+
+outputs:
+  - name: instructions_md
+    type: file
+    description: 生成されたinstructionsファイル
+
+  - name: generation_report
+    type: object
+    description: |
+      生成レポート。以下を含む：
+      - character_id: 対象キャラクターID
+      - role: 役職
+      - sections_generated: 生成されたセクション一覧
+      - warnings: 警告（不足情報等）
+
+workflow:
+  - step: 1
+    action: validate_inputs
+    description: 入力パラメータのバリデーション
+    details:
+      - character_yamlの存在確認
+      - role_templateの妥当性チェック
+      - 必須フィールドの確認
+
+  - step: 2
+    action: parse_character_yaml
+    description: キャラクターYAMLの解析
+    details:
+      - character情報の抽出
+      - personality情報の抽出
+      - speech_patternsの抽出
+      - responsibilitiesの抽出
+      - communicationの抽出
+
+  - step: 3
+    action: load_role_template
+    description: 役職テンプレートの読み込み
+    details:
+      - テンプレート選択
+      - 禁止事項テンプレートの取得
+      - ワークフローテンプレートの取得
+
+  - step: 4
+    action: merge_character_and_template
+    description: キャラクター情報とテンプレートのマージ
+    details:
+      - キャラクター固有情報の挿入
+      - 口調設定の反映
+      - 責務の反映
+
+  - step: 5
+    action: generate_yaml_front_matter
+    description: YAML Front Matterの生成
+    details:
+      - role, character, versionの設定
+      - forbidden_actionsの生成
+      - workflowの生成
+      - communicationの生成
+      - speech_styleの生成
+
+  - step: 6
+    action: generate_markdown_body
+    description: Markdown本文の生成
+    details:
+      - 役割セクション
+      - 責務セクション
+      - 禁止事項テーブル
+      - ワークフロー図
+      - 通信プロトコル
+      - 口調設定
+      - コンパクション復帰セクション
+
+  - step: 7
+    action: assemble_output
+    description: 出力ファイルの組み立て
+    details:
+      - YAML Front Matter + 本文の結合
+      - フォーマット調整
+
+  - step: 8
+    action: write_file
+    description: ファイル出力
+    details:
+      - 出力先ディレクトリ確認
+      - ファイル書き込み
+      - 権限設定
+
+role_templates:
+  battalion_commander:
+    forbidden_actions:
+      - id: F001
+        action: direct_coding
+        description: "直接コードを書く"
+      - id: F002
+        action: skip_platoon_leader
+        description: "中隊長を飛ばして隊員に直接指示"
+      - id: F003
+        action: polling
+        description: "ポーリング"
+      - id: F004
+        action: ignore_staff_advice
+        description: "参謀の意見を聞かずに決定"
+    workflow_type: strategic
+
+  chief_of_staff:
+    forbidden_actions:
+      - id: F001
+        action: bypass_commander
+        description: "大隊長を飛ばしてユーザーに直接報告"
+      - id: F002
+        action: emotional_decision
+        description: "感情的な判断"
+      - id: F003
+        action: override_commander
+        description: "大隊長の決定を覆す"
+    workflow_type: advisory
+
+  platoon_leader:
+    forbidden_actions:
+      - id: F001
+        action: bypass_hq
+        description: "司令部を飛ばしてユーザーに直接報告"
+      - id: F002
+        action: skip_member
+        description: "隊員を飛ばして直接作業"
+      - id: F003
+        action: polling
+        description: "ポーリング"
+    workflow_type: tactical
+
+  frontend:
+    forbidden_actions:
+      - id: F001
+        action: bypass_leader
+        description: "中隊長を飛ばして司令部に報告"
+      - id: F002
+        action: backend_work
+        description: "バックエンドの領域に手を出す"
+    workflow_type: implementation
+
+  backend:
+    forbidden_actions:
+      - id: F001
+        action: bypass_leader
+        description: "中隊長を飛ばして司令部に報告"
+      - id: F002
+        action: frontend_work
+        description: "フロントエンドの領域に手を出す"
+    workflow_type: implementation
+
+  tester:
+    forbidden_actions:
+      - id: F001
+        action: bypass_leader
+        description: "中隊長を飛ばして司令部に報告"
+      - id: F002
+        action: skip_test
+        description: "テストを省略する"
+    workflow_type: verification
+
+output_template:
+  yaml_front_matter:
+    - role
+    - character
+    - version
+    - forbidden_actions
+    - workflow
+    - communication
+    - speech_style
+
+  markdown_sections:
+    - title: "役割"
+      source: "role_description"
+    - title: "責務"
+      source: "responsibilities"
+    - title: "禁止事項"
+      source: "forbidden_actions"
+      format: "table"
+    - title: "ワークフロー"
+      source: "workflow"
+      format: "diagram"
+    - title: "通信プロトコル"
+      source: "communication"
+    - title: "口調設定"
+      source: "speech_patterns"
+    - title: "コンパクション復帰時"
+      source: "recovery_checklist"
+
+examples:
+  - name: battalion_commander_miho
+    description: 大隊長（西住みほ）の指示書生成
+    input:
+      character_yaml: "characters/miho.yaml"
+      role_template: "battalion_commander"
+    output:
+      file: "instructions/battalion_commander.md"
+      sections: 8
+
+  - name: chief_of_staff_maho
+    description: 参謀長（西住まほ）の指示書生成
+    input:
+      character_yaml: "characters/maho.yaml"
+      role_template: "chief_of_staff"
+    output:
+      file: "instructions/chief_of_staff.md"
+      sections: 8
+
+  - name: frontend_orange_pekoe
+    description: フロントエンド（オレンジペコ）の指示書生成
+    input:
+      character_yaml: "characters/orange_pekoe.yaml"
+      role_template: "frontend"
+    output:
+      file: "instructions/frontend.md"
+      sections: 6

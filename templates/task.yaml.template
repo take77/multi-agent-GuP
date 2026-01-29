@@ -1,0 +1,99 @@
+# ============================================================
+# タスクテンプレート (Task Template)
+# ============================================================
+# 用途: 個別タスクの割り当て（中隊長→乗組員）
+#
+# 使用方法:
+#   1. このテンプレートをコピー
+#   2. {{PLACEHOLDER}} を実際の値に置換
+#   3. 担当者の queue ディレクトリに配置
+#   4. send-keys で通知
+#
+# 配置先:
+#   - queue/platoon{{N}}/tasks/{{MEMBER_ID}}.yaml
+# ============================================================
+
+# ─────────────────────────────────────────────────────────────
+# 必須フィールド (Required Fields)
+# ─────────────────────────────────────────────────────────────
+task:
+  # タスクID（一意の識別子）
+  # 形式: task_YYYYMMDD_NNN または subtask_XXX
+  task_id: "{{TASK_ID}}"
+
+  # 親タスク/コマンドID
+  parent_cmd: "{{PARENT_CMD_ID}}"
+
+  # タスクの説明
+  description: |
+    {{TASK_DESCRIPTION}}
+
+    要件：
+    - {{REQUIREMENT_1}}
+    - {{REQUIREMENT_2}}
+    # - {{REQUIREMENT_3}}
+
+    参考：
+    - {{REFERENCE_1}}
+
+  # 成果物の出力先パス
+  target_path: "{{TARGET_PATH}}"
+
+  # ステータス: assigned / in_progress / done / blocked / failed
+  status: assigned
+
+  # タイムスタンプ（ISO 8601形式）
+  # 取得方法: date "+%Y-%m-%dT%H:%M:%S"
+  timestamp: "{{TIMESTAMP}}"
+
+  # 優先度: critical / high / medium / low
+  priority: "{{PRIORITY}}"
+
+# ─────────────────────────────────────────────────────────────
+# オプションフィールド (Optional Fields)
+# ─────────────────────────────────────────────────────────────
+
+# 担当者（通常はファイル名から判断するが明示も可）
+# assignee: "{{ASSIGNEE_ID}}"
+
+# 期限
+# deadline: "{{DEADLINE}}"
+
+# 依存タスク
+# depends_on:
+#   - task_id: "{{DEPENDENCY_TASK_ID}}"
+#     type: blocks  # blocks / related
+
+# プロジェクト情報
+# project:
+#   name: "{{PROJECT_NAME}}"
+#   context_file: "context/{{PROJECT_NAME}}.md"
+
+# 受け入れ条件
+# acceptance_criteria:
+#   - "{{CRITERIA_1}}"
+#   - "{{CRITERIA_2}}"
+
+# ─────────────────────────────────────────────────────────────
+# コンテキスト情報（オプション）
+# ─────────────────────────────────────────────────────────────
+# context:
+#   # 読むべきファイル
+#   files_to_read:
+#     - "{{FILE_TO_READ_1}}"
+#     - "{{FILE_TO_READ_2}}"
+#
+#   # 参照すべきドキュメント
+#   documentation:
+#     - "{{DOC_URL_1}}"
+#
+#   # 技術スタック
+#   tech_stack:
+#     - "{{TECH_1}}"
+#     - "{{TECH_2}}"
+
+# ─────────────────────────────────────────────────────────────
+# 備考
+# ─────────────────────────────────────────────────────────────
+# notes: |
+#   {{ADDITIONAL_NOTES}}

@@ -1,0 +1,76 @@
+# Sample Project Configuration
+# code-review-checklist-generator の入力例
+
+# このファイルはカスタム設定の例を示す
+# generate-checklist --project /path/to/project --config ./sample-project-config.yaml
+
+# プロジェクト基本情報（オプション）
+project:
+  name: "my-awesome-app"
+  description: "React + TypeScript で構築されたWebアプリケーション"
+  team: "第1中隊"
+
+# カスタムルール（プロジェクト固有のチェック項目）
+custom_rules:
+  - category: "プロジェクト固有"
+    items:
+      - item: "社内UIライブラリを使用しているか"
+        severity: high
+      - item: "ログ出力形式が統一されているか"
+        severity: medium
+      - item: "環境変数がプレフィックスに従っているか（REACT_APP_*）"
+        severity: medium
+
+  - category: "コーディング規約"
+    items:
+      - item: "ESLintの警告が0件か"
+        severity: high
+      - item: "Prettierでフォーマットされているか"
+        severity: medium
+      - item: "importの順序が規約に従っているか"
+        severity: low
+
+  - category: "パフォーマンス（追加）"
+    items:
+      - item: "バンドルサイズへの影響を確認したか"
+        severity: medium
+      - item: "遅延ロードを検討したか"
+        severity: low
+
+# 無効化するルール
+disabled_rules:
+  - "react/no-deprecated-apis"      # レガシーコードのため一時的に無効化
+  - "typescript/strict-null-checks" # 段階的に対応中
+
+# 重要度の上書き
+severity_overrides:
+  "security/sql-injection": critical
+  "security/xss": critical
+  "test/coverage-threshold": high
+
+# 出力設定
+output:
+  format: markdown
+  include_metadata: true
+  include_severity: true
+  group_by_severity: false
+
+# 技術スタックの手動指定（自動検出を上書き）
+# 通常は不要だが、検出がうまくいかない場合に使用
+# tech_stack_override:
+#   - react
+#   - typescript
+#   - jest
+
+# カテゴリの順序（指定した順序で出力）
+category_order:
+  - "機能性"
+  - "セキュリティ"
+  - "React コンポーネント"
+  - "TypeScript 型定義"
+  - "パフォーマンス"
+  - "テスト"
+  - "可読性"
+  - "保守性"
+  - "プロジェクト固有"
+  - "コーディング規約"

@@ -1,0 +1,199 @@
+# ============================================================
+# 司令部ブリーフィングテンプレート (HQ Briefing Template)
+# ============================================================
+# 用途: 司令部ブリーフィング（みほ主催、中隊長参加）
+#
+# 開催タイミング:
+#   - 定期: 毎日のスタンドアップ
+#   - 随時: 作戦立案、緊急対応、方針決定
+#
+# 使用方法:
+#   1. このテンプレートをコピー
+#   2. {{PLACEHOLDER}} を実際の値に置換
+#   3. queue/hq/briefings/ に配置
+#   4. 参加者に send-keys で通知
+#
+# 配置先: queue/hq/briefings/hq_briefing_{{ID}}.yaml
+# ============================================================
+
+# ─────────────────────────────────────────────────────────────
+# 基本情報 (Basic Information)
+# ─────────────────────────────────────────────────────────────
+briefing:
+  briefing_id: "hq_briefing_{{BRIEFING_ID}}"
+  type: "{{BRIEFING_TYPE}}"  # standup / planning / review / emergency
+  organizer: miho
+  datetime: "{{DATETIME}}"
+  duration_minutes: {{DURATION}}
+  location: "panzer-hq session"
+
+# ─────────────────────────────────────────────────────────────
+# 参加者リスト (Participants)
+# ─────────────────────────────────────────────────────────────
+participants:
+  # 司令部メンバー（必須）
+  hq_staff:
+    - id: miho
+      role: 大隊長
+      status: required
+    - id: maho
+      role: 副大隊長
+      status: required
+    - id: yukari
+      role: 情報参謀
+      status: required
+    - id: saori
+      role: 通信参謀
+      status: required
+    - id: hana
+      role: 記録参謀
+      status: required
+    - id: mako
+      role: 技術参謀
+      status: required
+
+  # 各中隊長（必須）
+  platoon_leaders:
+    - id: kay
+      role: 第1中隊長
+      status: required
+    - id: katyusha
+      role: 第2中隊長
+      status: required
+    - id: darjeeling
+      role: 第3中隊長
+      status: required
+
+  # 記録者（記録参謀が担当）
+  recorder: hana
+
+# ─────────────────────────────────────────────────────────────
+# アジェンダ (Agenda)
+# ─────────────────────────────────────────────────────────────
+agenda:
+  - order: 1
+    item: "開会・本日の目的"
+    duration_minutes: 2
+    presenter: miho
+    description: "ブリーフィングの目的と期待する成果を共有"
+
+  - order: 2
+    item: "各中隊からの進捗報告"
+    duration_minutes: 15
+    presenter: null  # 各中隊長が順番に報告
+    sub_items:
+      - "第1中隊（kay）: {{PLATOON1_STATUS}}"
+      - "第2中隊（katyusha）: {{PLATOON2_STATUS}}"
+      - "第3中隊（darjeeling）: {{PLATOON3_STATUS}}"
+
+  - order: 3
+    item: "情報共有"
+    duration_minutes: 5
+    presenter: yukari
+    description: "外部情報、技術トレンド、リスク情報"
+
+  - order: 4
+    item: "課題共有・議論"
+    duration_minutes: 10
+    presenter: null  # 全員参加
+    description: "ブロック事項、リソース問題、技術課題"
+
+  - order: 5
+    item: "方針決定・次のアクション"
+    duration_minutes: 8
+    presenter: miho
+    description: "決定事項の確認、担当割当"
+
+  # 総時間: 40分
+
+# ─────────────────────────────────────────────────────────────
+# 各中隊の進捗報告 (Platoon Status Reports)
+# ─────────────────────────────────────────────────────────────
+platoon_reports:
+  platoon_1:
+    leader: kay
+    completed:
+      - "{{P1_COMPLETED_1}}"
+      # - "{{P1_COMPLETED_2}}"
+    in_progress:
+      - task: "{{P1_INPROGRESS_1}}"
+        progress: "{{P1_PROGRESS_PERCENT}}%"
+        eta: "{{P1_ETA}}"
+    blocked:
+      # - issue: "{{P1_BLOCKER}}"
+      #   needs: "{{P1_NEEDS}}"
+    notes: "{{P1_NOTES}}"
+
+  platoon_2:
+    leader: katyusha
+    completed:
+      - "{{P2_COMPLETED_1}}"
+    in_progress:
+      - task: "{{P2_INPROGRESS_1}}"
+        progress: "{{P2_PROGRESS_PERCENT}}%"
+        eta: "{{P2_ETA}}"
+    blocked: []
+    notes: "{{P2_NOTES}}"
+
+  platoon_3:
+    leader: darjeeling
+    completed:
+      - "{{P3_COMPLETED_1}}"
+    in_progress:
+      - task: "{{P3_INPROGRESS_1}}"
+        progress: "{{P3_PROGRESS_PERCENT}}%"
+        eta: "{{P3_ETA}}"
+    blocked: []
+    notes: "{{P3_NOTES}}"
+
+# ─────────────────────────────────────────────────────────────
+# 課題共有 (Issues Shared)
+# ─────────────────────────────────────────────────────────────
+issues:
+  - id: "issue_001"
+    raised_by: "{{RAISED_BY}}"
+    category: "{{CATEGORY}}"  # resource / technical / dependency / scope
+    description: |
+      {{ISSUE_DESCRIPTION}}
+    impact: "{{IMPACT}}"  # high / medium / low
+    proposed_solution: "{{PROPOSED_SOLUTION}}"
+    discussion_notes: |
+      {{DISCUSSION_NOTES}}
+
+  # - id: "issue_002"
+  #   raised_by: "{{RAISED_BY_2}}"
+  #   ...
+
+# ─────────────────────────────────────────────────────────────
+# 決定事項 (Decisions)
+# ─────────────────────────────────────────────────────────────
+decisions:
+  - id: "dec_{{DEC_ID}}"
+    description: "{{DECISION_DESC}}"
+    decided_by: miho
+    rationale: "{{RATIONALE}}"
+    effective_from: "{{EFFECTIVE_DATE}}"
+
+# ─────────────────────────────────────────────────────────────
+# 次のアクション (Action Items)
+# ─────────────────────────────────────────────────────────────
+action_items:
+  - id: "ai_001"
+    description: "{{ACTION_ITEM_1}}"
+    assignee: "{{ASSIGNEE_1}}"
+    deadline: "{{DEADLINE_1}}"
+    priority: high
+
+  - id: "ai_002"
+    description: "{{ACTION_ITEM_2}}"
+    assignee: "{{ASSIGNEE_2}}"
+    deadline: "{{DEADLINE_2}}"
+    priority: medium
+
+# ─────────────────────────────────────────────────────────────
+# メタデータ
+# ─────────────────────────────────────────────────────────────
+metadata:
+  status: scheduled  # scheduled / in_progress / completed
+  created_at: "{{CREATED_TIMESTAMP}}"
+  next_briefing: "{{NEXT_ブリーフィング_DATE}}"

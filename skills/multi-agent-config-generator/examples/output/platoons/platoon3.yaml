@@ -1,0 +1,15 @@
+# Platoon 3 Configuration
+# Kuromorimine-St.Gloriana Alliance
+
+name: "Kuromorimine-St.Gloriana Alliance"
+leader: darjeeling
+deputy: erika
+members:
+  - name: orange_pekoe
+    role: frontend
+  - name: koume
+    role: backend
+  - name: assam
+    role: design
+  - name: rukuriri
+    role: tester

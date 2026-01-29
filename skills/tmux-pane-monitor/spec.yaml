@@ -1,0 +1,304 @@
+# tmux-pane-monitor Skill Specification
+# Version: 1.0
+
+skill:
+  name: tmux-pane-monitor
+  version: "1.0"
+  description: |
+    tmuxセッション/ペインの状態監視スクリプトを生成するスキル。
+    設定YAMLに基づいてセッション構成やbusy判定キーワードをカスタマイズできる。
+    マルチエージェントシステムにおける各エージェントの稼働状況を把握するために使用。
+  author: member4
+  created: "2026-01-29"
+  tags:
+    - tmux
+    - monitoring
+    - multi-agent
+    - status-check
+    - pane-management
+
+# ═══════════════════════════════════════════════════════════════
+# 入力仕様
+# ═══════════════════════════════════════════════════════════════
+inputs:
+  - name: session_config
+    type: file
+    required: true
+    description: |
+      セッション構成を定義するYAMLファイル。以下の形式を期待：
+      sessions:
+        - name: "session-name"
+          panes_count: 6
+    validation:
+      format: yaml
+      required_fields:
+        - sessions
+
+  - name: busy_keywords
+    type: array
+    required: false
+    description: busy状態を示すキーワードのリスト（大文字小文字区別なし）
+    default:
+      - thinking
+      - Thinking
+      - Effecting
+      - reading
+      - Reading
+      - writing
+      - Writing
+      - Searching
+      - Running
+      - Executing
+      - Processing
+      - Loading
+      - Analyzing
+
+  - name: idle_indicator
+    type: string
+    required: false
+    default: "❯"
+    description: idle状態を示すプロンプト文字
+
+  - name: output_path
+    type: string
+    required: false
+    default: "./"
+    description: 生成スクリプトの出力先パス
+
+  - name: include_colors
+    type: boolean
+    required: false
+    default: true
+    description: カラー出力（ANSI エスケープコード）を含めるか
+
+  - name: capture_lines
+    type: integer
+    required: false
+    default: 20
+    description: ペインから取得する行数
+
+  - name: project_name
+    type: string
+    required: false
+    default: "Multi-Agent Project"
+    description: 出力ヘッダーに表示するプロジェクト名
+
+# ═══════════════════════════════════════════════════════════════
+# 出力仕様
+# ═══════════════════════════════════════════════════════════════
+outputs:
+  - name: check_status_script
+    type: file
+    description: 生成される監視スクリプト（check_status.sh）
+    path: "{{output_path}}/check_status.sh"
+
+  - name: generation_report
+    type: object
+    description: |
+      生成レポート。以下を含む：
+      - script_path: 生成されたスクリプトのパス
+      - sessions_count: 設定されたセッション数
+      - total_panes: 監視対象の総ペイン数
+      - busy_keywords_count: busyキーワード数
+
+# ═══════════════════════════════════════════════════════════════
+# ワークフロー
+# ═══════════════════════════════════════════════════════════════
+workflow:
+  - step: 1
+    action: validate_inputs
+    description: 入力パラメータのバリデーション
+    details:
+      - session_config の存在確認
+      - YAML形式の検証
+      - sessions フィールドの存在確認
+      - output_path の書き込み権限確認
+
+  - step: 2
+    action: parse_session_config
+    description: セッション構成YAMLの解析
+    details:
+      - セッション名の抽出
+      - ペイン数の取得
+      - 総ペイン数の計算
+
+  - step: 3
+    action: prepare_keywords
+    description: キーワードリストの準備
+    details:
+      - デフォルトキーワードのロード
+      - カスタムキーワードのマージ
+      - 重複除去
+
+  - step: 4
+    action: generate_script_header
+    description: スクリプトヘッダーの生成
+    details:
+      - shebang (#!/bin/bash)
+      - 使用方法コメント
+      - 設定セクション
+
+  - step: 5
+    action: generate_session_array
+    description: セッション配列の生成
+    details:
+      - SESSIONS=("session1" "session2" ...) 形式
+      - PANES_PER_SESSION の設定
+
+  - step: 6
+    action: generate_keyword_patterns
+    description: キーワードパターン配列の生成
+    details:
+      - BUSY_PATTERNS 配列
+      - IDLE_PATTERN 変数
+
+  - step: 7
+    action: generate_color_definitions
+    description: カラー定義の生成
+    condition: include_colors == true
+    details:
+      - RED, GREEN, YELLOW, BLUE, NC
+
+  - step: 8
+    action: generate_helper_functions
+    description: ヘルパー関数の生成
+    details:
+      - show_help()
+      - get_pane_status()
+      - display_single_pane()
+      - display_session_panes()
+      - display_all_sessions()
+
+  - step: 9
+    action: generate_main_function
+    description: メイン関数の生成
+    details:
+      - 引数パース処理
+      - モード別の実行ロジック
+
+  - step: 10
+    action: write_script
+    description: スクリプトファイルの書き込み
+    details:
+      - ファイル出力
+      - 実行権限付与 (chmod +x)
+
+  - step: 11
+    action: generate_report
+    description: 生成レポートの作成
+    details:
+      - 生成されたファイルの情報
+      - 設定サマリ
+
+# ═══════════════════════════════════════════════════════════════
+# デフォルト設定
+# ═══════════════════════════════════════════════════════════════
+defaults:
+  busy_keywords:
+    - thinking
+    - Thinking
+    - Effecting
+    - reading
+    - Reading
+    - writing
+    - Writing
+    - Searching
+    - Running
+    - Executing
+    - Processing
+    - Loading
+    - Analyzing
+
+  idle_indicator: "❯"
+
+  color_codes:
+    red: '\033[0;31m'
+    green: '\033[0;32m'
+    yellow: '\033[0;33m'
+    blue: '\033[0;34m'
+    nc: '\033[0m'
+
+  capture_lines: 20
+
+# ═══════════════════════════════════════════════════════════════
+# スクリプトテンプレート（概要）
+# ═══════════════════════════════════════════════════════════════
+script_template:
+  sections:
+    - header_comments
+    - session_configuration
+    - color_definitions
+    - keyword_patterns
+    - help_function
+    - status_functions
+    - display_functions
+    - main_function
+
+  cli_options:
+    - option: "--all, -a"
+      description: 全ペインを確認
+    - option: "--session, -s NAME"
+      description: 特定セッションのみ確認
+    - option: "--json, -j"
+      description: JSON形式で出力
+    - option: "--help, -h"
+      description: ヘルプ表示
+
+  output_formats:
+    text:
+      status_icons:
+        busy: "[busy]"
+        idle: "[idle]"
+        error: "[????]"
+      colors:
+        busy: yellow
+        idle: green
+        error: red
+    json:
+      structure:
+        panes: array
+        summary:
+          total: integer
+          busy: integer
+          idle: integer
+
+# ═══════════════════════════════════════════════════════════════
+# 使用例
+# ═══════════════════════════════════════════════════════════════
+examples:
+  - name: panzer_project
+    description: panzer-project用の監視スクリプト
+    input:
+      session_config: "examples/sample-config.yaml"
+      busy_keywords:
+        - thinking
+        - Effecting
+        - Running
+      idle_indicator: "❯"
+    output:
+      script: "check_status.sh"
+      sessions_count: 4
+      total_panes: 24
+
+  - name: minimal
+    description: 最小構成（デフォルト設定）
+    input:
+      session_config: "examples/minimal-config.yaml"
+    output:
+      script: "check_status.sh"
+      sessions_count: 1
+      total_panes: 6
+
+  - name: custom_keywords
+    description: カスタムキーワード設定
+    input:
+      session_config: "examples/sample-config.yaml"
+      busy_keywords:
+        - thinking
+        - processing
+        - computing
+        - analyzing
+      idle_indicator: "$"
+      include_colors: false
+    output:
+      script: "check_status.sh"

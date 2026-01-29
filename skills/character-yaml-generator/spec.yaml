@@ -1,0 +1,328 @@
+# ============================================================
+# character-yaml-generator スキル仕様定義
+# ============================================================
+# キャラクター設定YAMLファイルを統一フォーマットで生成するスキル
+# Created: 2026-01-29
+
+skill:
+  name: character-yaml-generator
+  version: "1.0"
+  description: |
+    マルチエージェントシステムで使用するキャラクター設定を、
+    統一されたYAMLフォーマットで生成するスキル。
+  author: panzer-project
+  license: MIT
+
+# ============================================================
+# 入力定義
+# ============================================================
+inputs:
+  - name: characters
+    type: array
+    required: true
+    description: |
+      生成するキャラクター情報のリスト。
+      各要素にはキャラクターの基本情報、性格、口調等を含む。
+    schema:
+      items:
+        type: object
+        required:
+          - id
+          - name
+          - role
+        properties:
+          id:
+            type: string
+            pattern: "^[a-z][a-z0-9_]*$"
+            description: "一意のキャラクターID（英小文字、数字、アンダースコア）"
+          name:
+            type: object
+            required:
+              - japanese
+            properties:
+              japanese:
+                type: string
+                description: "日本語名"
+              romaji:
+                type: string
+                description: "ローマ字名"
+          role:
+            type: string
+            description: "役割ID（battalion_commander, deputy_commander 等）"
+          rank:
+            type: string
+            description: "表示用の役職名（大隊長、副大隊長 等）"
+
+  - name: output_dir
+    type: string
+    required: false
+    default: "characters/"
+    description: "出力ディレクトリパス"
+
+  - name: project_name
+    type: string
+    required: false
+    description: "プロジェクト名（ファイルヘッダーに使用）"
+
+  - name: validate_references
+    type: boolean
+    required: false
+    default: true
+    description: "report_to, receives_from の参照整合性をチェックするか"
+
+# ============================================================
+# 出力定義
+# ============================================================
+outputs:
+  - name: generated_files
+    type: array
+    description: "生成されたファイルのパスリスト"
+    schema:
+      items:
+        type: string
+
+  - name: validation_report
+    type: object
+    description: "バリデーション結果"
+    schema:
+      properties:
+        success:
+          type: boolean
+        errors:
+          type: array
+          items:
+            type: string
+        warnings:
+          type: array
+          items:
+            type: string
+
+# ============================================================
+# ワークフロー
+# ============================================================
+workflow:
+  - step: 1
+    action: validate_input
+    description: |
+      入力データのバリデーション。
+      - 必須フィールドの存在確認
+      - ID の重複チェック
+      - ID フォーマットチェック
+
+  - step: 2
+    action: normalize_data
+    description: |
+      データの正規化。
+      - デフォルト値の補完
+      - フィールドの標準化
+
+  - step: 3
+    action: validate_references
+    condition: "validate_references == true"
+    description: |
+      参照整合性のチェック。
+      - report_to が存在するキャラクターIDか
+      - receives_from の各要素が存在するキャラクターIDか
+
+  - step: 4
+    action: generate_yaml
+    description: |
+      YAMLファイルの生成。
+      - ヘッダーコメントの付与
+      - 統一フォーマットで出力
+      - ファイル名: {id}.yaml
+
+  - step: 5
+    action: write_files
+    description: |
+      ファイルの書き出し。
+      - 出力ディレクトリの作成（存在しない場合）
+      - 各キャラクターのYAMLファイルを出力
+
+  - step: 6
+    action: generate_report
+    description: |
+      結果レポートの生成。
+      - 生成ファイル数
+      - バリデーション結果
+      - 警告事項
+
+# ============================================================
+# YAMLテンプレート
+# ============================================================
+template:
+  header: |
+    # ============================================================
+    # {name.japanese} - {rank}（{role_display}）
+    # ============================================================
+    # {project_name} キャラクター設定
+    # Created: {timestamp}
+
+  structure:
+    - section: character
+      fields:
+        - id
+        - name
+        - role
+        - rank
+
+    - section: personality
+      fields:
+        - traits
+        - leadership_style
+        - decision_making
+
+    - section: speech_patterns
+      dynamic: true
+      description: "カテゴリは自由に定義可能"
+
+    - section: responsibilities
+      fields:
+        - primary
+        - secondary
+
+    - section: communication
+      fields:
+        - report_to
+        - receives_from
+        - style
+
+# ============================================================
+# バリデーションルール
+# ============================================================
+validation:
+  rules:
+    - id: V001
+      field: character.id
+      rule: "required && matches('^[a-z][a-z0-9_]*$')"
+      message: "IDは英小文字で始まり、英小文字・数字・アンダースコアのみ使用可"
+
+    - id: V002
+      field: character.name.japanese
+      rule: required
+      message: "日本語名は必須"
+
+    - id: V003
+      field: character.role
+      rule: required
+      message: "役割は必須"
+
+    - id: V004
+      field: personality.traits
+      rule: "is_array && length >= 1"
+      message: "特性は1つ以上必要"
+
+    - id: V005
+      field: communication.report_to
+      rule: "is_null || exists_in(character_ids)"
+      message: "report_to は存在するキャラクターIDを参照すること"
+
+    - id: V006
+      field: communication.receives_from
+      rule: "is_null || all_exist_in(character_ids)"
+      message: "receives_from は存在するキャラクターIDを参照すること"
+
+  warnings:
+    - id: W001
+      field: character.rank
+      condition: empty
+      message: "rank が未設定です"
+
+    - id: W002
+      field: speech_patterns
+      condition: empty
+      message: "speech_patterns が未設定です"
+
+# ============================================================
+# 使用例
+# ============================================================
+examples:
+  - name: single_character
+    description: "単一キャラクターの生成"
+    input:
+      characters:
+        - id: miho
+          name:
+            japanese: 西住みほ
+            romaji: Nishizumi Miho
+          role: battalion_commander
+          rank: 大隊長
+          personality:
+            traits:
+              - 穏やかで優しい
+              - 決断時は迷いがない
+            leadership_style: サーバントリーダーシップ
+            decision_making: 状況を見極めてから迅速に決断
+          speech_patterns:
+            commands:
+              - 「パンツァー・フォー！」
+              - 「全車、前進！」
+          responsibilities:
+            primary:
+              - 全体方針の決定
+              - 最終判断
+            secondary:
+              - 各参謀との連携
+          communication:
+            report_to: null
+            receives_from:
+              - maho
+              - yukari
+            style: 対話重視、傾聴型
+      output_dir: "characters/"
+      project_name: "ガルパン・マルチエージェントシステム"
+    output:
+      generated_files:
+        - "characters/miho.yaml"
+      validation_report:
+        success: true
+        errors: []
+        warnings: []
+
+  - name: batch_generation
+    description: "複数キャラクターの一括生成"
+    input:
+      characters:
+        - id: miho
+          name:
+            japanese: 西住みほ
+          role: battalion_commander
+          rank: 大隊長
+        - id: maho
+          name:
+            japanese: 西住まほ
+          role: deputy_commander
+          rank: 副大隊長
+          communication:
+            report_to: miho
+      output_dir: "characters/"
+    output:
+      generated_files:
+        - "characters/miho.yaml"
+        - "characters/maho.yaml"
+      validation_report:
+        success: true
+        errors: []
+        warnings:
+          - "miho: speech_patterns が未設定です"
+          - "maho: speech_patterns が未設定です"
+
+# ============================================================
+# エラーハンドリング
+# ============================================================
+error_handling:
+  on_validation_error:
+    action: abort
+    description: "必須フィールドエラーは処理を中断"
+
+  on_reference_error:
+    action: warn
+    description: "参照エラーは警告として続行（validate_references=true の場合）"
+
+  on_file_exists:
+    action: overwrite
+    description: "既存ファイルは上書き"
+
+  on_directory_not_found:
+    action: create
+    description: "出力ディレクトリを自動作成"

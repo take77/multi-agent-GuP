@@ -1,0 +1,76 @@
+# ============================================================
+# 指示テンプレート (Order Template)
+# ============================================================
+# 用途: 司令部→中隊、中隊長→乗組員への指示
+#
+# 使用方法:
+#   1. このテンプレートをコピー
+#   2. {{PLACEHOLDER}} を実際の値に置換
+#   3. 指示先の queue ディレクトリに配置
+#   4. send-keys で通知
+#
+# 配置先:
+#   - 司令部→中隊長: queue/hq_to_platoon/platoon{{N}}.yaml
+#   - 中隊長→乗組員: queue/platoon{{N}}/tasks/{{MEMBER_ID}}.yaml
+# ============================================================
+
+# ─────────────────────────────────────────────────────────────
+# 必須フィールド (Required Fields)
+# ─────────────────────────────────────────────────────────────
+order:
+  # 指示ID（一意の識別子）
+  # 形式: ord_YYYYMMDD_NNN
+  order_id: "{{ORDER_ID}}"
+
+  # 発信者ID
+  from: "{{FROM_ID}}"
+
+  # 宛先ID（個人または中隊）
+  to: "{{TO_ID}}"
+
+  # タイムスタンプ（ISO 8601形式）
+  # 取得方法: date "+%Y-%m-%dT%H:%M:%S"
+  timestamp: "{{TIMESTAMP}}"
+
+  # 優先度: critical / high / medium / low
+  priority: "{{PRIORITY}}"
+
+  # 指示コマンド（簡潔に）
+  command: "{{COMMAND}}"
+
+# ─────────────────────────────────────────────────────────────
+# 詳細フィールド (Detail Fields)
+# ─────────────────────────────────────────────────────────────
+details:
+  # 指示の詳細説明
+  description: |
+    {{DESCRIPTION}}
+
+  # 期待する成果物（オプション）
+  expected_output:
+    - "{{OUTPUT_1}}"
+    # - "{{OUTPUT_2}}"
+
+  # 期限（オプション）
+  # deadline: "{{DEADLINE}}"
+
+  # 参考資料（オプション）
+  # references:
+  #   - "{{REFERENCE_1}}"
+
+  # 依存タスク（オプション）
+  # depends_on:
+  #   - "{{DEPENDENCY_TASK_ID}}"
+
+# ─────────────────────────────────────────────────────────────
+# メタデータ (Metadata)
+# ─────────────────────────────────────────────────────────────
+metadata:
+  # 指示のステータス: pending / acknowledged / in_progress / completed
+  status: pending
+
+  # 親指示ID（上位からの指示がある場合）
+  # parent_order_id: "{{PARENT_ORDER_ID}}"
+
+  # 関連プロジェクト
+  # project: "{{PROJECT_NAME}}"

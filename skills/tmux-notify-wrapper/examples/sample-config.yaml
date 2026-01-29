@@ -1,0 +1,61 @@
+# Sample Configuration for tmux-notify-wrapper
+# スキル実行時の入力設定例
+
+# プロジェクトパス（必須）
+project_path: "/home/user/projects/my-multi-agent"
+
+# セッション命名規則（オプション）
+session_naming:
+  prefix: "panzer"              # セッション名のプレフィックス
+  separator: "-"                # セッションとウィンドウの区切り
+  pane_format: "window.pane"    # ペイン指定形式
+
+# ログ設定（オプション）
+log_dir: "./logs"               # ログ出力先ディレクトリ
+
+# 詳細設定（オプション）
+config:
+  # 送信設定
+  wait_after_message: 0.1       # メッセージ送信後の待機時間（秒）
+
+  # リトライ設定
+  retry_count: 3                # 失敗時のリトライ回数（0でリトライなし）
+  retry_delay: 0.5              # リトライ間隔（秒）
+
+  # ログ設定
+  log_level: "INFO"             # ログレベル (DEBUG, INFO, WARN, ERROR)
+  log_to_file: true             # ファイルへのログ出力
+  log_to_stdout: true           # 標準出力へのログ出力
+
+  # 出力設定
+  color_output: true            # カラー出力の有効/無効
+
+# =============================================================================
+# 使用例
+# =============================================================================
+#
+# 1. 基本的な使い方（デフォルト設定）
+#    generate-notify-wrapper --project /path/to/project
+#
+# 2. この設定ファイルを使用
+#    generate-notify-wrapper --config ./sample-config.yaml
+#
+# 3. コマンドラインオプションで上書き
+#    generate-notify-wrapper \
+#      --config ./sample-config.yaml \
+#      --log-dir ./custom-logs
+#
+# =============================================================================
+# 生成されるスクリプトの使用例
+# =============================================================================
+#
+# 基本的な使い方:
+#   ./scripts/notify.sh panzer-1:0.0 "メッセージ"
+#
+# マルチエージェントシステムでの使用例:
+#   # 副大隊長からチームメンバーへの指示
+#   ./scripts/notify.sh panzer-1:0.1 "member1、新しい任務がある"
+#
+#   # チームメンバーから副大隊長への報告
+#   ./scripts/notify.sh panzer-hq:0.0 "任務完了です"
+#

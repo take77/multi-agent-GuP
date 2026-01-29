@@ -1,0 +1,231 @@
+# ============================================================
+# tmux-session-generator スキル仕様
+# ============================================================
+
+skill:
+  name: tmux-session-generator
+  version: "1.0"
+  description: |
+    YAMLで定義したセッション構成からtmux起動スクリプトを自動生成するスキル。
+    マルチエージェントシステムやマルチペイン開発環境の構築を効率化する。
+  author: panzer-project
+  tags:
+    - tmux
+    - automation
+    - shell
+    - multi-agent
+
+# ============================================================
+# 入力定義
+# ============================================================
+inputs:
+  - name: session_config
+    type: yaml_file
+    required: true
+    description: |
+      セッション構成を定義したYAMLファイル。
+      以下の構造を持つ：
+      - project.name: プロジェクト名（スクリプト名に使用）
+      - project.work_dir: 作業ディレクトリ
+      - sessions: セッション定義の配列
+        - name: セッション名
+        - panes: ペイン定義の配列
+          - name: ペイン名
+    schema:
+      type: object
+      properties:
+        project:
+          type: object
+          required:
+            - name
+            - work_dir
+          properties:
+            name:
+              type: string
+              description: プロジェクト名
+            work_dir:
+              type: string
+              description: 作業ディレクトリの絶対パス
+        sessions:
+          type: array
+          items:
+            type: object
+            required:
+              - name
+              - panes
+            properties:
+              name:
+                type: string
+                description: セッション名
+              panes:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - name
+                  properties:
+                    name:
+                      type: string
+                      description: ペイン名
+
+  - name: output_dir
+    type: string
+    required: false
+    default: "./scripts"
+    description: 生成スクリプトの出力先ディレクトリ
+
+  - name: layout
+    type: string
+    required: false
+    default: "tiled"
+    description: |
+      tmuxのペインレイアウト。
+      選択肢: tiled, even-horizontal, even-vertical, main-horizontal, main-vertical
+
+# ============================================================
+# 出力定義
+# ============================================================
+outputs:
+  - name: startup_script
+    type: file
+    description: |
+      生成された起動スクリプト。
+      ファイル名: start_{project_name}.sh
+    content:
+      - shebang: "#!/bin/bash"
+      - error_handling: "set -e"
+      - color_definitions: ログ用の色定義
+      - logging_functions: log_info, log_success 関数
+      - session_creation_function: create_session_with_panes 関数
+      - cleanup_function: cleanup_existing_sessions 関数
+      - main_function: セッション作成のメイン処理
+      - usage_instructions: 接続方法の表示
+
+# ============================================================
+# ワークフロー
+# ============================================================
+workflow:
+  - step: 1
+    action: read_config
+    description: セッション構成YAMLを読み込む
+
+  - step: 2
+    action: validate_config
+    description: |
+      設定を検証する：
+      - 必須フィールドの存在確認
+      - work_dir の存在確認（警告のみ）
+      - セッション名の重複チェック
+
+  - step: 3
+    action: generate_script_header
+    description: |
+      スクリプトのヘッダー部分を生成：
+      - shebang
+      - プロジェクト説明コメント
+      - 変数定義（WORK_DIR等）
+      - 色定義
+
+  - step: 4
+    action: generate_utility_functions
+    description: |
+      ユーティリティ関数を生成：
+      - log_info()
+      - log_success()
+      - create_session_with_panes()
+      - cleanup_existing_sessions()
+
+  - step: 5
+    action: generate_main_function
+    description: |
+      main関数を生成：
+      - 各セッションの作成コード
+      - 使用方法の表示
+
+  - step: 6
+    action: write_script
+    description: |
+      スクリプトをファイルに書き出し：
+      - 出力先: {output_dir}/start_{project_name}.sh
+      - 実行権限を付与
+
+  - step: 7
+    action: report_completion
+    description: 生成完了を報告
+
+# ============================================================
+# 使用例
+# ============================================================
+examples:
+  - name: シンプルな単一セッション
+    input: |
+      project:
+        name: simple-dev
+        work_dir: /home/user/dev
+
+      sessions:
+        - name: main
+          panes:
+            - name: editor
+            - name: terminal
+    output: |
+      start_simple-dev.sh が生成される。
+      2ペインを持つ main セッションが作成される。
+
+  - name: 複数セッションの開発環境
+    input: |
+      project:
+        name: fullstack
+        work_dir: /home/user/fullstack-app
+
+      sessions:
+        - name: frontend
+          panes:
+            - name: react
+            - name: storybook
+            - name: tests
+        - name: backend
+          panes:
+            - name: api
+            - name: db
+            - name: logs
+    output: |
+      start_fullstack.sh が生成される。
+      frontend（3ペイン）と backend（3ペイン）の
+      2セッションが作成される。
+
+  - name: マルチエージェントシステム（panzer-project参考）
+    input: |
+      project:
+        name: panzer
+        work_dir: /home/user/panzer-project
+
+      sessions:
+        - name: panzer-hq
+          panes:
+            - name: miho
+            - name: maho
+            - name: yukari
+            - name: saori
+            - name: hana
+            - name: mako
+        - name: panzer-1
+          panes:
+            - name: kay
+            - name: nishi
+            - name: arisa
+            - name: naomi
+            - name: tamada
+            - name: fukuda
+    output: |
+      start_panzer.sh が生成される。
+      各セッションに6ペインずつ作成される。
+
+# ============================================================
+# 注意事項
+# ============================================================
+notes:
+  - tmux がインストールされていること
+  - ペイン数が多い場合、ターミナルサイズに注意
+  - セッション名に特殊文字を使用しないこと
+  - work_dir は絶対パスで指定すること

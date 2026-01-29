@@ -1,0 +1,59 @@
+# ============================================================
+# tmux-pane-monitor 入力例
+# ============================================================
+# セッション構成を定義するYAMLファイル
+# このファイルをスキルに渡すと、監視スクリプトが生成される
+# ============================================================
+
+# プロジェクト名（出力ヘッダーに表示）
+project_name: "Panzer Project"
+
+# セッション構成
+sessions:
+  # 司令部セッション
+  - name: "panzer-hq"
+    panes_count: 6
+    description: "司令部（miho, maho, yukari, saori, hana, mako）"
+
+  # 第1中隊セッション
+  - name: "panzer-1"
+    panes_count: 6
+    description: "第1中隊 Thunder-Chihatan Alliance"
+
+  # 第2中隊セッション
+  - name: "panzer-2"
+    panes_count: 6
+    description: "第2中隊 Pravda-Continuation Alliance"
+
+  # 第3中隊セッション
+  - name: "panzer-3"
+    panes_count: 6
+    description: "第3中隊 Kuromorimine-St.Gloriana Alliance"
+
+# busy判定キーワード（オプション）
+# 指定しない場合はデフォルトキーワードを使用
+busy_keywords:
+  - thinking
+  - Thinking
+  - Effecting
+  - reading
+  - Reading
+  - writing
+  - Writing
+  - Searching
+  - Running
+  - Executing
+  - Processing
+  - Loading
+  - Analyzing
+
+# idle判定キーワード（オプション）
+# 指定しない場合は "❯" を使用
+idle_indicator: "❯"
+
+# 出力設定（オプション）
+output:
+  # カラー出力を含めるか
+  include_colors: true
+  # ペインから取得する行数
+  capture_lines: 20

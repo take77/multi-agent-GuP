@@ -1,0 +1,17 @@
+[2026-01-29T15:51:53] [ERROR] MTGディレクトリが見つかりません: /home/take77-ubuntu-2/Developments/products/panzer-project/queue/meetings/mtg_test
+[2026-01-29T15:51:53] [WARNING] MTGディレクトリがないためデモモードで実行
+[2026-01-29T15:51:53] [INFO] MTG情報を読み込みました: mtg_test (type: general_meeting)
+[2026-01-29T15:51:53] [INFO] 参加者: miho maho yukari hana saori
+[2026-01-29T15:51:53] [INFO] 決定事項を抽出: 0件
+[2026-01-29T15:51:53] [INFO] アクションアイテムを抽出: 0件
+[2026-01-29T15:51:53] [SUCCESS] 議事録を生成しました: /home/take77-ubuntu-2/Developments/products/panzer-project/queue/meetings/minutes/mtg_test_minutes.yaml
+[2026-01-29T15:51:53] [INFO] 通知はスキップされました（--no-notify）
+[2026-01-29T16:21:50] [WARNING] schedule.yaml が見つかりません（スキップ）
+[2026-01-29T16:21:50] [INFO] MTG情報を読み込みました: mtg_mtg_20260129_162052 (type: general_meeting)
+[2026-01-29T16:21:50] [INFO] 参加者: miho maho yukari hana saori
+[2026-01-29T16:21:50] [INFO] 議論記録を読み込み: discussion.yaml
+[2026-01-29T16:21:50] [INFO] 議論記録を読み込み: discussion.yaml
+[2026-01-29T16:21:50] [INFO] 決定事項を抽出: 0件
+[2026-01-29T16:21:50] [INFO] アクションアイテムを抽出: 0件
+[2026-01-29T16:21:50] [SUCCESS] 議事録を生成しました: /home/take77-ubuntu-2/Developments/products/panzer-project/queue/meetings/minutes/mtg_mtg_20260129_162052_minutes.yaml
+[2026-01-29T16:21:50] [INFO] 通知はスキップされました（--no-notify）

@@ -1,0 +1,15 @@
+# Platoon 2 Configuration
+# Pravda-Continuation Alliance
+
+name: "Pravda-Continuation Alliance"
+leader: katyusha
+deputy: mika
+members:
+  - name: klara
+    role: frontend
+  - name: nonna
+    role: backend
+  - name: aki
+    role: design
+  - name: mikko
+    role: tester

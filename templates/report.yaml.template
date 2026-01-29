@@ -1,0 +1,84 @@
+# ============================================================
+# 報告テンプレート (Report Template)
+# ============================================================
+# 用途: 乗組員→副中隊長→中隊長への報告
+#
+# 使用方法:
+#   1. このテンプレートをコピー
+#   2. {{PLACEHOLDER}} を実際の値に置換
+#   3. 報告先の queue ディレクトリに配置
+#   4. send-keys で通知（副中隊長/中隊長宛）
+#
+# 配置先:
+#   - 乗組員→副中隊長: queue/platoon{{N}}/reports/{{WORKER_ID}}_report.yaml
+#   - 中隊長→司令部: queue/platoon_reports/platoon{{N}}_report.yaml
+# ============================================================
+
+# ─────────────────────────────────────────────────────────────
+# 必須フィールド (Required Fields)
+# ─────────────────────────────────────────────────────────────
+
+# 報告者ID
+worker_id: "{{WORKER_ID}}"
+
+# 対象タスクID
+task_id: "{{TASK_ID}}"
+
+# タイムスタンプ（ISO 8601形式）
+# 取得方法: date "+%Y-%m-%dT%H:%M:%S"
+timestamp: "{{TIMESTAMP}}"
+
+# ステータス: done / failed / blocked / in_progress
+status: "{{STATUS}}"
+
+# ─────────────────────────────────────────────────────────────
+# 結果フィールド (Result Fields)
+# ─────────────────────────────────────────────────────────────
+result:
+  # 結果サマリー（1-3文で簡潔に）
+  summary: |
+    {{SUMMARY}}
+
+  # 作成/変更したファイル
+  files_modified:
+    - path: "{{FILE_PATH_1}}"
+      action: created  # created / modified / deleted
+    # - path: "{{FILE_PATH_2}}"
+    #   action: modified
+
+  # 追加の詳細（オプション）
+  # details:
+  #   key1: value1
+  #   key2: value2
+
+  # 備考（オプション）
+  notes: |
+    {{NOTES}}
+
+# ─────────────────────────────────────────────────────────────
+# 【必須】スキル化候補の検討
+# ─────────────────────────────────────────────────────────────
+# 毎回必ず検討すること！
+#
+# 判断基準:
+#   - 他プロジェクトでも使えそう → found: true
+#   - 同じパターンを2回以上実行 → found: true
+#   - 他メンバーにも有用 → found: true
+#   - 手順や知識が必要な作業 → found: true
+# ─────────────────────────────────────────────────────────────
+skill_candidate:
+  # スキル化候補が見つかったか: true / false（必須！）
+  found: false
+
+  # found: true の場合、以下を記入
+  # name: "{{SKILL_NAME}}"           # 例: "readme-improver"
+  # description: "{{SKILL_DESC}}"    # 例: "README.mdを初心者向けに改善"
+  # reason: "{{SKILL_REASON}}"       # 例: "同じパターンを3回実行した"
+
+# ─────────────────────────────────────────────────────────────
+# ブロック情報（status: blocked の場合のみ）
+# ─────────────────────────────────────────────────────────────
+# blocker:
+#   type: "{{BLOCKER_TYPE}}"         # dependency / question / resource / bug
+#   description: "{{BLOCKER_DESC}}"
+#   needs: "{{WHAT_IS_NEEDED}}"      # 解決に必要なもの

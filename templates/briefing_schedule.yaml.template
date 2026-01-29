@@ -1,0 +1,93 @@
+# ============================================================
+# ブリーフィングスケジュールテンプレート (Briefing Schedule Template)
+# ============================================================
+# 用途: 中隊内ブリーフィング、司令部ブリーフィング、クロス中隊ブリーフィングのスケジュール定義
+#
+# 使用方法:
+#   1. このテンプレートをコピー
+#   2. {{PLACEHOLDER}} を実際の値に置換
+#   3. queue/briefings/schedule/ に配置
+#   4. 参加者に send-keys で通知
+#
+# 配置先:
+#   - 中隊内ブリーフィング: queue/platoon{{N}}/briefings/briefing_{{ID}}.yaml
+#   - 司令部ブリーフィング: queue/hq/briefings/briefing_{{ID}}.yaml
+# ============================================================
+
+# ─────────────────────────────────────────────────────────────
+# 必須フィールド (Required Fields)
+# ─────────────────────────────────────────────────────────────
+briefing:
+  # ブリーフィング ID（一意の識別子）
+  # 形式: briefing_YYYYMMDD_NNN
+  briefing_id: "{{BRIEFING_ID}}"
+
+  # ブリーフィング種別
+  # types: daily_standup / planning / review / retrospective / emergency / cross_platoon
+  type: "{{BRIEFING_TYPE}}"
+
+  # 主催者ID
+  organizer: "{{ORGANIZER_ID}}"
+
+  # タイムスタンプ（ISO 8601形式）
+  scheduled_time: "{{SCHEDULED_TIME}}"
+
+  # 所要時間（分）
+  duration_minutes: {{DURATION}}
+
+# ─────────────────────────────────────────────────────────────
+# 参加者 (Participants)
+# ─────────────────────────────────────────────────────────────
+participants:
+  # 必須参加者
+  required:
+    - "{{REQUIRED_PARTICIPANT_1}}"
+    - "{{REQUIRED_PARTICIPANT_2}}"
+    # - "{{REQUIRED_PARTICIPANT_3}}"
+
+  # 任意参加者（オプション）
+  # optional:
+  #   - "{{OPTIONAL_PARTICIPANT_1}}"
+
+# ─────────────────────────────────────────────────────────────
+# アジェンダ (Agenda)
+# ─────────────────────────────────────────────────────────────
+agenda:
+  - item: "{{AGENDA_ITEM_1}}"
+    duration_minutes: {{ITEM_1_DURATION}}
+    presenter: "{{PRESENTER_1}}"
+    # description: "{{ITEM_1_DESCRIPTION}}"
+
+  - item: "{{AGENDA_ITEM_2}}"
+    duration_minutes: {{ITEM_2_DURATION}}
+    presenter: "{{PRESENTER_2}}"
+
+  # - item: "{{AGENDA_ITEM_3}}"
+  #   duration_minutes: {{ITEM_3_DURATION}}
+  #   presenter: "{{PRESENTER_3}}"
+
+# ─────────────────────────────────────────────────────────────
+# 事前準備（オプション）
+# ─────────────────────────────────────────────────────────────
+# preparation:
+#   - participant: "{{PARTICIPANT_ID}}"
+#     task: "{{PREPARATION_TASK}}"
+#   - participant: "{{PARTICIPANT_ID_2}}"
+#     task: "{{PREPARATION_TASK_2}}"
+
+# ─────────────────────────────────────────────────────────────
+# メタデータ
+# ─────────────────────────────────────────────────────────────
+metadata:
+  # ステータス: scheduled / in_progress / completed / cancelled
+  status: scheduled
+
+  # 作成日時
+  created_at: "{{CREATED_TIMESTAMP}}"
+
+  # 関連タスク（オプション）
+  # related_tasks:
+  #   - "{{RELATED_TASK_ID}}"
+
+  # 議事録へのリンク（ブリーフィング後に追加）
+  # discussion_record: "queue/briefings/discussions/briefing_{{ID}}_discussion.yaml"

@@ -1,0 +1,57 @@
+# ============================================================
+# 複数セッション構成例
+# ============================================================
+# フルスタック開発環境向けの複数セッション構成
+
+project:
+  name: fullstack-app
+  work_dir: /home/user/projects/fullstack-app
+
+sessions:
+  # ------------------------------------------------------------
+  # フロントエンド開発セッション
+  # ------------------------------------------------------------
+  - name: frontend
+    panes:
+      - name: react
+        # React開発サーバー
+      - name: storybook
+        # Storybookサーバー
+      - name: tests
+        # テスト実行
+      - name: terminal
+        # 汎用ターミナル
+
+  # ------------------------------------------------------------
+  # バックエンド開発セッション
+  # ------------------------------------------------------------
+  - name: backend
+    panes:
+      - name: api
+        # APIサーバー
+      - name: worker
+        # バックグラウンドワーカー
+      - name: db
+        # データベースコンソール
+      - name: logs
+        # ログ監視
+
+  # ------------------------------------------------------------
+  # インフラ・運用セッション
+  # ------------------------------------------------------------
+  - name: infra
+    panes:
+      - name: docker
+        # Docker管理
+      - name: k8s
+        # Kubernetes操作
+      - name: monitoring
+        # モニタリング
+
+# 生成されるスクリプト: start_fullstack-app.sh
+#
+# 使用方法:
+#   ./start_fullstack-app.sh
+#   tmux attach -t frontend
+#   tmux attach -t backend
+#   tmux attach -t infra

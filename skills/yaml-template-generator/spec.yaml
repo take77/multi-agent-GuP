@@ -1,0 +1,252 @@
+# ============================================================
+# yaml-template-generator スキル仕様
+# ============================================================
+
+skill:
+  name: yaml-template-generator
+  version: "1.0"
+  description: |
+    プロジェクト通信用YAMLテンプレートを自動生成するスキル。
+    指示（order）、報告（report）、タスク（task）、MTG関連など、
+    マルチエージェントシステムで使用する様々なテンプレートを生成する。
+  category: template
+  author: panzer-project
+  proposed_by: member2
+  created: "2026-01-29"
+
+inputs:
+  - name: project_config
+    type: yaml
+    required: true
+    description: |
+      プロジェクト設定。名前、役割構成、キュー構造を定義。
+    schema:
+      project:
+        name: string
+        description: string
+      roles:
+        hierarchy: list[role]
+      queue_structure:
+        hq: string
+        platoon: string
+        reports: string
+        tasks: string
+      role:
+        level: integer
+        name: string
+        can_send_to: list[string]
+
+  - name: protocol_spec
+    type: yaml
+    required: false
+    description: |
+      通信プロトコル仕様。省略時はデフォルト値を使用。
+    default:
+      timestamp_format: "ISO 8601"
+      id_format: "{type}_{YYYYMMDD}_{NNN}"
+      status_values:
+        order: [pending, acknowledged, in_progress, completed]
+        task: [assigned, in_progress, done, blocked, failed]
+        report: [done, failed, blocked, in_progress]
+
+  - name: custom_fields
+    type: yaml
+    required: false
+    description: |
+      カスタムフィールド定義。各テンプレートに追加するフィールドを指定。
+    default: null
+
+outputs:
+  - name: order_template
+    type: yaml
+    path: templates/order.yaml.template
+    description: 指示テンプレート
+
+  - name: report_template
+    type: yaml
+    path: templates/report.yaml.template
+    description: 報告テンプレート
+
+  - name: task_template
+    type: yaml
+    path: templates/task.yaml.template
+    description: タスクテンプレート
+
+  - name: mtg_schedule_template
+    type: yaml
+    path: templates/mtg_schedule.yaml.template
+    description: MTGスケジュールテンプレート
+
+  - name: mtg_discussion_template
+    type: yaml
+    path: templates/mtg_discussion.yaml.template
+    description: MTG議事録テンプレート
+
+template_types:
+  - type: order
+    purpose: "指示の伝達（上位→下位）"
+    required_fields:
+      - order_id
+      - from
+      - to
+      - timestamp
+      - priority
+      - command
+    optional_fields:
+      - description
+      - expected_output
+      - deadline
+      - references
+      - depends_on
+
+  - type: report
+    purpose: "作業報告（下位→上位）"
+    required_fields:
+      - worker_id
+      - task_id
+      - timestamp
+      - status
+    optional_fields:
+      - result.summary
+      - result.files_modified
+      - result.notes
+      - skill_candidate
+      - blocker
+
+  - type: task
+    purpose: "タスク割り当て（中隊長→乗組員）"
+    required_fields:
+      - task_id
+      - parent_cmd
+      - description
+      - target_path
+      - status
+      - timestamp
+      - priority
+    optional_fields:
+      - assignee
+      - deadline
+      - depends_on
+      - project
+      - acceptance_criteria
+      - context
+
+  - type: mtg_schedule
+    purpose: "MTGスケジュール定義"
+    required_fields:
+      - mtg_id
+      - type
+      - organizer
+      - scheduled_time
+      - duration_minutes
+      - participants
+      - agenda
+    optional_fields:
+      - preparation
+      - metadata
+
+  - type: mtg_discussion
+    purpose: "MTG議事録"
+    required_fields:
+      - mtg_id
+      - timestamp
+      - participants
+      - decisions
+    optional_fields:
+      - discussion_points
+      - action_items
+      - next_steps
+
+workflow:
+  - step: 1
+    action: validate_input
+    description: 入力設定の検証
+    checks:
+      - project_name_present
+      - roles_defined
+      - queue_structure_valid
+
+  - step: 2
+    action: generate_order_template
+    description: 指示テンプレートを生成
+    input: project_config, protocol_spec
+    output: templates/order.yaml.template
+    features:
+      - header_comments
+      - required_fields
+      - optional_fields
+      - placeholders
+
+  - step: 3
+    action: generate_report_template
+    description: 報告テンプレートを生成
+    input: project_config, protocol_spec
+    output: templates/report.yaml.template
+    features:
+      - skill_candidate_section
+      - blocker_section
+      - result_structure
+
+  - step: 4
+    action: generate_task_template
+    description: タスクテンプレートを生成
+    input: project_config, protocol_spec
+    output: templates/task.yaml.template
+    features:
+      - context_section
+      - acceptance_criteria
+      - dependency_tracking
+
+  - step: 5
+    action: generate_mtg_templates
+    description: MTG関連テンプレートを生成
+    input: project_config
+    output:
+      - templates/mtg_schedule.yaml.template
+      - templates/mtg_discussion.yaml.template
+
+  - step: 6
+    action: validate_output
+    description: 生成されたテンプレートの検証
+    checks:
+      - valid_yaml_syntax
+      - placeholders_consistent
+      - comments_present
+
+placeholder_format:
+  pattern: "{{PLACEHOLDER_NAME}}"
+  examples:
+    - "{{ORDER_ID}}"
+    - "{{TIMESTAMP}}"
+    - "{{FROM_ID}}"
+    - "{{TO_ID}}"
+    - "{{PRIORITY}}"
+  naming_convention: "UPPER_SNAKE_CASE"
+
+examples:
+  - name: panzer-project-templates
+    description: ガルパン・マルチエージェントシステム用テンプレート
+    input:
+      file: examples/sample-config.yaml
+    output:
+      directory: examples/sample-templates/
+    notes: |
+      司令部→中隊→乗組員の3階層構造に対応した
+      テンプレート群の生成例。
+
+error_handling:
+  - error: missing_project_name
+    message: "プロジェクト名が指定されていません"
+    action: abort
+
+  - error: invalid_role_hierarchy
+    message: "役割階層が不正です: {details}"
+    action: abort
+
+  - error: invalid_queue_structure
+    message: "キュー構造が不正です: {details}"
+    action: abort
+
+  - error: template_write_failure
+    message: "テンプレート '{path}' の書き込みに失敗しました"
+    action: retry_or_abort

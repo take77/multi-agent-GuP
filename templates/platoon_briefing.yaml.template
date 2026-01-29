@@ -1,0 +1,217 @@
+# ============================================================
+# 中隊内ブリーフィングテンプレート (Platoon Briefing Template)
+# ============================================================
+# 用途: 中隊内ブリーフィング（中隊長主催、乗組員参加）
+#
+# 開催タイミング:
+#   - タスク受領時: 作戦分解・担当割当
+#   - 進捗確認: 作業中の状況共有
+#   - 完了時: レビュー・振り返り
+#
+# 使用方法:
+#   1. このテンプレートをコピー
+#   2. {{PLACEHOLDER}} を実際の値に置換
+#   3. queue/platoon{{N}}/briefings/ に配置
+#   4. 参加者に send-keys で通知
+#
+# 配置先: queue/platoon{{N}}/briefings/platoon_briefing_{{ID}}.yaml
+# ============================================================
+
+# ─────────────────────────────────────────────────────────────
+# 基本情報 (Basic Information)
+# ─────────────────────────────────────────────────────────────
+briefing:
+  briefing_id: "platoon{{N}}_briefing_{{BRIEFING_ID}}"
+  type: "{{BRIEFING_TYPE}}"  # kickoff / daily / review / technical
+  platoon: {{PLATOON_NUMBER}}  # 1, 2, or 3
+  organizer: "{{PLATOON_LEADER}}"  # kay / katyusha / darjeeling
+  datetime: "{{DATETIME}}"
+  duration_minutes: {{DURATION}}
+  location: "panzer-{{PLATOON_NUMBER}} session"
+  related_task: "{{PARENT_TASK_ID}}"
+
+# ─────────────────────────────────────────────────────────────
+# 参加者リスト (Participants)
+# ─────────────────────────────────────────────────────────────
+participants:
+  # 中隊長（主催者）
+  leader:
+    id: "{{PLATOON_LEADER}}"
+    role: 中隊長
+    status: required
+
+  # 副中隊長
+  deputy:
+    id: "{{PLATOON_DEPUTY}}"  # nishi / mika / erika
+    role: 副中隊長
+    status: required
+
+  # 乗組員（4名）
+  crew:
+    - id: "{{CREW_FRONTEND}}"
+      role: フロントエンド
+      status: required
+    - id: "{{CREW_BACKEND}}"
+      role: バックエンド
+      status: required
+    - id: "{{CREW_DESIGN}}"
+      role: デザイン
+      status: required
+    - id: "{{CREW_TEST}}"
+      role: テスト
+      status: required
+
+  # 記録者
+  recorder: "{{PLATOON_DEPUTY}}"  # 副中隊長が記録
+
+# ─────────────────────────────────────────────────────────────
+# アジェンダ (Agenda)
+# ─────────────────────────────────────────────────────────────
+agenda:
+  - order: 1
+    item: "タスク概要説明"
+    duration_minutes: 5
+    presenter: "{{PLATOON_LEADER}}"
+    description: "司令部からの指示内容を共有"
+
+  - order: 2
+    item: "タスク分解"
+    duration_minutes: 10
+    presenter: "{{PLATOON_LEADER}}"
+    description: "大タスクをサブタスクに分解"
+
+  - order: 3
+    item: "技術議論"
+    duration_minutes: 10
+    presenter: null  # 全員参加
+    description: "実装方針、技術選択、懸念点の議論"
+
+  - order: 4
+    item: "担当割当"
+    duration_minutes: 5
+    presenter: "{{PLATOON_LEADER}}"
+    description: "各サブタスクの担当者決定"
+
+  - order: 5
+    item: "スケジュール確認"
+    duration_minutes: 3
+    presenter: "{{PLATOON_DEPUTY}}"
+    description: "期限、マイルストーン確認"
+
+  - order: 6
+    item: "質疑応答"
+    duration_minutes: 5
+    presenter: null
+    description: "不明点の確認"
+
+  # 総時間: 38分
+
+# ─────────────────────────────────────────────────────────────
+# タスク分解 (Task Breakdown)
+# ─────────────────────────────────────────────────────────────
+task_breakdown:
+  parent_task:
+    id: "{{PARENT_TASK_ID}}"
+    description: "{{PARENT_TASK_DESC}}"
+    from: "{{FROM_HQ_OR_LEADER}}"
+
+  subtasks:
+    - id: "subtask_001"
+      description: "{{SUBTASK_1_DESC}}"
+      category: "{{CATEGORY_1}}"  # frontend / backend / design / test / documentation
+      estimated_hours: {{EST_HOURS_1}}
+      dependencies: []
+
+    - id: "subtask_002"
+      description: "{{SUBTASK_2_DESC}}"
+      category: "{{CATEGORY_2}}"
+      estimated_hours: {{EST_HOURS_2}}
+      dependencies:
+        - "subtask_001"
+
+    - id: "subtask_003"
+      description: "{{SUBTASK_3_DESC}}"
+      category: "{{CATEGORY_3}}"
+      estimated_hours: {{EST_HOURS_3}}
+      dependencies: []
+
+    - id: "subtask_004"
+      description: "{{SUBTASK_4_DESC}}"
+      category: "{{CATEGORY_4}}"
+      estimated_hours: {{EST_HOURS_4}}
+      dependencies:
+        - "subtask_002"
+        - "subtask_003"
+
+# ─────────────────────────────────────────────────────────────
+# 担当割当 (Task Assignment)
+# ─────────────────────────────────────────────────────────────
+assignments:
+  - subtask_id: "subtask_001"
+    assignee: "{{ASSIGNEE_1}}"
+    reviewer: "{{PLATOON_DEPUTY}}"
+    deadline: "{{DEADLINE_1}}"
+    priority: high
+
+  - subtask_id: "subtask_002"
+    assignee: "{{ASSIGNEE_2}}"
+    reviewer: "{{PLATOON_DEPUTY}}"
+    deadline: "{{DEADLINE_2}}"
+    priority: high
+
+  - subtask_id: "subtask_003"
+    assignee: "{{ASSIGNEE_3}}"
+    reviewer: "{{PLATOON_DEPUTY}}"
+    deadline: "{{DEADLINE_3}}"
+    priority: medium
+
+  - subtask_id: "subtask_004"
+    assignee: "{{ASSIGNEE_4}}"
+    reviewer: "{{PLATOON_DEPUTY}}"
+    deadline: "{{DEADLINE_4}}"
+    priority: medium
+
+# ─────────────────────────────────────────────────────────────
+# 技術議論 (Technical Discussion)
+# ─────────────────────────────────────────────────────────────
+technical_discussion:
+  - topic: "{{TECH_TOPIC_1}}"
+    raised_by: "{{RAISED_BY_1}}"
+    discussion: |
+      {{TECH_DISCUSSION_1}}
+    conclusion: "{{TECH_CONCLUSION_1}}"
+
+  # - topic: "{{TECH_TOPIC_2}}"
+  #   raised_by: "{{RAISED_BY_2}}"
+  #   discussion: |
+  #     {{TECH_DISCUSSION_2}}
+  #   conclusion: "{{TECH_CONCLUSION_2}}"
+
+# ─────────────────────────────────────────────────────────────
+# 決定事項 (Decisions)
+# ─────────────────────────────────────────────────────────────
+decisions:
+  - id: "dec_001"
+    description: "{{DECISION_1}}"
+    decided_by: "{{PLATOON_LEADER}}"
+    rationale: "{{RATIONALE_1}}"
+
+  # - id: "dec_002"
+  #   description: "{{DECISION_2}}"
+  #   decided_by: "{{PLATOON_LEADER}}"
+
+# ─────────────────────────────────────────────────────────────
+# 次のステップ (Next Steps)
+# ─────────────────────────────────────────────────────────────
+next_steps:
+  - "各担当者はサブタスクファイルを確認"
+  - "不明点があれば副中隊長に確認"
+  - "完了時は報告テンプレートで報告"
+
+# ─────────────────────────────────────────────────────────────
+# メタデータ
+# ─────────────────────────────────────────────────────────────
+metadata:
+  status: scheduled  # scheduled / in_progress / completed
+  created_at: "{{CREATED_TIMESTAMP}}"
+  follow_up_briefing: "{{FOLLOW_UP_DATE}}"

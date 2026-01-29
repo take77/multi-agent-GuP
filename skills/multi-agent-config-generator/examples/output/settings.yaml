@@ -1,0 +1,9 @@
+# System Settings - Panzer Project
+
+language: ja
+log_level: info
+worktree_base: worktrees/
+
+communication:
+  polling_disabled: true
+  method: send-keys

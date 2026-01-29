@@ -1,0 +1,15 @@
+# Platoon 1 Configuration
+# Thunder-Chihatan Alliance
+
+name: "Thunder-Chihatan Alliance"
+leader: kay
+deputy: nishi
+members:
+  - name: arisa
+    role: frontend
+  - name: naomi
+    role: backend
+  - name: tamada
+    role: design
+  - name: fukuda
+    role: tester

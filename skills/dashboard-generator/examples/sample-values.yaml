@@ -1,0 +1,61 @@
+# Sample Custom Values for dashboard-generator
+# テンプレートのプレースホルダーを置換するカスタム値
+
+project_name: "panzer-project"
+
+urgent:
+  - title: "スキル化候補 3件【承認待ち】"
+    items:
+      - name: "project-scaffold"
+        description: "プロジェクト雛形生成"
+        proposer: "チームメンバー1"
+        status: "✅作成済み"
+      - name: "character-yaml-generator"
+        description: "キャラ設定YAML生成"
+        proposer: "チームメンバー6"
+        status: "✅作成済み"
+      - name: "dashboard-generator"
+        description: "ダッシュボード自動生成"
+        proposer: "チームメンバー3"
+        status: "🔄作成中"
+
+in_progress:
+  - cmd_id: "cmd_001"
+    name: "Phase A 基盤構築"
+    tasks:
+      - id: "A1"
+        assignee: "チームメンバー1"
+        status: "🔄作業中"
+        description: "ディレクトリ構成作成"
+      - id: "A2"
+        assignee: "チームメンバー2"
+        status: "✅完了"
+        description: "tmuxスクリプト作成"
+
+completed:
+  - time: "14:52"
+    location: "panzer-project"
+    task: "A1: ディレクトリ構成作成"
+    result: "✅完了"
+  - time: "14:56"
+    location: "panzer-project"
+    task: "A3: 設定ファイル作成(5点)"
+    result: "✅完了"
+
+waiting:
+  - task_id: "S10"
+    reason: "空きチームメンバー待ち"
+  - task_id: "S11"
+    reason: "空きチームメンバー待ち"
+
+questions: []
+
+skill_candidates:
+  - name: "project-scaffold"
+    description: "プロジェクト雛形生成"
+    proposer: "チームメンバー1"
+    status: "approved"
+  - name: "dashboard-generator"
+    description: "ダッシュボード自動生成"
+    proposer: "チームメンバー3"
+    status: "pending"

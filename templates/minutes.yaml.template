@@ -1,0 +1,243 @@
+# ============================================================
+# MTG議事録テンプレート (Meeting Minutes Template)
+# ============================================================
+# 用途: MTGの議事録・決定事項・アクションアイテムの正式記録
+#
+# 使用方法:
+#   1. このテンプレートをコピー
+#   2. {{PLACEHOLDER}} を実際の値に置換
+#   3. MTG中または直後に記録
+#   4. 関係者に共有
+#
+# 配置先:
+#   - 司令部MTG:   queue/hq/minutes/mtg_{{ID}}.yaml
+#   - 中隊MTG:     queue/platoon{{N}}/minutes/mtg_{{ID}}.yaml
+#   - 全体MTG:     queue/battalion/minutes/mtg_{{ID}}.yaml
+#
+# 必須/オプションの凡例:
+#   [必須] - 必ず記入
+#   [オプション] - 該当する場合のみ記入
+# ============================================================
+
+# ═══════════════════════════════════════════════════════════════
+# 1. MTG基本情報 (Meeting Information) [必須]
+# ═══════════════════════════════════════════════════════════════
+meeting:
+  # MTG識別子 [必須]
+  # 形式: mtg_{type}_{YYYYMMDD}_{連番}
+  # 例: mtg_hq_20260129_001
+  mtg_id: "{{MTG_ID}}"
+
+  # MTGタイプ [必須]
+  # hq_meeting:       司令部会議（大隊長・副大隊長・参謀）
+  # platoon_meeting:  中隊会議（中隊長・副中隊長・メンバー）
+  # battalion_meeting: 全体会議（全員参加）
+  type: "{{MTG_TYPE}}"  # hq_meeting / platoon_meeting / battalion_meeting
+
+  # MTGタイトル [必須]
+  title: "{{MTG_TITLE}}"
+
+  # 開催日時 [必須]
+  # ISO 8601形式: YYYY-MM-DDTHH:MM:SS
+  datetime: "{{MTG_DATETIME}}"
+
+  # 所要時間（分） [必須]
+  duration_minutes: {{DURATION_MINUTES}}
+
+  # 主催者 [必須]
+  organizer: "{{ORGANIZER_ID}}"
+
+  # 記録者 [必須]
+  recorder: "{{RECORDER_ID}}"
+
+# ═══════════════════════════════════════════════════════════════
+# 2. 参加者リスト (Participants) [必須]
+# ═══════════════════════════════════════════════════════════════
+participants:
+  # 出席者リスト [必須]
+  attended:
+    - id: "{{ATTENDEE_ID_1}}"
+      name: "{{ATTENDEE_NAME_1}}"
+      role: "{{ATTENDEE_ROLE_1}}"
+    - id: "{{ATTENDEE_ID_2}}"
+      name: "{{ATTENDEE_NAME_2}}"
+      role: "{{ATTENDEE_ROLE_2}}"
+    # 追加の出席者...
+
+  # 欠席者リスト [オプション]
+  absent:
+    # - id: "{{ABSENT_ID_1}}"
+    #   name: "{{ABSENT_NAME_1}}"
+    #   reason: "{{ABSENT_REASON_1}}"  # 体調不良 / 別件対応 / 事前連絡なし
+
+# ═══════════════════════════════════════════════════════════════
+# 3. 議論内容の記録 (Discussion Records) [必須]
+# ═══════════════════════════════════════════════════════════════
+agenda:
+  # 議題1
+  - item_number: 1
+    # 議題タイトル [必須]
+    title: "{{AGENDA_TITLE_1}}"
+
+    # 発表者 [必須]
+    presenter: "{{PRESENTER_1}}"
+
+    # 議論内容 [必須]
+    discussion:
+      - speaker: "{{SPEAKER_1_1}}"
+        content: "{{CONTENT_1_1}}"
+        timestamp: "{{TIMESTAMP_1_1}}"  # HH:MM形式
+
+      - speaker: "{{SPEAKER_1_2}}"
+        content: "{{CONTENT_1_2}}"
+        timestamp: "{{TIMESTAMP_1_2}}"
+
+      # 追加の発言...
+
+    # 結論 [オプション]
+    conclusion: "{{CONCLUSION_1}}"
+
+  # 議題2
+  - item_number: 2
+    title: "{{AGENDA_TITLE_2}}"
+    presenter: "{{PRESENTER_2}}"
+    discussion:
+      - speaker: "{{SPEAKER_2_1}}"
+        content: "{{CONTENT_2_1}}"
+        timestamp: "{{TIMESTAMP_2_1}}"
+    conclusion: "{{CONCLUSION_2}}"
+
+  # 追加の議題...
+
+# ═══════════════════════════════════════════════════════════════
+# 4. 決定事項リスト (Decisions) [必須]
+# ═══════════════════════════════════════════════════════════════
+decisions:
+  # 決定事項1
+  - decision_id: "dec_{{MTG_ID}}_001"
+    # 決定内容 [必須]
+    description: "{{DECISION_DESCRIPTION_1}}"
+    # 決定者（最終承認者） [必須]
+    decided_by: "{{DECIDER_ID_1}}"
+    # 決定理由 [必須]
+    rationale: "{{DECISION_RATIONALE_1}}"
+    # 関連議題番号 [オプション]
+    related_agenda_item: 1
+    # 発効日 [オプション]
+    # effective_from: "{{EFFECTIVE_DATE_1}}"
+
+  # 決定事項2
+  - decision_id: "dec_{{MTG_ID}}_002"
+    description: "{{DECISION_DESCRIPTION_2}}"
+    decided_by: "{{DECIDER_ID_2}}"
+    rationale: "{{DECISION_RATIONALE_2}}"
+    related_agenda_item: 2
+
+  # 追加の決定事項...
+
+# ═══════════════════════════════════════════════════════════════
+# 5. アクションアイテム (Action Items) [必須]
+# ═══════════════════════════════════════════════════════════════
+action_items:
+  # アクション1
+  - action_id: "ai_{{MTG_ID}}_001"
+    # 内容 [必須]
+    description: "{{ACTION_DESCRIPTION_1}}"
+    # 担当者 [必須]
+    assignee: "{{ASSIGNEE_ID_1}}"
+    # 期限 [必須]
+    # ISO 8601形式: YYYY-MM-DD
+    deadline: "{{DEADLINE_1}}"
+    # 優先度 [必須]
+    priority: "{{PRIORITY_1}}"  # high / medium / low
+    # 状態 [必須]
+    status: pending  # pending / in_progress / done
+    # 関連決定事項 [オプション]
+    related_decision: "dec_{{MTG_ID}}_001"
+
+  # アクション2
+  - action_id: "ai_{{MTG_ID}}_002"
+    description: "{{ACTION_DESCRIPTION_2}}"
+    assignee: "{{ASSIGNEE_ID_2}}"
+    deadline: "{{DEADLINE_2}}"
+    priority: "{{PRIORITY_2}}"
+    status: pending
+
+  # 追加のアクションアイテム...
+
+# ═══════════════════════════════════════════════════════════════
+# 6. 次回MTG予定 (Next Meeting) [オプション]
+# ═══════════════════════════════════════════════════════════════
+next_meeting:
+  # 次回予定日時 [オプション]
+  scheduled_datetime: "{{NEXT_MTG_DATETIME}}"
+
+  # 次回議題案 [オプション]
+  agenda_preview:
+    - "{{NEXT_AGENDA_1}}"
+    - "{{NEXT_AGENDA_2}}"
+    # 追加の議題案...
+
+  # 確認事項（次回までに確認すべきこと） [オプション]
+  # pending_confirmations:
+  #   - "{{PENDING_CONFIRMATION_1}}"
+
+# ═══════════════════════════════════════════════════════════════
+# 備考 (Notes) [オプション]
+# ═══════════════════════════════════════════════════════════════
+# notes: |
+#   {{ADDITIONAL_NOTES}}
+
+# 添付資料 [オプション]
+# attachments:
+#   - name: "{{ATTACHMENT_NAME}}"
+#     path: "{{ATTACHMENT_PATH}}"
+#     type: "{{ATTACHMENT_TYPE}}"  # document / image / link
+
+# ═══════════════════════════════════════════════════════════════
+# メタデータ (Metadata)
+# ═══════════════════════════════════════════════════════════════
+metadata:
+  # テンプレートバージョン
+  template_version: "1.0"
+  # 作成日時
+  created_at: "{{CREATED_TIMESTAMP}}"
+  # 最終更新日時
+  updated_at: "{{UPDATED_TIMESTAMP}}"
+  # 承認状態 [オプション]
+  # approval:
+  #   approved_by: "{{APPROVER_ID}}"
+  #   approved_at: "{{APPROVAL_TIMESTAMP}}"
+
+# ============================================================
+# プレースホルダー一覧
+# ============================================================
+# {{MTG_ID}}              - MTG識別子 (例: mtg_hq_20260129_001)
+# {{MTG_TYPE}}            - MTGタイプ (hq_meeting/platoon_meeting/battalion_meeting)
+# {{MTG_TITLE}}           - MTGタイトル
+# {{MTG_DATETIME}}        - 開催日時 (ISO 8601)
+# {{DURATION_MINUTES}}    - 所要時間（分）
+# {{ORGANIZER_ID}}        - 主催者ID
+# {{RECORDER_ID}}         - 記録者ID
+# {{ATTENDEE_ID_N}}       - 出席者ID
+# {{ATTENDEE_NAME_N}}     - 出席者名
+# {{ATTENDEE_ROLE_N}}     - 出席者役割
+# {{ABSENT_ID_N}}         - 欠席者ID
+# {{AGENDA_TITLE_N}}      - 議題タイトル
+# {{PRESENTER_N}}         - 発表者
+# {{SPEAKER_N_M}}         - 発言者
+# {{CONTENT_N_M}}         - 発言内容
+# {{TIMESTAMP_N_M}}       - 発言時刻 (HH:MM)
+# {{CONCLUSION_N}}        - 議題の結論
+# {{DECISION_DESCRIPTION_N}} - 決定内容
+# {{DECIDER_ID_N}}        - 決定者ID
+# {{DECISION_RATIONALE_N}} - 決定理由
+# {{ACTION_DESCRIPTION_N}} - アクション内容
+# {{ASSIGNEE_ID_N}}       - 担当者ID
+# {{DEADLINE_N}}          - 期限 (YYYY-MM-DD)
+# {{PRIORITY_N}}          - 優先度 (high/medium/low)
+# {{NEXT_MTG_DATETIME}}   - 次回MTG予定日時
+# {{NEXT_AGENDA_N}}       - 次回議題案
+# {{CREATED_TIMESTAMP}}   - 作成日時
+# {{UPDATED_TIMESTAMP}}   - 最終更新日時
+# ============================================================

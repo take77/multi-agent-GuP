@@ -1,0 +1,268 @@
+# ============================================================
+# 大隊全体ブリーフィングテンプレート (Battalion Briefing Template)
+# ============================================================
+# 用途: 大隊全体ブリーフィング（みほ主催、全員参加）
+#
+# 開催タイミング:
+#   - プロジェクトキックオフ
+#   - マイルストーン達成時
+#   - 大規模方針変更時
+#   - 振り返り（レトロスペクティブ）
+#
+# 使用方法:
+#   1. このテンプレートをコピー
+#   2. {{PLACEHOLDER}} を実際の値に置換
+#   3. queue/battalion/briefings/ に配置
+#   4. 全員に send-keys で通知
+#
+# 配置先: queue/battalion/briefings/battalion_briefing_{{ID}}.yaml
+# ============================================================
+
+# ─────────────────────────────────────────────────────────────
+# 基本情報 (Basic Information)
+# ─────────────────────────────────────────────────────────────
+briefing:
+  briefing_id: "battalion_briefing_{{BRIEFING_ID}}"
+  type: "{{BRIEFING_TYPE}}"  # kickoff / milestone / policy / retrospective
+  organizer: miho
+  datetime: "{{DATETIME}}"
+  duration_minutes: {{DURATION}}  # 推奨: 60-90分
+  location: "全セッション（panzer-hq, panzer-1, panzer-2, panzer-3）"
+  project: "{{PROJECT_NAME}}"
+
+# ─────────────────────────────────────────────────────────────
+# 全参加者リスト (All Participants - 24名)
+# ─────────────────────────────────────────────────────────────
+participants:
+  # 司令部 (6名)
+  hq:
+    - {id: miho, role: 大隊長, session: "panzer-hq:0.0"}
+    - {id: maho, role: 副大隊長, session: "panzer-hq:0.1"}
+    - {id: yukari, role: 情報参謀, session: "panzer-hq:0.2"}
+    - {id: saori, role: 通信参謀, session: "panzer-hq:0.3"}
+    - {id: hana, role: 記録参謀, session: "panzer-hq:0.4"}
+    - {id: mako, role: 技術参謀, session: "panzer-hq:0.5"}
+
+  # 第1中隊 (6名)
+  platoon_1:
+    - {id: kay, role: 中隊長, session: "panzer-1:0.0"}
+    - {id: nishi, role: 副中隊長, session: "panzer-1:0.1"}
+    - {id: arisa, role: フロント, session: "panzer-1:0.2"}
+    - {id: naomi, role: バックエンド, session: "panzer-1:0.3"}
+    - {id: tamada, role: デザイン, session: "panzer-1:0.4"}
+    - {id: fukuda, role: テスト, session: "panzer-1:0.5"}
+
+  # 第2中隊 (6名)
+  platoon_2:
+    - {id: katyusha, role: 中隊長, session: "panzer-2:0.0"}
+    - {id: mika, role: 副中隊長, session: "panzer-2:0.1"}
+    - {id: klara, role: フロント, session: "panzer-2:0.2"}
+    - {id: nonna, role: バックエンド, session: "panzer-2:0.3"}
+    - {id: aki, role: デザイン, session: "panzer-2:0.4"}
+    - {id: mikko, role: テスト, session: "panzer-2:0.5"}
+
+  # 第3中隊 (6名)
+  platoon_3:
+    - {id: darjeeling, role: 中隊長, session: "panzer-3:0.0"}
+    - {id: erika, role: 副中隊長, session: "panzer-3:0.1"}
+    - {id: orange_pekoe, role: フロント, session: "panzer-3:0.2"}
+    - {id: koume, role: バックエンド, session: "panzer-3:0.3"}
+    - {id: assam, role: デザイン, session: "panzer-3:0.4"}
+    - {id: rukuriri, role: テスト, session: "panzer-3:0.5"}
+
+  # 記録者
+  recorder: hana
+
+# ─────────────────────────────────────────────────────────────
+# アジェンダ (Agenda)
+# ─────────────────────────────────────────────────────────────
+agenda:
+  - order: 1
+    item: "開会挨拶"
+    duration_minutes: 3
+    presenter: miho
+    description: "ブリーフィングの目的と重要性を伝える"
+    notes: |
+      みほ: 「みんな、集まってくれてありがとう。
+            今日は大事な話があるから、しっかり聞いてね。」
+
+  - order: 2
+    item: "プロジェクト概要 / マイルストーン確認"
+    duration_minutes: 10
+    presenter: maho
+    description: "全体像とスケジュールを共有"
+
+  - order: 3
+    item: "各中隊の役割説明"
+    duration_minutes: 15
+    presenter: null  # 各中隊長
+    sub_items:
+      - presenter: kay
+        content: "第1中隊の担当領域と方針"
+      - presenter: katyusha
+        content: "第2中隊の担当領域と方針"
+      - presenter: darjeeling
+        content: "第3中隊の担当領域と方針"
+
+  - order: 4
+    item: "技術方針・アーキテクチャ説明"
+    duration_minutes: 10
+    presenter: mako
+    description: "技術スタック、開発環境、規約"
+
+  - order: 5
+    item: "コミュニケーション方針"
+    duration_minutes: 5
+    presenter: saori
+    description: "報告フロー、ブリーフィングスケジュール、ツール"
+
+  - order: 6
+    item: "全体質疑応答"
+    duration_minutes: 15
+    presenter: null  # 全員参加
+    description: "不明点、懸念点の共有"
+
+  - order: 7
+    item: "閉会・激励"
+    duration_minutes: 2
+    presenter: miho
+    description: "士気向上、パンツァー・フォー！"
+    notes: |
+      みほ: 「みんな、一緒に最高のものを作ろう！
+            パンツァー・フォー！」
+
+  # 総時間: 60分
+
+# ─────────────────────────────────────────────────────────────
+# キックオフ議題 (Kickoff Topics)
+# ─────────────────────────────────────────────────────────────
+kickoff_topics:
+  project_overview:
+    name: "{{PROJECT_NAME}}"
+    goal: "{{PROJECT_GOAL}}"
+    background: |
+      {{PROJECT_BACKGROUND}}
+    success_criteria:
+      - "{{SUCCESS_CRITERIA_1}}"
+      - "{{SUCCESS_CRITERIA_2}}"
+      - "{{SUCCESS_CRITERIA_3}}"
+
+  scope:
+    in_scope:
+      - "{{IN_SCOPE_1}}"
+      - "{{IN_SCOPE_2}}"
+    out_of_scope:
+      - "{{OUT_OF_SCOPE_1}}"
+      - "{{OUT_OF_SCOPE_2}}"
+
+  constraints:
+    - type: deadline
+      description: "{{DEADLINE_CONSTRAINT}}"
+    - type: resource
+      description: "{{RESOURCE_CONSTRAINT}}"
+    # - type: technical
+    #   description: "{{TECHNICAL_CONSTRAINT}}"
+
+# ─────────────────────────────────────────────────────────────
+# マイルストーン (Milestones)
+# ─────────────────────────────────────────────────────────────
+milestones:
+  - id: "ms_001"
+    name: "{{MILESTONE_1_NAME}}"
+    target_date: "{{MILESTONE_1_DATE}}"
+    deliverables:
+      - "{{MS1_DELIVERABLE_1}}"
+      - "{{MS1_DELIVERABLE_2}}"
+    owner: "{{MS1_OWNER}}"
+    status: not_started  # not_started / in_progress / completed
+
+  - id: "ms_002"
+    name: "{{MILESTONE_2_NAME}}"
+    target_date: "{{MILESTONE_2_DATE}}"
+    deliverables:
+      - "{{MS2_DELIVERABLE_1}}"
+    owner: "{{MS2_OWNER}}"
+    status: not_started
+
+  - id: "ms_003"
+    name: "{{MILESTONE_3_NAME}}"
+    target_date: "{{MILESTONE_3_DATE}}"
+    deliverables:
+      - "{{MS3_DELIVERABLE_1}}"
+    owner: "{{MS3_OWNER}}"
+    status: not_started
+
+# ─────────────────────────────────────────────────────────────
+# 全体方針 (Overall Policies)
+# ─────────────────────────────────────────────────────────────
+policies:
+  development:
+    - "コードレビュー必須（副中隊長が担当）"
+    - "テストカバレッジ 80%以上"
+    - "ドキュメント更新は実装と同時"
+
+  communication:
+    - "報告は YAML テンプレートを使用"
+    - "ブロック事項は即時報告"
+    - "中隊ブリーフィングは最低週1回"
+
+  quality:
+    - "リリース前に全中隊でレビュー"
+    - "セキュリティチェック必須"
+    - "パフォーマンステスト実施"
+
+# ─────────────────────────────────────────────────────────────
+# 議論記録 (Discussion Notes)
+# ─────────────────────────────────────────────────────────────
+discussion_notes:
+  - topic: "{{DISCUSSION_TOPIC_1}}"
+    raised_by: "{{RAISED_BY_1}}"
+    summary: |
+      {{DISCUSSION_SUMMARY_1}}
+    resolution: "{{RESOLUTION_1}}"
+
+  # - topic: "{{DISCUSSION_TOPIC_2}}"
+  #   raised_by: "{{RAISED_BY_2}}"
+  #   summary: |
+  #     {{DISCUSSION_SUMMARY_2}}
+
+# ─────────────────────────────────────────────────────────────
+# 決定事項 (Decisions)
+# ─────────────────────────────────────────────────────────────
+decisions:
+  - id: "dec_001"
+    description: "{{DECISION_1}}"
+    decided_by: miho
+    scope: battalion  # battalion / platoon-specific
+    effective_from: "{{EFFECTIVE_DATE}}"
+
+# ─────────────────────────────────────────────────────────────
+# アクションアイテム (Action Items)
+# ─────────────────────────────────────────────────────────────
+action_items:
+  - id: "ai_001"
+    description: "{{ACTION_ITEM_1}}"
+    assignee: "{{ASSIGNEE_1}}"
+    deadline: "{{DEADLINE_1}}"
+    priority: high
+
+  - id: "ai_002"
+    description: "{{ACTION_ITEM_2}}"
+    assignee: "{{ASSIGNEE_2}}"
+    deadline: "{{DEADLINE_2}}"
+    priority: high
+
+  - id: "ai_003"
+    description: "{{ACTION_ITEM_3}}"
+    assignee: "{{ASSIGNEE_3}}"
+    deadline: "{{DEADLINE_3}}"
+    priority: medium
+
+# ─────────────────────────────────────────────────────────────
+# メタデータ
+# ─────────────────────────────────────────────────────────────
+metadata:
+  status: scheduled  # scheduled / in_progress / completed
+  created_at: "{{CREATED_TIMESTAMP}}"
+  next_battalion_briefing: "{{NEXT_ブリーフィング_DATE}}"
+  recording_file: "{{RECORDING_PATH}}"

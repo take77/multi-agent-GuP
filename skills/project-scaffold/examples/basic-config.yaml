@@ -1,0 +1,32 @@
+# Basic Configuration Example
+# 3中隊構成の基本プロジェクト
+
+project:
+  name: "my-agent-project"
+  type: "multi-agent"
+  description: "基本的なマルチエージェントプロジェクト"
+
+structure:
+  platoons: 3
+
+  include:
+    - characters
+    - scripts
+    - instructions
+    - templates
+    - logs
+    - queue
+    - config
+    - worktrees
+    - status
+    - skills
+
+  logs:
+    subdirs:
+      - daily
+      - mtg
+
+options:
+  include_gitignore: true
+  include_templates: true
+  create_gitkeep: true

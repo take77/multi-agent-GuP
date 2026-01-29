@@ -1,0 +1,150 @@
+# ============================================================
+# multi-agent-config-generator スキル仕様
+# ============================================================
+
+skill:
+  name: multi-agent-config-generator
+  version: "1.0"
+  description: |
+    マルチエージェントシステムの階層的な設定ファイル群を生成するスキル。
+    組織構成（大隊、中隊等）の定義YAMLから、config/*.yaml一式を自動生成する。
+  category: configuration
+  author: panzer-project
+  created: "2026-01-29"
+
+inputs:
+  - name: organization_definition
+    type: yaml
+    required: true
+    description: |
+      組織構成定義。大隊名、司令官、副司令官、スタッフ、中隊一覧を含む。
+    schema:
+      battalion:
+        name: string
+        commander: string
+        deputy: string
+        staff: list[string]
+        platoons: list[platoon]
+      platoon:
+        id: string
+        name: string
+        leader: string
+        deputy: string
+        members: list[member]
+      member:
+        name: string
+        role: enum[frontend, backend, design, tester]
+
+  - name: settings_template
+    type: yaml
+    required: false
+    description: |
+      システム設定テンプレート。言語、ログレベル、通信方式等。
+      省略時はデフォルト値を使用。
+    default:
+      language: ja
+      log_level: info
+      worktree_base: worktrees/
+      communication:
+        polling_disabled: true
+        method: send-keys
+
+outputs:
+  - name: battalion_config
+    type: yaml
+    path: config/battalion.yaml
+    description: 大隊構成定義ファイル
+
+  - name: settings_config
+    type: yaml
+    path: config/settings.yaml
+    description: システム設定ファイル
+
+  - name: platoon_configs
+    type: yaml[]
+    path: config/platoons/{platoon_id}.yaml
+    description: 各中隊の設定ファイル
+
+workflow:
+  - step: 1
+    action: validate_input
+    description: 入力YAMLの検証
+    checks:
+      - required_fields_present
+      - valid_structure
+      - unique_ids
+
+  - step: 2
+    action: generate_battalion_config
+    description: 大隊設定ファイルを生成
+    input: organization_definition.battalion
+    output: config/battalion.yaml
+    template: |
+      name: "{battalion.name}"
+      commander: {battalion.commander}
+      deputy: {battalion.deputy}
+      staff:
+        {for staff in battalion.staff}
+        - {staff}
+        {endfor}
+      platoons:
+        {for platoon in battalion.platoons}
+        - {platoon.id}
+        {endfor}
+
+  - step: 3
+    action: generate_settings_config
+    description: システム設定ファイルを生成
+    input: settings_template
+    output: config/settings.yaml
+
+  - step: 4
+    action: generate_platoon_configs
+    description: 各中隊の設定ファイルを生成
+    input: organization_definition.battalion.platoons
+    output: config/platoons/{platoon.id}.yaml
+    template: |
+      name: "{platoon.name}"
+      leader: {platoon.leader}
+      deputy: {platoon.deputy}
+      members:
+        {for member in platoon.members}
+        - name: {member.name}
+          role: {member.role}
+        {endfor}
+
+  - step: 5
+    action: validate_output
+    description: 生成されたファイルの検証
+    checks:
+      - files_exist
+      - valid_yaml_syntax
+      - cross_references_valid
+
+examples:
+  - name: panzer-battalion-example
+    description: ガールズ&パンツァーをモチーフとした大隊構成
+    input:
+      file: examples/input.yaml
+    output:
+      directory: examples/output/
+    notes: |
+      3つの中隊（サンダース連合、プラウダ連合、黒森峰・聖グロ連合）を持つ
+      大隊構成の例。各中隊に4名のメンバーが所属。
+
+error_handling:
+  - error: missing_required_field
+    message: "必須項目 '{field}' がありません"
+    action: abort
+
+  - error: invalid_structure
+    message: "構造が不正です: {details}"
+    action: abort
+
+  - error: duplicate_id
+    message: "重複するID '{id}' が見つかりました"
+    action: abort
+
+  - error: output_write_failure
+    message: "ファイル '{path}' の書き込みに失敗しました"
+    action: retry_or_abort

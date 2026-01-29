@@ -1,0 +1,297 @@
+# ============================================================
+# git-worktree-manager スキル仕様
+# ============================================================
+
+skill:
+  name: git-worktree-manager
+  version: "1.0"
+  description: |
+    マルチエージェント用 Git Worktree 管理スクリプト生成スキル。
+    チーム/中隊ごとに独立したワークツリーを管理し、
+    並列開発を効率化する。
+  author: panzer-project
+  proposed_by: member5
+  tags:
+    - git
+    - worktree
+    - multi-agent
+    - automation
+    - shell
+
+# ============================================================
+# 入力定義
+# ============================================================
+inputs:
+  - name: project_path
+    type: string
+    required: true
+    description: |
+      プロジェクトのルートパス（絶対パス）。
+      Git リポジトリのルートディレクトリを指定する。
+
+  - name: worktrees_dir
+    type: string
+    required: false
+    default: "worktrees"
+    description: |
+      ワークツリーを配置するディレクトリ名。
+      project_path からの相対パス。
+
+  - name: worktree_naming
+    type: string
+    required: false
+    default: "{team}"
+    description: |
+      ワークツリーのディレクトリ命名規則。
+      利用可能な変数:
+      - {team}: チーム/中隊名
+      - {branch}: ブランチ名（スラッシュはアンダースコアに変換）
+
+  - name: teams
+    type: array
+    required: false
+    description: |
+      チーム/中隊の定義。指定しない場合は任意の名前で作成可能。
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          name:
+            type: string
+            description: チーム識別子（例: platoon1, team-alpha）
+          description:
+            type: string
+            description: チームの説明（例: 第1中隊）
+
+  - name: config_file
+    type: yaml_file
+    required: false
+    description: |
+      設定ファイル（worktree-config.yaml）。
+      上記パラメータを一括定義可能。
+    schema:
+      type: object
+      properties:
+        project:
+          type: object
+          properties:
+            name:
+              type: string
+            path:
+              type: string
+            worktrees_dir:
+              type: string
+        teams:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              description:
+                type: string
+        naming:
+          type: object
+          properties:
+            pattern:
+              type: string
+
+# ============================================================
+# 出力定義
+# ============================================================
+outputs:
+  - name: worktree_script
+    type: file
+    description: |
+      生成されるワークツリー管理スクリプト。
+      ファイル名: worktree.sh
+    location: "{project_path}/scripts/worktree.sh"
+
+# ============================================================
+# サブコマンド仕様
+# ============================================================
+subcommands:
+  - name: create
+    syntax: "create <team> <branch>"
+    description: 指定チームのワークツリーを作成
+    arguments:
+      - name: team
+        type: string
+        required: true
+        description: チーム/中隊名
+      - name: branch
+        type: string
+        required: true
+        description: ブランチ名（新規/既存どちらも可）
+    behavior: |
+      1. worktrees ディレクトリの存在確認・作成
+      2. 既存ワークツリーの重複チェック
+      3. ブランチの存在確認
+         - 存在する場合: そのブランチでワークツリー作成
+         - 存在しない場合: 新規ブランチを作成してワークツリー作成
+      4. 成功メッセージと次のステップを表示
+
+  - name: list
+    syntax: "list"
+    description: 全ワークツリーを一覧表示
+    behavior: |
+      1. git worktree list --porcelain でワークツリー情報を取得
+      2. パス、ブランチ、状態を整形して表示
+      3. detached HEAD の場合は警告色で表示
+
+  - name: switch
+    syntax: "switch <team> <branch>"
+    description: 指定ワークツリーでブランチを切り替え
+    arguments:
+      - name: team
+        type: string
+        required: true
+        description: チーム/中隊名
+      - name: branch
+        type: string
+        required: true
+        description: 切り替え先ブランチ名
+    behavior: |
+      1. ワークツリーの存在確認
+      2. 未コミットの変更確認（警告表示と確認プロンプト）
+      3. ブランチの存在確認
+         - 存在する場合: checkout
+         - 存在しない場合: checkout -b で新規作成
+
+  - name: cleanup
+    syntax: "cleanup <team> [--force]"
+    description: ワークツリーを削除
+    arguments:
+      - name: team
+        type: string
+        required: true
+        description: チーム/中隊名
+      - name: force
+        type: flag
+        required: false
+        description: 確認プロンプトをスキップ
+    behavior: |
+      1. ワークツリーの存在確認
+      2. --force でない場合:
+         - 未コミットの変更を表示
+         - 削除確認プロンプト
+      3. git worktree remove で削除
+      4. git worktree prune で残骸を掃除
+
+  - name: status
+    syntax: "status"
+    description: 全ワークツリーの git status を表示
+    behavior: |
+      1. メインワークツリーの状態を表示
+      2. 各サブワークツリーの状態を表示
+      3. ブランチ名と未コミット変更を表示
+
+# ============================================================
+# ワークフロー
+# ============================================================
+workflow:
+  - step: 1
+    action: read_config
+    description: |
+      設定ファイルまたはパラメータから設定を読み込む
+
+  - step: 2
+    action: validate_config
+    description: |
+      設定を検証する：
+      - project_path が Git リポジトリか確認
+      - チーム名の重複チェック
+      - 命名規則の変数チェック
+
+  - step: 3
+    action: generate_script_header
+    description: |
+      スクリプトのヘッダー部分を生成：
+      - shebang (#!/bin/bash)
+      - set -euo pipefail
+      - 色定義
+      - 変数定義（PROJECT_ROOT, WORKTREES_DIR）
+
+  - step: 4
+    action: generate_helper_functions
+    description: |
+      ヘルパー関数を生成：
+      - print_info, print_success, print_warning, print_error
+      - ensure_worktrees_dir
+      - cd_project_root
+
+  - step: 5
+    action: generate_subcommands
+    description: |
+      各サブコマンド関数を生成：
+      - cmd_create
+      - cmd_list
+      - cmd_switch
+      - cmd_cleanup
+      - cmd_status
+
+  - step: 6
+    action: generate_help_and_main
+    description: |
+      ヘルプ表示とメイン関数を生成：
+      - show_help
+      - main (引数パース、サブコマンド実行)
+
+  - step: 7
+    action: write_script
+    description: |
+      スクリプトをファイルに書き出し：
+      - 出力先: {project_path}/scripts/worktree.sh
+      - 実行権限を付与 (chmod +x)
+
+  - step: 8
+    action: report_completion
+    description: 生成完了を報告
+
+# ============================================================
+# 使用例
+# ============================================================
+examples:
+  - name: 基本的なマルチエージェント環境
+    input: |
+      project:
+        name: my-project
+        path: /home/user/my-project
+        worktrees_dir: worktrees
+
+      teams:
+        - name: platoon1
+          description: 第1中隊
+        - name: platoon2
+          description: 第2中隊
+    output: |
+      scripts/worktree.sh が生成される。
+      各中隊用のワークツリーを管理可能。
+
+  - name: ガルパン・マルチエージェントシステム
+    input: |
+      project:
+        name: panzer-project
+        path: /home/user/panzer-project
+        worktrees_dir: worktrees
+
+      teams:
+        - name: panzer-1
+          description: 第1中隊（サンダース/知波単）
+        - name: panzer-2
+          description: 第2中隊（プラウダ/継続）
+        - name: panzer-3
+          description: 第3中隊（聖グロ/黒森峰）
+    output: |
+      各中隊が独立したワークツリーで並列作業可能。
+
+# ============================================================
+# 注意事項
+# ============================================================
+notes:
+  - Git 2.5以上が必要（worktree サポート）
+  - Bash 4.0以上が必要
+  - ワークツリーは同一ブランチを共有不可
+  - 未コミットの変更がある状態での操作に注意
+  - ワークツリー削除時はブランチは残る（必要なら別途削除）

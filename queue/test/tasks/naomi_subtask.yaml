@@ -1,0 +1,52 @@
+# ============================================================
+# タスクテスト - 第1中隊内サブタスク割当
+# ============================================================
+# テストシナリオ: 中隊長(kay) → バックエンド担当(naomi)
+
+task:
+  task_id: "subtask_auth_001"
+  parent_cmd: "ord_20260129_001"
+  description: |
+    Google OAuth2.0認証のバックエンド実装を担当せよ。
+
+    要件：
+    - OAuth2.0フローの実装
+    - アクセストークン・リフレッシュトークンの管理
+    - セキュアなトークン保存
+
+    参考：
+    - templates/auth_flow.md
+    - https://developers.google.com/identity/protocols/oauth2
+
+  target_path: "src/auth/"
+  status: assigned
+  timestamp: "2026-01-29T16:25:00"
+  priority: "high"
+
+assignee: "naomi"
+deadline: "2026-01-30T18:00:00"
+
+depends_on:
+  - task_id: "subtask_config_001"
+    type: blocks
+
+project:
+  name: "panzer-project"
+  context_file: "context/panzer-project.md"
+
+acceptance_criteria:
+  - "OAuth2.0認証フローが動作すること"
+  - "トークンの自動更新が機能すること"
+  - "ユニットテストのカバレッジが80%以上"
+
+context:
+  files_to_read:
+    - "docs/security/auth_requirements.md"
+    - "src/config/settings.py"
+  tech_stack:
+    - "Python 3.11"
+    - "FastAPI"
+    - "httpx"
+
+notes: |
+  フロントエンド担当（arisa）と連携してコールバックURLを確認すること。

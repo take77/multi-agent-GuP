@@ -1,0 +1,24 @@
+# ============================================================
+# シンプルなセッション構成例
+# ============================================================
+# 単一セッションで基本的な開発環境を構築する例
+
+project:
+  name: simple-dev
+  work_dir: /home/user/projects/simple-dev
+
+sessions:
+  - name: dev
+    panes:
+      - name: editor
+        # メインのコードエディタ用
+      - name: terminal
+        # コマンド実行用
+      - name: logs
+        # ログ監視用
+
+# 生成されるスクリプト: start_simple-dev.sh
+#
+# 使用方法:
+#   ./start_simple-dev.sh
+#   tmux attach -t dev

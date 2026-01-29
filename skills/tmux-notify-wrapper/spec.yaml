@@ -1,0 +1,340 @@
+# tmux-notify-wrapper Skill Specification
+# Version: 1.0
+
+skill:
+  name: tmux-notify-wrapper
+  version: "1.0"
+  description: |
+    tmux send-keys の2回分割送信を自動化するヘルパースクリプト生成スキル。
+    マルチエージェントシステムにおけるエージェント間通知を安全かつ確実に行う。
+    ペイン存在確認、エラーハンドリング、ログ機能を備えたスクリプトを自動生成。
+  author: member1
+  created: "2026-01-29"
+  tags:
+    - tmux
+    - send-keys
+    - notification
+    - multi-agent
+    - shell-script
+    - automation
+
+inputs:
+  - name: project_path
+    type: string
+    required: true
+    description: |
+      スクリプトを生成するプロジェクトのルートディレクトリパス。
+      scripts/ ディレクトリにスクリプトが生成される。
+
+  - name: session_naming
+    type: object
+    required: false
+    description: |
+      tmuxセッションの命名規則設定。
+    properties:
+      prefix:
+        type: string
+        default: ""
+        description: セッション名のプレフィックス（例: "panzer", "battalion"）
+      separator:
+        type: string
+        default: ":"
+        description: セッションとウィンドウの区切り文字
+      pane_format:
+        type: string
+        default: "window.pane"
+        description: ペイン指定形式（例: "0.0", "0:0"）
+
+  - name: log_dir
+    type: string
+    required: false
+    default: "./logs"
+    description: |
+      ログファイルの出力先ディレクトリ。
+      相対パスの場合はプロジェクトルートからの相対パス。
+
+  - name: config
+    type: object
+    required: false
+    description: |
+      詳細設定。
+    properties:
+      wait_after_message:
+        type: number
+        default: 0.1
+        description: メッセージ送信後の待機時間（秒）
+      retry_count:
+        type: integer
+        default: 0
+        description: 失敗時のリトライ回数（0でリトライなし）
+      retry_delay:
+        type: number
+        default: 0.5
+        description: リトライ間隔（秒）
+      log_level:
+        type: string
+        default: "INFO"
+        enum: ["DEBUG", "INFO", "WARN", "ERROR"]
+        description: ログレベル
+      color_output:
+        type: boolean
+        default: true
+        description: カラー出力の有効/無効
+      log_to_file:
+        type: boolean
+        default: true
+        description: ファイルへのログ出力有効/無効
+      log_to_stdout:
+        type: boolean
+        default: true
+        description: 標準出力へのログ出力有効/無効
+
+outputs:
+  - name: notify_script
+    type: file
+    description: |
+      生成されたメインスクリプト。
+      通常は scripts/notify.sh として出力。
+
+  - name: generation_report
+    type: object
+    description: |
+      生成レポート。以下を含む：
+      - script_path: 生成されたスクリプトのパス
+      - log_dir: ログ出力先ディレクトリ
+      - features_enabled: 有効化された機能一覧
+      - config_applied: 適用された設定
+
+workflow:
+  - step: 1
+    action: validate_inputs
+    description: 入力パラメータのバリデーション
+    details:
+      - project_pathの存在確認
+      - session_namingの形式チェック
+      - log_dirのパス正規化
+
+  - step: 2
+    action: create_directories
+    description: 必要なディレクトリの作成
+    details:
+      - scripts/ ディレクトリ作成
+      - log_dir ディレクトリ作成
+
+  - step: 3
+    action: generate_script_header
+    description: スクリプトヘッダーの生成
+    details:
+      - シェバン
+      - スクリプト説明コメント
+      - 使用例コメント
+
+  - step: 4
+    action: generate_config_section
+    description: 設定セクションの生成
+    details:
+      - 作業ディレクトリ設定
+      - ログ設定
+      - カラーコード定義
+
+  - step: 5
+    action: generate_log_functions
+    description: ログ関数の生成
+    details:
+      - log_to_file()
+      - log_info()
+      - log_success()
+      - log_warn()
+      - log_error()
+
+  - step: 6
+    action: generate_check_functions
+    description: 確認関数の生成
+    details:
+      - usage()
+      - check_session_exists()
+      - check_pane_exists()
+
+  - step: 7
+    action: generate_send_function
+    description: 送信関数の生成
+    details:
+      - send_message() - 2回分割送信
+      - リトライロジック（設定された場合）
+
+  - step: 8
+    action: generate_main_function
+    description: メイン関数の生成
+    details:
+      - 引数チェック
+      - 存在確認呼び出し
+      - 送信実行
+      - 結果ログ出力
+
+  - step: 9
+    action: write_script
+    description: スクリプトファイルの書き込み
+    details:
+      - ファイル書き込み
+      - 実行権限付与 (chmod +x)
+
+  - step: 10
+    action: generate_report
+    description: 生成レポートの作成
+    details:
+      - 生成されたファイル一覧
+      - 適用された設定
+      - 使用方法の案内
+
+generated_script_structure:
+  header:
+    - shebang: "#!/bin/bash"
+    - description: スクリプトの説明
+    - usage_examples: 使用例
+
+  config_section:
+    - script_dir: スクリプトのディレクトリ
+    - project_dir: プロジェクトのルートディレクトリ
+    - log_dir: ログ出力先
+    - log_file: ログファイルパス
+    - color_codes: ANSIカラーコード
+
+  functions:
+    log_to_file:
+      description: ファイルへのログ出力
+      parameters:
+        - level: ログレベル
+        - message: メッセージ
+
+    log_info:
+      description: 情報ログ出力
+      parameters:
+        - message: メッセージ
+
+    log_success:
+      description: 成功ログ出力
+      parameters:
+        - message: メッセージ
+
+    log_warn:
+      description: 警告ログ出力
+      parameters:
+        - message: メッセージ
+
+    log_error:
+      description: エラーログ出力
+      parameters:
+        - message: メッセージ
+
+    usage:
+      description: 使用方法の表示
+      exit_code: 1
+
+    check_session_exists:
+      description: セッション存在確認
+      parameters:
+        - target: 対象ペイン指定
+      return: 0=存在, 1=不存在
+
+    check_pane_exists:
+      description: ペイン存在確認
+      parameters:
+        - target: 対象ペイン指定
+      return: 0=存在, 1=不存在
+
+    send_message:
+      description: 2回分割送信の実行
+      parameters:
+        - target: 対象ペイン
+        - message: 送信メッセージ
+      return: 0=成功, 1=失敗
+
+    main:
+      description: メイン処理
+      parameters:
+        - target_pane: 対象ペイン
+        - message: 送信メッセージ
+
+error_codes:
+  0: 成功
+  1: 引数不足または不正
+  2: セッションが存在しない
+  3: ペインが存在しない
+  4: メッセージ送信失敗
+  5: Enter送信失敗
+
+features:
+  session_check:
+    description: 送信前にセッションの存在を確認
+    enabled_by_default: true
+
+  pane_check:
+    description: 送信前にペインの存在を確認
+    enabled_by_default: true
+
+  logging:
+    description: 送信履歴をログファイルに記録
+    enabled_by_default: true
+
+  color_output:
+    description: ターミナル出力に色を付ける
+    enabled_by_default: true
+
+  retry:
+    description: 失敗時のリトライ機能
+    enabled_by_default: false
+    config_key: retry_count
+
+  wait_stabilization:
+    description: メッセージ送信後の安定化待機
+    enabled_by_default: true
+    config_key: wait_after_message
+
+examples:
+  - name: basic_project
+    description: 基本的なプロジェクトでのスクリプト生成
+    input:
+      project_path: "/path/to/project"
+    output:
+      script_path: "/path/to/project/scripts/notify.sh"
+      features:
+        - session_check
+        - pane_check
+        - logging
+        - color_output
+
+  - name: custom_session_naming
+    description: カスタムセッション命名規則を指定
+    input:
+      project_path: "/path/to/project"
+      session_naming:
+        prefix: "panzer"
+        separator: "-"
+    output:
+      script_path: "/path/to/project/scripts/notify.sh"
+
+  - name: with_retry
+    description: リトライ機能を有効化
+    input:
+      project_path: "/path/to/project"
+      config:
+        retry_count: 3
+        retry_delay: 0.5
+    output:
+      script_path: "/path/to/project/scripts/notify.sh"
+      features:
+        - session_check
+        - pane_check
+        - logging
+        - color_output
+        - retry
+
+  - name: minimal_logging
+    description: ログ出力を最小限に
+    input:
+      project_path: "/path/to/project"
+      config:
+        log_level: "ERROR"
+        log_to_stdout: false
+    output:
+      script_path: "/path/to/project/scripts/notify.sh"

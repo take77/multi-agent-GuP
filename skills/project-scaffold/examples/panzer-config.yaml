@@ -1,0 +1,63 @@
+# Panzer Project Configuration Example
+# panzer-project と同等の構成
+
+project:
+  name: "panzer-project"
+  type: "multi-agent"
+  description: "ガールズ＆パンツァーをモチーフにしたマルチエージェント開発基盤"
+
+structure:
+  platoons: 3
+
+  include:
+    - characters
+    - scripts
+    - instructions
+    - templates
+    - logs
+    - queue
+    - config
+    - worktrees
+    - status
+    - skills
+
+  logs:
+    subdirs:
+      - daily
+      - mtg
+
+  queue:
+    hq: true
+    per_platoon:
+      - tasks
+      - reports
+
+  config:
+    subdirs:
+      - platoons
+
+hierarchy:
+  commander: "miho"
+  deputy: "maho"
+  staff:
+    - yukari
+    - saori
+    - hana
+    - mako
+  platoons:
+    platoon1:
+      leader: "miho"
+      name: "Ankou Team Alliance"
+    platoon2:
+      leader: "maho"
+      name: "Nishizumi Alliance"
+    platoon3:
+      leader: "darjeeling"
+      name: "Kuromorimine-St.Gloriana Alliance"
+
+options:
+  include_gitignore: true
+  include_templates: true
+  create_gitkeep: true
+  generate_battalion_yaml: true
+  generate_platoon_yamls: true

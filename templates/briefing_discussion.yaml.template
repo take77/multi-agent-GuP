@@ -1,0 +1,117 @@
+# ============================================================
+# ブリーフィング議事内容テンプレート (Briefing Discussion Template)
+# ============================================================
+# 用途: ブリーフィングの議事録・決定事項・アクションアイテムの記録
+#
+# 使用方法:
+#   1. このテンプレートをコピー
+#   2. {{PLACEHOLDER}} を実際の値に置換
+#   3. ブリーフィング中または直後に記録
+#   4. 関係者に共有
+#
+# 配置先:
+#   - queue/briefings/discussions/briefing_{{ID}}_discussion.yaml
+#   - queue/platoon{{N}}/briefings/discussions/
+# ============================================================
+
+# ─────────────────────────────────────────────────────────────
+# 必須フィールド (Required Fields)
+# ─────────────────────────────────────────────────────────────
+briefing:
+  # ブリーフィング ID（スケジュールと対応）
+  briefing_id: "{{BRIEFING_ID}}"
+
+  # ブリーフィングトピック/タイトル
+  topic: "{{BRIEFING_TOPIC}}"
+
+  # 実施日時
+  held_at: "{{HELD_TIMESTAMP}}"
+
+  # 参加者（実際に参加した人）
+  attendees:
+    - "{{ATTENDEE_1}}"
+    - "{{ATTENDEE_2}}"
+    # - "{{ATTENDEE_3}}"
+
+  # 記録者
+  recorder: "{{RECORDER_ID}}"
+
+# ─────────────────────────────────────────────────────────────
+# 議論ポイント (Discussion Points)
+# ─────────────────────────────────────────────────────────────
+discussion_points:
+  - topic: "{{DISCUSSION_TOPIC_1}}"
+    summary: |
+      {{DISCUSSION_SUMMARY_1}}
+    raised_by: "{{RAISED_BY_1}}"
+    # opinions:
+    #   - speaker: "{{SPEAKER_1}}"
+    #     point: "{{OPINION_1}}"
+
+  - topic: "{{DISCUSSION_TOPIC_2}}"
+    summary: |
+      {{DISCUSSION_SUMMARY_2}}
+    raised_by: "{{RAISED_BY_2}}"
+
+  # - topic: "{{DISCUSSION_TOPIC_3}}"
+  #   summary: |
+  #     {{DISCUSSION_SUMMARY_3}}
+
+# ─────────────────────────────────────────────────────────────
+# 決定事項 (Decisions)
+# ─────────────────────────────────────────────────────────────
+decisions:
+  - id: "dec_001"
+    description: "{{DECISION_1}}"
+    decided_by: "{{DECIDER_1}}"
+    rationale: "{{RATIONALE_1}}"
+    # effective_from: "{{EFFECTIVE_DATE}}"
+
+  # - id: "dec_002"
+  #   description: "{{DECISION_2}}"
+  #   decided_by: "{{DECIDER_2}}"
+
+# ─────────────────────────────────────────────────────────────
+# アクションアイテム (Action Items)
+# ─────────────────────────────────────────────────────────────
+action_items:
+  - id: "ai_001"
+    description: "{{ACTION_ITEM_1}}"
+    assignee: "{{ASSIGNEE_1}}"
+    deadline: "{{DEADLINE_1}}"
+    priority: "{{PRIORITY_1}}"  # high / medium / low
+    status: pending  # pending / in_progress / completed
+
+  - id: "ai_002"
+    description: "{{ACTION_ITEM_2}}"
+    assignee: "{{ASSIGNEE_2}}"
+    deadline: "{{DEADLINE_2}}"
+    priority: "{{PRIORITY_2}}"
+    status: pending
+
+  # - id: "ai_003"
+  #   description: "{{ACTION_ITEM_3}}"
+  #   assignee: "{{ASSIGNEE_3}}"
+  #   deadline: "{{DEADLINE_3}}"
+  #   priority: "{{PRIORITY_3}}"
+  #   status: pending
+
+# ─────────────────────────────────────────────────────────────
+# 次回ブリーフィング（オプション）
+# ─────────────────────────────────────────────────────────────
+# next_briefing:
+#   scheduled_time: "{{NEXT_ブリーフィング_TIME}}"
+#   agenda_preview:
+#     - "{{NEXT_AGENDA_1}}"
+#     - "{{NEXT_AGENDA_2}}"
+
+# ─────────────────────────────────────────────────────────────
+# 備考・その他
+# ─────────────────────────────────────────────────────────────
+# notes: |
+#   {{ADDITIONAL_NOTES}}
+
+# 添付資料（オプション）
+# attachments:
+#   - name: "{{ATTACHMENT_NAME}}"
+#     path: "{{ATTACHMENT_PATH}}"

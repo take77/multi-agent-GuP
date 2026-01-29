@@ -1,0 +1,64 @@
+# ============================================================
+# 入力例: ガールズ&パンツァー大隊構成
+# ============================================================
+# このファイルをスキルに渡すと、config/配下のファイル群が生成される
+
+battalion:
+  name: "panzer-battalion"
+  commander: miho
+  deputy: maho
+  staff:
+    - yukari
+    - saori
+    - hana
+    - mako
+  platoons:
+    - id: platoon1
+      name: "Thunder-Chihatan Alliance"
+      leader: kay
+      deputy: nishi
+      members:
+        - name: arisa
+          role: frontend
+        - name: naomi
+          role: backend
+        - name: tamada
+          role: design
+        - name: fukuda
+          role: tester
+
+    - id: platoon2
+      name: "Pravda-Continuation Alliance"
+      leader: katyusha
+      deputy: mika
+      members:
+        - name: klara
+          role: frontend
+        - name: nonna
+          role: backend
+        - name: aki
+          role: design
+        - name: mikko
+          role: tester
+
+    - id: platoon3
+      name: "Kuromorimine-St.Gloriana Alliance"
+      leader: darjeeling
+      deputy: erika
+      members:
+        - name: orange_pekoe
+          role: frontend
+        - name: koume
+          role: backend
+        - name: assam
+          role: design
+        - name: rukuriri
+          role: tester
+
+settings:
+  language: ja
+  log_level: info
+  worktree_base: worktrees/
+  communication:
+    polling_disabled: true
+    method: send-keys

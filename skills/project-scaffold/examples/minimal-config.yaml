@@ -1,0 +1,21 @@
+# Minimal Configuration Example
+# 最小構成のプロジェクト
+
+project:
+  name: "minimal-project"
+  type: "multi-agent"
+  description: "最小構成のマルチエージェントプロジェクト"
+
+structure:
+  platoons: 1
+
+  include:
+    - characters
+    - queue
+    - config
+    - status
+
+options:
+  include_gitignore: true
+  include_templates: false
+  create_gitkeep: false

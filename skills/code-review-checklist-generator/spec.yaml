@@ -1,0 +1,359 @@
+# code-review-checklist-generator Skill Specification
+# Version: 1.0
+
+skill:
+  name: code-review-checklist-generator
+  version: "1.0"
+  description: |
+    プロジェクト設定に応じたコードレビューチェックリストを自動生成するスキル。
+    技術スタックを自動検出し、そのスタックに最適化されたチェックリストを
+    Markdown形式で出力する。カスタムルールの追加にも対応。
+  author: member2
+  created: "2026-01-29"
+  tags:
+    - code-review
+    - checklist
+    - quality
+    - automation
+    - multi-stack
+
+inputs:
+  - name: project_path
+    type: string
+    required: true
+    description: |
+      検査対象のプロジェクトルートディレクトリパス。
+      このパスから技術スタックを自動検出する。
+
+  - name: config_yaml
+    type: file
+    required: false
+    description: |
+      カスタム設定ファイルパス。以下の設定が可能：
+      - custom_rules: プロジェクト固有のルール追加
+      - disabled_rules: 特定ルールの無効化
+      - severity_overrides: 重要度の上書き
+
+  - name: custom_rules
+    type: array
+    required: false
+    description: |
+      インラインでカスタムルールを指定。
+      各ルールは { category, item, severity? } の形式。
+    items:
+      type: object
+      properties:
+        category:
+          type: string
+          description: チェック項目のカテゴリ
+        item:
+          type: string
+          description: チェック項目の内容
+        severity:
+          type: string
+          enum: [critical, high, medium, low]
+          default: medium
+
+  - name: output_format
+    type: string
+    required: false
+    default: "markdown"
+    description: 出力形式
+    enum:
+      - markdown
+      - yaml
+      - json
+
+  - name: include_common_rules
+    type: boolean
+    required: false
+    default: true
+    description: 共通ルール（機能性、可読性、セキュリティ等）を含めるか
+
+outputs:
+  - name: checklist_md
+    type: file
+    description: 生成されたチェックリストファイル（Markdown形式）
+
+  - name: detected_stack
+    type: array
+    description: |
+      検出された技術スタックの一覧。
+      例: ["react", "typescript", "node"]
+
+  - name: generation_report
+    type: object
+    description: |
+      生成レポート。以下を含む：
+      - project_name: プロジェクト名
+      - detected_files: 検出に使用したファイル
+      - categories_count: カテゴリ数
+      - items_count: チェック項目数
+      - custom_rules_applied: 適用されたカスタムルール数
+
+workflow:
+  - step: 1
+    action: validate_inputs
+    description: 入力パラメータのバリデーション
+    details:
+      - project_pathの存在確認
+      - config_yamlが指定された場合の形式チェック
+      - custom_rulesの形式チェック
+
+  - step: 2
+    action: detect_tech_stack
+    description: 技術スタックの自動検出
+    details:
+      - package.json の解析（React, Vue, Angular, TypeScript等）
+      - Gemfile の解析（Rails, Ruby gems）
+      - requirements.txt / pyproject.toml の解析（Python, Django等）
+      - go.mod の解析（Go）
+      - Cargo.toml の解析（Rust）
+      - pom.xml / build.gradle の解析（Java, Kotlin）
+
+  - step: 3
+    action: load_stack_rules
+    description: 検出されたスタック用のルールを読み込み
+    details:
+      - 各スタック固有のチェック項目を取得
+      - 共通ルールとのマージ
+
+  - step: 4
+    action: apply_custom_rules
+    description: カスタムルールの適用
+    details:
+      - config_yamlからのルール読み込み
+      - custom_rulesパラメータからのルール追加
+      - disabled_rulesの除外
+      - severity_overridesの適用
+
+  - step: 5
+    action: generate_checklist
+    description: チェックリストの生成
+    details:
+      - カテゴリ別にチェック項目を整理
+      - Markdown形式でフォーマット
+      - メタデータの追加
+
+  - step: 6
+    action: write_output
+    description: 出力ファイルの書き込み
+    details:
+      - 指定形式での出力
+      - 生成レポートの作成
+
+tech_stack_detection:
+  package_json:
+    file: "package.json"
+    detection_rules:
+      - dependency: "react"
+        stack: "react"
+      - dependency: "react-dom"
+        stack: "react"
+      - dependency: "vue"
+        stack: "vue"
+      - dependency: "@angular/core"
+        stack: "angular"
+      - dependency: "typescript"
+        stack: "typescript"
+      - dependency: "next"
+        stack: "nextjs"
+      - dependency: "express"
+        stack: "express"
+      - devDependency: "jest"
+        stack: "jest"
+      - devDependency: "vitest"
+        stack: "vitest"
+      - devDependency: "playwright"
+        stack: "playwright"
+
+  gemfile:
+    file: "Gemfile"
+    detection_rules:
+      - gem: "rails"
+        stack: "rails"
+      - gem: "rspec"
+        stack: "rspec"
+      - gem: "rubocop"
+        stack: "rubocop"
+
+  python:
+    files:
+      - "requirements.txt"
+      - "pyproject.toml"
+      - "setup.py"
+    detection_rules:
+      - package: "django"
+        stack: "django"
+      - package: "flask"
+        stack: "flask"
+      - package: "fastapi"
+        stack: "fastapi"
+      - package: "pytest"
+        stack: "pytest"
+
+  go_mod:
+    file: "go.mod"
+    detection_rules:
+      - module_exists: true
+        stack: "go"
+
+  cargo_toml:
+    file: "Cargo.toml"
+    detection_rules:
+      - package_exists: true
+        stack: "rust"
+
+stack_specific_rules:
+  react:
+    - category: "React コンポーネント"
+      items:
+        - "コンポーネントの責務が単一か"
+        - "適切なコンポーネント分割がされているか"
+        - "propsの型定義があるか"
+        - "デフォルトpropsが適切か"
+    - category: "React Hooks"
+      items:
+        - "useEffectの依存配列が正しいか"
+        - "不要なuseEffectがないか"
+        - "カスタムフックに分離できるロジックがないか"
+        - "useCallbackとuseMemoが適切に使われているか"
+    - category: "React 状態管理"
+      items:
+        - "状態の配置が適切か（リフトアップ/コロケーション）"
+        - "不要な状態がないか"
+        - "派生状態を計算で求めているか"
+    - category: "React パフォーマンス"
+      items:
+        - "不要な再レンダリングがないか"
+        - "React.memoが適切に使われているか"
+        - "キーが適切に設定されているか"
+
+  typescript:
+    - category: "TypeScript 型定義"
+      items:
+        - "any型を使用していないか"
+        - "unknown型を適切に使っているか"
+        - "型の再利用ができているか"
+        - "ジェネリクスが適切に使われているか"
+    - category: "TypeScript null安全性"
+      items:
+        - "null/undefinedチェックがあるか"
+        - "Optional Chainingを使っているか"
+        - "Nullish Coalescingを適切に使っているか"
+    - category: "TypeScript strict"
+      items:
+        - "strictNullChecksが有効か"
+        - "noImplicitAnyが有効か"
+
+  rails:
+    - category: "Rails N+1クエリ"
+      items:
+        - "includes/preloadが適切に使われているか"
+        - "Bulletの警告が出ていないか"
+        - "不要なクエリがないか"
+    - category: "Rails セキュリティ"
+      items:
+        - "Strong Parametersが使われているか"
+        - "CSRF対策がされているか"
+        - "SQLインジェクション対策がされているか"
+        - "mass assignmentの脆弱性がないか"
+    - category: "Rails バリデーション"
+      items:
+        - "モデルバリデーションが適切か"
+        - "DBレベルの制約があるか"
+    - category: "Rails テスト"
+      items:
+        - "RSpec/Minitestテストがあるか"
+        - "ファクトリが適切に定義されているか"
+
+  python:
+    - category: "Python 型ヒント"
+      items:
+        - "関数に型ヒントがあるか"
+        - "戻り値の型が明示されているか"
+        - "Optionalが適切に使われているか"
+    - category: "Python 例外処理"
+      items:
+        - "適切な例外がraiseされているか"
+        - "except節が具体的か（bare exceptを避けているか）"
+    - category: "Python PEP8"
+      items:
+        - "命名規則に従っているか"
+        - "インデントが正しいか"
+        - "行の長さが適切か"
+
+  go:
+    - category: "Go エラーハンドリング"
+      items:
+        - "エラーが適切にハンドリングされているか"
+        - "エラーを無視していないか"
+        - "エラーラッピングが適切か"
+    - category: "Go 並行処理"
+      items:
+        - "goroutineリークがないか"
+        - "適切なsync機構を使っているか"
+        - "contextが適切に伝播されているか"
+
+common_rules:
+  - category: "機能性"
+    items:
+      - "要件を満たしているか"
+      - "エッジケースが考慮されているか"
+      - "エラーハンドリングが適切か"
+  - category: "可読性"
+    items:
+      - "変数名・関数名が明確か"
+      - "コメントが適切に書かれているか"
+      - "複雑なロジックに説明があるか"
+  - category: "保守性"
+    items:
+      - "重複コードがないか"
+      - "適切に分割されているか"
+      - "将来の変更に対応しやすいか"
+  - category: "セキュリティ"
+    items:
+      - "入力値の検証があるか"
+      - "機密情報がハードコードされていないか"
+      - "脆弱性がないか"
+  - category: "パフォーマンス"
+    items:
+      - "非効率な処理がないか"
+      - "適切なインデックスが使われているか"
+  - category: "テスト"
+    items:
+      - "ユニットテストがあるか"
+      - "テストケースが十分か"
+      - "テストが通っているか"
+
+examples:
+  - name: react_typescript_project
+    description: React + TypeScript プロジェクトのチェックリスト生成
+    input:
+      project_path: "/path/to/react-ts-project"
+    output:
+      detected_stack: ["react", "typescript", "jest"]
+      categories_count: 12
+      items_count: 45
+
+  - name: rails_project
+    description: Rails プロジェクトのチェックリスト生成
+    input:
+      project_path: "/path/to/rails-project"
+    output:
+      detected_stack: ["rails", "rspec"]
+      categories_count: 10
+      items_count: 38
+
+  - name: custom_rules_example
+    description: カスタムルールを追加したチェックリスト生成
+    input:
+      project_path: "/path/to/project"
+      custom_rules:
+        - category: "社内規約"
+          item: "ログ出力形式が統一されているか"
+          severity: "high"
+    output:
+      detected_stack: ["react", "typescript"]
+      categories_count: 13
+      items_count: 46

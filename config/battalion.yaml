@@ -1,0 +1,15 @@
+# Battalion Configuration - Panzer Project
+# Multi-agent system inspired by Girls und Panzer
+
+name: "panzer-battalion"
+commander: miho
+deputy: maho
+staff:
+  - yukari
+  - saori
+  - hana
+  - mako
+platoons:
+  - platoon1
+  - platoon2
+  - platoon3

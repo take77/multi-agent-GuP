@@ -1,0 +1,205 @@
+# project-scaffold Skill Specification
+# Version: 1.0
+
+skill:
+  name: project-scaffold
+  version: "1.0"
+  description: |
+    マルチエージェントプロジェクトの雛形ディレクトリ構造を一括作成するスキル。
+    設定YAMLに基づいて、プロジェクト固有のディレクトリ構造とテンプレートファイルを自動生成する。
+  author: member7
+  created: "2026-01-29"
+  tags:
+    - scaffold
+    - project-setup
+    - multi-agent
+    - directory-structure
+
+inputs:
+  - name: project_name
+    type: string
+    required: true
+    description: プロジェクト名（ディレクトリ名としても使用）
+    validation:
+      pattern: "^[a-z0-9-]+$"
+      max_length: 50
+
+  - name: config_yaml
+    type: file
+    required: true
+    description: |
+      構成定義YAML。以下の形式を期待：
+      - project.type: プロジェクトタイプ
+      - structure.platoons: 中隊数
+      - structure.include: 含めるディレクトリ一覧
+
+  - name: output_path
+    type: string
+    required: false
+    default: "./"
+    description: 出力先パス
+
+  - name: include_gitignore
+    type: boolean
+    required: false
+    default: true
+    description: .gitignore を生成するか
+
+  - name: include_templates
+    type: boolean
+    required: false
+    default: true
+    description: テンプレートファイルを配置するか
+
+outputs:
+  - name: project_directory
+    type: directory
+    description: 生成されたプロジェクトディレクトリ
+
+  - name: generation_report
+    type: object
+    description: |
+      生成レポート。以下を含む：
+      - created_directories: 作成されたディレクトリ一覧
+      - created_files: 作成されたファイル一覧
+      - total_count: 合計数
+
+workflow:
+  - step: 1
+    action: validate_inputs
+    description: 入力パラメータのバリデーション
+    details:
+      - project_name の形式チェック
+      - config_yaml の存在確認
+      - output_path の書き込み権限確認
+
+  - step: 2
+    action: parse_config
+    description: 構成YAMLの解析
+    details:
+      - YAML形式の検証
+      - 必須フィールドの確認
+      - 中隊数の取得
+
+  - step: 3
+    action: create_base_directories
+    description: 基本ディレクトリの作成
+    details:
+      - プロジェクトルートディレクトリ
+      - characters/, scripts/, instructions/ など
+
+  - step: 4
+    action: create_platoon_directories
+    description: 中隊別ディレクトリの作成
+    details:
+      - queue/platoon{N}/tasks/
+      - queue/platoon{N}/reports/
+      - worktrees/platoon{N}/
+      - config/platoons/
+
+  - step: 5
+    action: create_log_directories
+    description: ログディレクトリの作成
+    details:
+      - logs/daily/
+      - logs/mtg/
+
+  - step: 6
+    action: place_template_files
+    description: テンプレートファイルの配置
+    condition: include_templates == true
+    details:
+      - 各ディレクトリに必要なテンプレート配置
+      - .gitkeep ファイルの配置
+
+  - step: 7
+    action: generate_gitignore
+    description: .gitignore の生成
+    condition: include_gitignore == true
+    details:
+      - 一般的な除外パターン
+      - logs/, status/ の除外
+
+  - step: 8
+    action: generate_report
+    description: 生成レポートの作成
+    details:
+      - 作成したディレクトリ・ファイルの一覧
+      - 成功/失敗のサマリ
+
+directory_template:
+  base:
+    - characters
+    - scripts
+    - instructions
+    - templates
+    - config
+    - status
+    - skills
+
+  nested:
+    logs:
+      - daily
+      - mtg
+    queue:
+      - hq
+      # platoon{N} は動的生成
+    config:
+      - platoons
+
+  per_platoon:
+    queue:
+      - tasks
+      - reports
+    worktrees: []  # 空ディレクトリ
+
+gitignore_template: |
+  # Logs
+  logs/
+  *.log
+
+  # Status (runtime)
+  status/
+
+  # OS files
+  .DS_Store
+  Thumbs.db
+
+  # Editor
+  .vscode/
+  .idea/
+  *.swp
+  *.swo
+
+  # Environment
+  .env
+  .env.local
+
+examples:
+  - name: basic_3_platoons
+    description: 3中隊構成の基本プロジェクト
+    input:
+      project_name: "my-agent-project"
+      config_yaml: "examples/basic-config.yaml"
+    output:
+      directories: 25
+      files: 8
+
+  - name: minimal
+    description: 最小構成
+    input:
+      project_name: "minimal-project"
+      config_yaml: "examples/minimal-config.yaml"
+      include_templates: false
+    output:
+      directories: 10
+      files: 1
+
+  - name: panzer_project
+    description: panzer-project と同等の構成
+    input:
+      project_name: "panzer-project"
+      config_yaml: "examples/panzer-config.yaml"
+    output:
+      directories: 26
+      files: 10

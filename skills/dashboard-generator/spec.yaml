@@ -1,0 +1,284 @@
+# dashboard-generator Skill Specification
+# Version: 1.0
+
+skill:
+  name: dashboard-generator
+  version: "1.0"
+  description: |
+    テンプレートからプレースホルダーを置換してdashboard.mdを自動生成するスキル。
+    プロジェクトの状況を一目で把握できるダッシュボードを動的に構築する。
+  author: member7
+  proposed_by: member3
+  created: "2026-01-29"
+  tags:
+    - dashboard
+    - template
+    - placeholder
+    - status
+    - reporting
+
+inputs:
+  - name: template_path
+    type: string
+    required: true
+    description: |
+      テンプレートファイルのパス。
+      {{PLACEHOLDER}} 形式のプレースホルダーを含むMarkdownファイル。
+    example: "templates/dashboard.md.template"
+
+  - name: project_name
+    type: string
+    required: true
+    description: プロジェクト名
+    example: "panzer-project"
+
+  - name: status_yaml
+    type: string
+    required: false
+    description: |
+      状態ファイルのパス。タスク状況やスキル候補等を動的に取得。
+      指定しない場合、静的なテンプレート置換のみ実行。
+    example: "status/master_status.yaml"
+
+  - name: custom_values
+    type: file
+    required: false
+    description: |
+      カスタム置換値を定義したYAMLファイル。
+      任意のプレースホルダーと置換値を定義可能。
+    example: "custom-values.yaml"
+
+  - name: output_path
+    type: string
+    required: false
+    default: "dashboard.md"
+    description: 出力先ファイルパス
+
+  - name: timestamp_format
+    type: string
+    required: false
+    default: "%Y-%m-%d %H:%M"
+    description: タイムスタンプのフォーマット
+
+  - name: include_sections
+    type: array
+    required: false
+    default:
+      - urgent
+      - in_progress
+      - completed
+      - waiting
+      - questions
+    description: 含めるセクション一覧
+
+outputs:
+  - name: dashboard_md
+    type: file
+    description: 生成されたdashboard.mdファイル
+
+  - name: generation_report
+    type: object
+    description: |
+      生成レポート。以下を含む：
+      - placeholders_replaced: 置換されたプレースホルダー一覧
+      - sections_included: 含まれたセクション一覧
+      - data_sources: 使用したデータソース
+      - warnings: 警告（未置換プレースホルダー等）
+
+workflow:
+  - step: 1
+    action: validate_inputs
+    description: 入力パラメータのバリデーション
+    details:
+      - template_pathの存在確認
+      - status_yamlの存在確認（指定時）
+      - custom_valuesの形式確認（指定時）
+
+  - step: 2
+    action: load_template
+    description: テンプレートファイルの読み込み
+    details:
+      - テンプレートファイルをメモリに読み込み
+      - プレースホルダーの検出と一覧化
+
+  - step: 3
+    action: collect_values
+    description: 置換値の収集
+    details:
+      - 基本値の設定（PROJECT_NAME, TIMESTAMP等）
+      - status_yamlからのデータ取得（指定時）
+      - custom_valuesからのデータ取得（指定時）
+      - 優先順位: custom_values > status_yaml > defaults
+
+  - step: 4
+    action: build_dynamic_sections
+    description: 動的セクションの構築
+    details:
+      - TASK_TABLEの生成
+      - SKILL_CANDIDATESの生成
+      - DAILY_ACHIEVEMENTSの生成
+      - PLATOON_STATUSの生成
+
+  - step: 5
+    action: replace_placeholders
+    description: プレースホルダーの置換
+    details:
+      - 全プレースホルダーを順次置換
+      - 未置換プレースホルダーの警告
+
+  - step: 6
+    action: filter_sections
+    description: セクションのフィルタリング
+    details:
+      - include_sectionsに基づくフィルタリング
+      - 空セクションの処理
+
+  - step: 7
+    action: write_output
+    description: 出力ファイルの書き込み
+    details:
+      - output_pathへの書き込み
+      - 権限設定
+
+  - step: 8
+    action: generate_report
+    description: 生成レポートの作成
+    details:
+      - 置換結果のサマリ
+      - 警告の集約
+
+placeholders:
+  basic:
+    - name: "{{PROJECT_NAME}}"
+      description: プロジェクト名
+      source: input.project_name
+
+    - name: "{{TIMESTAMP}}"
+      description: 生成日時
+      source: system.now
+      format: "%Y-%m-%d %H:%M"
+
+    - name: "{{DATE}}"
+      description: 日付のみ
+      source: system.now
+      format: "%Y-%m-%d"
+
+    - name: "{{TIME}}"
+      description: 時刻のみ
+      source: system.now
+      format: "%H:%M"
+
+  sections:
+    - name: "{{SECTION_URGENT}}"
+      description: 要対応セクション
+      source: status_yaml.urgent
+
+    - name: "{{SECTION_IN_PROGRESS}}"
+      description: 進行中タスク
+      source: status_yaml.in_progress
+
+    - name: "{{SECTION_COMPLETED}}"
+      description: 完了タスク
+      source: status_yaml.completed
+
+    - name: "{{SECTION_WAITING}}"
+      description: 待機中タスク
+      source: status_yaml.waiting
+
+    - name: "{{SECTION_QUESTIONS}}"
+      description: 伺い事項
+      source: status_yaml.questions
+
+  dynamic:
+    - name: "{{TASK_TABLE}}"
+      description: タスク一覧テーブル
+      source: status_yaml.tasks
+      format: markdown_table
+
+    - name: "{{SKILL_CANDIDATES}}"
+      description: スキル化候補一覧
+      source: status_yaml.skill_candidates
+      format: markdown_table
+
+    - name: "{{DAILY_ACHIEVEMENTS}}"
+      description: 本日の戦果
+      source: status_yaml.achievements
+      format: markdown_table
+
+    - name: "{{PLATOON_STATUS}}"
+      description: 中隊別状況
+      source: status_yaml.platoons
+      format: markdown_list
+
+status_yaml_schema:
+  urgent:
+    type: array
+    items:
+      - title: string
+      - description: string
+      - priority: enum[high, medium, low]
+
+  in_progress:
+    type: array
+    items:
+      - cmd_id: string
+      - name: string
+      - tasks: array
+
+  completed:
+    type: array
+    items:
+      - time: string
+      - location: string
+      - task: string
+      - result: string
+
+  waiting:
+    type: array
+    items:
+      - task_id: string
+      - reason: string
+
+  questions:
+    type: array
+    items:
+      - question: string
+      - context: string
+
+  skill_candidates:
+    type: array
+    items:
+      - name: string
+      - description: string
+      - proposer: string
+      - status: enum[pending, approved, rejected]
+
+examples:
+  - name: basic_generation
+    description: 基本的なダッシュボード生成
+    input:
+      template_path: "templates/dashboard.md.template"
+      project_name: "panzer-project"
+    output:
+      file: "dashboard.md"
+      placeholders_replaced: 4
+
+  - name: with_status_yaml
+    description: 状態YAMLを使用した動的生成
+    input:
+      template_path: "templates/dashboard.md.template"
+      project_name: "panzer-project"
+      status_yaml: "status/master_status.yaml"
+    output:
+      file: "dashboard.md"
+      placeholders_replaced: 12
+
+  - name: custom_values
+    description: カスタム値を使用した生成
+    input:
+      template_path: "templates/dashboard.md.template"
+      project_name: "panzer-project"
+      custom_values: "custom-values.yaml"
+    output:
+      file: "dashboard.md"
+      placeholders_replaced: 8
