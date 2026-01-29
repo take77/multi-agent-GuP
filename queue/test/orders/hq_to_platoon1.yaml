@@ -31,4 +31,4 @@ details:
 metadata:
   status: pending
   parent_order_id: "cmd_010"
-  project: "panzer-project"
+  project: "multi-agent-GuP"

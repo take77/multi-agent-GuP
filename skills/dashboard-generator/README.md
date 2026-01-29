@@ -23,7 +23,7 @@
 # ダッシュボードを生成
 generate-dashboard \
   --template templates/dashboard.md.template \
-  --project "panzer-project" \
+  --project "multi-agent-GuP" \
   --output dashboard.md
 ```
 
@@ -53,7 +53,7 @@ generate-dashboard \
 
 | プレースホルダー | 説明 | 例 |
 |------------------|------|-----|
-| `{{PROJECT_NAME}}` | プロジェクト名 | panzer-project |
+| `{{PROJECT_NAME}}` | プロジェクト名 | multi-agent-GuP |
 | `{{TIMESTAMP}}` | 生成日時 | 2026-01-29 15:47 |
 | `{{DATE}}` | 日付 | 2026-01-29 |
 | `{{TIME}}` | 時刻 | 15:47 |
@@ -110,7 +110,7 @@ generate-dashboard \
 
 ## 参考
 
-このスキルは `panzer-project` の `dashboard.md` を参考に設計された。
+このスキルは `multi-agent-GuP` の `dashboard.md` を参考に設計された。
 
 ## バージョン
 

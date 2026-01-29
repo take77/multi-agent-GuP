@@ -39,8 +39,8 @@ naming:
 # ガルパン・マルチエージェント向け設定例
 # ------------------------------------------------------------
 # project:
-#   name: panzer-project
-#   path: /home/user/panzer-project
+#   name: multi-agent-GuP
+#   path: /home/user/multi-agent-GuP
 #   worktrees_dir: worktrees
 #
 # teams:

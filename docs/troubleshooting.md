@@ -297,8 +297,8 @@ echo -n "bash: "; bash --version | head -1
 
 ```bash
 # 1. リポジトリをクローン
-git clone <repository-url> panzer-project
-cd panzer-project
+git clone <repository-url> multi-agent-GuP
+cd multi-agent-GuP
 
 # 2. 必要なツールをインストール
 sudo apt update

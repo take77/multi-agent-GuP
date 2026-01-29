@@ -8,7 +8,7 @@
 # プロジェクト名のみ指定
 generate-dashboard \
   --template templates/dashboard.md.template \
-  --project "panzer-project" \
+  --project "multi-agent-GuP" \
   --output dashboard.md
 ```
 
@@ -16,9 +16,9 @@ generate-dashboard \
 
 ```
 [INFO] Loading template: templates/dashboard.md.template
-[INFO] Project name: panzer-project
+[INFO] Project name: multi-agent-GuP
 [INFO] Replacing placeholders...
-  - {{PROJECT_NAME}} → panzer-project
+  - {{PROJECT_NAME}} → multi-agent-GuP
   - {{TIMESTAMP}} → 2026-01-29 15:50
   - {{DATE}} → 2026-01-29
   - {{TIME}} → 15:50
@@ -35,7 +35,7 @@ generate-dashboard \
 ```bash
 generate-dashboard \
   --template templates/dashboard.md.template \
-  --project "panzer-project" \
+  --project "multi-agent-GuP" \
   --status status/master_status.yaml \
   --output dashboard.md
 ```
@@ -61,7 +61,7 @@ generate-dashboard \
 ```bash
 generate-dashboard \
   --template templates/dashboard.md.template \
-  --project "panzer-project" \
+  --project "multi-agent-GuP" \
   --values custom-values.yaml \
   --output dashboard.md
 ```
@@ -88,7 +88,7 @@ SECTION_URGENT: |
 ```bash
 generate-dashboard \
   --template templates/dashboard.md.template \
-  --project "panzer-project" \
+  --project "multi-agent-GuP" \
   --include-sections "urgent,in_progress" \
   --output dashboard.md
 ```
@@ -108,7 +108,7 @@ generate-dashboard \
 ```bash
 generate-dashboard \
   --template templates/dashboard.md.template \
-  --project "panzer-project" \
+  --project "multi-agent-GuP" \
   --timestamp-format "%Y年%m月%d日 %H時%M分" \
   --output dashboard.md
 ```
@@ -152,7 +152,7 @@ generate-dashboard \
 # crontab -e
 */5 * * * * /path/to/generate-dashboard \
   --template /path/to/templates/dashboard.md.template \
-  --project "panzer-project" \
+  --project "multi-agent-GuP" \
   --status /path/to/status/master_status.yaml \
   --output /path/to/dashboard.md
 ```

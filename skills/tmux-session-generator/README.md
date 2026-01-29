@@ -79,5 +79,5 @@ tmux-session-generator/
 ## 関連
 
 - [tmux documentation](https://github.com/tmux/tmux/wiki)
-- panzer-project
-- panzer-project
+- multi-agent-GuP
+- multi-agent-GuP

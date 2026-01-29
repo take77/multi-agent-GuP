@@ -10,7 +10,7 @@ skill:
     指示（order）、報告（report）、タスク（task）、MTG関連など、
     マルチエージェントシステムで使用する様々なテンプレートを生成する。
   category: template
-  author: panzer-project
+  author: multi-agent-GuP
   proposed_by: member2
   created: "2026-01-29"
 
@@ -224,7 +224,7 @@ placeholder_format:
   naming_convention: "UPPER_SNAKE_CASE"
 
 examples:
-  - name: panzer-project-templates
+  - name: multi-agent-GuP-templates
     description: ガルパン・マルチエージェントシステム用テンプレート
     input:
       file: examples/sample-config.yaml

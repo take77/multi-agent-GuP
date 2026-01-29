@@ -217,9 +217,9 @@ done
 
 ## 参考
 
-- このスキルは `panzer-project` の `scripts/notify.sh` を参考に設計
+- このスキルは `multi-agent-GuP` の `scripts/notify.sh` を参考に設計
 - チームメンバー1（D1作業中）の提案により作成
-- `panzer-project` の指示書で定義された2回分割送信ルールに準拠
+- `multi-agent-GuP` の指示書で定義された2回分割送信ルールに準拠
 
 ## バージョン
 

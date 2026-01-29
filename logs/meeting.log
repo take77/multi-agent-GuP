@@ -5,7 +5,7 @@
 [2026-01-29T16:20:52] [MTG] 議題: テスト議題
 [2026-01-29T16:20:52] [MTG] 主催: miho
 [2026-01-29T16:20:52] [MTG] 参加者: miho maho yukari saori hana mako
-[2026-01-29T16:20:52] [INFO] MTGスケジュール生成: /home/take77-ubuntu-2/Developments/products/panzer-project/queue/meetings/mtg_20260129_162052.yaml
+[2026-01-29T16:20:52] [INFO] MTGスケジュール生成: /home/take77-ubuntu-2/Developments/products/multi-agent-GuP/queue/meetings/mtg_20260129_162052.yaml
 [2026-01-29T16:20:52] [WARN] Failed to notify miho at panzer-hq:0.0 (session may not exist)
 [2026-01-29T16:20:52] [WARN] Failed to notify maho at panzer-hq:0.1 (session may not exist)
 [2026-01-29T16:20:52] [WARN] Failed to notify yukari at panzer-hq:0.2 (session may not exist)

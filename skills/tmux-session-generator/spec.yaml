@@ -8,7 +8,7 @@ skill:
   description: |
     YAMLで定義したセッション構成からtmux起動スクリプトを自動生成するスキル。
     マルチエージェントシステムやマルチペイン開発環境の構築を効率化する。
-  author: panzer-project
+  author: multi-agent-GuP
   tags:
     - tmux
     - automation
@@ -194,11 +194,11 @@ examples:
       frontend（3ペイン）と backend（3ペイン）の
       2セッションが作成される。
 
-  - name: マルチエージェントシステム（panzer-project参考）
+  - name: マルチエージェントシステム（multi-agent-GuP参考）
     input: |
       project:
         name: panzer
-        work_dir: /home/user/panzer-project
+        work_dir: /home/user/multi-agent-GuP
 
       sessions:
         - name: panzer-hq

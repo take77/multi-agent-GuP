@@ -92,8 +92,8 @@
 | 時刻 | 戦場 | 任務 | 結果 |
 |------|------|------|------|
 | {{COMPLETION_TIME}} | {{PROJECT_NAME}} | {{TASK_DESCRIPTION}} | ✅完了 |
-<!-- 例: | 14:52 | panzer-project | A1: ディレクトリ構成作成 | ✅完了 | -->
-<!-- 例: | 15:30 | panzer-project | Phase C: 中隊 instructions 6件 | ✅完了 | -->
+<!-- 例: | 14:52 | multi-agent-GuP | A1: ディレクトリ構成作成 | ✅完了 | -->
+<!-- 例: | 15:30 | multi-agent-GuP | Phase C: 中隊 instructions 6件 | ✅完了 | -->
 
 ---
 

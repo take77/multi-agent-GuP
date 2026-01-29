@@ -30,7 +30,7 @@ inputs:
     type: string
     required: true
     description: プロジェクト名
-    example: "panzer-project"
+    example: "multi-agent-GuP"
 
   - name: status_yaml
     type: string
@@ -258,7 +258,7 @@ examples:
     description: 基本的なダッシュボード生成
     input:
       template_path: "templates/dashboard.md.template"
-      project_name: "panzer-project"
+      project_name: "multi-agent-GuP"
     output:
       file: "dashboard.md"
       placeholders_replaced: 4
@@ -267,7 +267,7 @@ examples:
     description: 状態YAMLを使用した動的生成
     input:
       template_path: "templates/dashboard.md.template"
-      project_name: "panzer-project"
+      project_name: "multi-agent-GuP"
       status_yaml: "status/master_status.yaml"
     output:
       file: "dashboard.md"
@@ -277,7 +277,7 @@ examples:
     description: カスタム値を使用した生成
     input:
       template_path: "templates/dashboard.md.template"
-      project_name: "panzer-project"
+      project_name: "multi-agent-GuP"
       custom_values: "custom-values.yaml"
     output:
       file: "dashboard.md"

@@ -29,7 +29,7 @@
 
 ```yaml
 project:
-  name: "panzer-project"
+  name: "multi-agent-GuP"
   description: "ガルパン・マルチエージェントシステム"
 
 roles:

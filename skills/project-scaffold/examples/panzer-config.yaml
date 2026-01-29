@@ -1,8 +1,8 @@
 # Panzer Project Configuration Example
-# panzer-project と同等の構成
+# multi-agent-GuP と同等の構成
 
 project:
-  name: "panzer-project"
+  name: "multi-agent-GuP"
   type: "multi-agent"
   description: "ガールズ＆パンツァーをモチーフにしたマルチエージェント開発基盤"
 

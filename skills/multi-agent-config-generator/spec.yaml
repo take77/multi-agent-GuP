@@ -9,7 +9,7 @@ skill:
     マルチエージェントシステムの階層的な設定ファイル群を生成するスキル。
     組織構成（大隊、中隊等）の定義YAMLから、config/*.yaml一式を自動生成する。
   category: configuration
-  author: panzer-project
+  author: multi-agent-GuP
   created: "2026-01-29"
 
 inputs:

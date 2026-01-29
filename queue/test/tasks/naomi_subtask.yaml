@@ -31,8 +31,8 @@ depends_on:
     type: blocks
 
 project:
-  name: "panzer-project"
-  context_file: "context/panzer-project.md"
+  name: "multi-agent-GuP"
+  context_file: "context/multi-agent-GuP.md"
 
 acceptance_criteria:
   - "OAuth2.0認証フローが動作すること"

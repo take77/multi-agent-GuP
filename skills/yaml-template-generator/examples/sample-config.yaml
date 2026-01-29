@@ -4,7 +4,7 @@
 # このファイルをスキルに渡すと、templates/配下のテンプレート群が生成される
 
 project:
-  name: "panzer-project"
+  name: "multi-agent-GuP"
   description: "ガルパン・マルチエージェントシステム"
 
 roles:

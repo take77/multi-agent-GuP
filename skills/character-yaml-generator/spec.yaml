@@ -10,7 +10,7 @@ skill:
   description: |
     マルチエージェントシステムで使用するキャラクター設定を、
     統一されたYAMLフォーマットで生成するスキル。
-  author: panzer-project
+  author: multi-agent-GuP
   license: MIT
 
 # ============================================================

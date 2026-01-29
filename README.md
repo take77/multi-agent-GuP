@@ -70,8 +70,8 @@
 
 ```bash
 # 1. リポジトリをクローン
-git clone https://github.com/yourname/panzer-project.git
-cd panzer-project
+git clone https://github.com/yourname/multi-agent-GuP.git
+cd multi-agent-GuP
 
 # 2. スクリプトに実行権限を付与
 chmod +x scripts/*.sh
@@ -98,7 +98,7 @@ tmux attach -t panzer-hq
 ## ディレクトリ構成
 
 ```
-panzer-project/
+multi-agent-GuP/
 ├── characters/          # キャラクター設定（24名分）
 │   ├── miho.yaml
 │   ├── maho.yaml

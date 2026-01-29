@@ -198,7 +198,7 @@ git worktree prune
 ## 6. ワークツリー構成
 
 ```
-panzer-project/
+multi-agent-GuP/
 ├── worktrees/
 │   ├── platoon1/    # 第1中隊用（Ooarai Academy）
 │   ├── platoon2/    # 第2中隊用（Pravda-Continuation）

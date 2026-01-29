@@ -224,7 +224,7 @@ interface ChecklistOutput {
 
 ## 参考
 
-- このスキルは `panzer-project` の `instructions/platoon_deputy.md` のレビューチェックリストを参考に設計
+- このスキルは `multi-agent-GuP` の `instructions/platoon_deputy.md` のレビューチェックリストを参考に設計
 - チームメンバー2（副中隊長 instructions 作成時）の提案により作成
 
 ## バージョン

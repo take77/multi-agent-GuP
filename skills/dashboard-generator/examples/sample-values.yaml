@@ -1,7 +1,7 @@
 # Sample Custom Values for dashboard-generator
 # テンプレートのプレースホルダーを置換するカスタム値
 
-project_name: "panzer-project"
+project_name: "multi-agent-GuP"
 
 urgent:
   - title: "スキル化候補 3件【承認待ち】"
@@ -34,11 +34,11 @@ in_progress:
 
 completed:
   - time: "14:52"
-    location: "panzer-project"
+    location: "multi-agent-GuP"
     task: "A1: ディレクトリ構成作成"
     result: "✅完了"
   - time: "14:56"
-    location: "panzer-project"
+    location: "multi-agent-GuP"
     task: "A3: 設定ファイル作成(5点)"
     result: "✅完了"
 

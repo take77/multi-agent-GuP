@@ -267,7 +267,7 @@ script_template:
 # ═══════════════════════════════════════════════════════════════
 examples:
   - name: panzer_project
-    description: panzer-project用の監視スクリプト
+    description: multi-agent-GuP用の監視スクリプト
     input:
       session_config: "examples/sample-config.yaml"
       busy_keywords:

@@ -9,7 +9,7 @@ skill:
     マルチエージェント用 Git Worktree 管理スクリプト生成スキル。
     チーム/中隊ごとに独立したワークツリーを管理し、
     並列開発を効率化する。
-  author: panzer-project
+  author: multi-agent-GuP
   proposed_by: member5
   tags:
     - git
@@ -272,8 +272,8 @@ examples:
   - name: ガルパン・マルチエージェントシステム
     input: |
       project:
-        name: panzer-project
-        path: /home/user/panzer-project
+        name: multi-agent-GuP
+        path: /home/user/multi-agent-GuP
         worktrees_dir: worktrees
 
       teams:

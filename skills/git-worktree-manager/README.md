@@ -110,5 +110,5 @@ git-worktree-manager/
 ## 関連
 
 - [Git Worktree Documentation](https://git-scm.com/docs/git-worktree)
-- panzer-project
-- panzer-project
+- multi-agent-GuP
+- multi-agent-GuP

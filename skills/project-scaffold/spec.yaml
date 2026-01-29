@@ -196,9 +196,9 @@ examples:
       files: 1
 
   - name: panzer_project
-    description: panzer-project と同等の構成
+    description: multi-agent-GuP と同等の構成
     input:
-      project_name: "panzer-project"
+      project_name: "multi-agent-GuP"
       config_yaml: "examples/panzer-config.yaml"
     output:
       directories: 26

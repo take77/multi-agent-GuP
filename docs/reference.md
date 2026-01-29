@@ -549,7 +549,7 @@ communication:
 ### ディレクトリ構成
 
 ```
-panzer-project/
+multi-agent-GuP/
 ├── config/              # 設定ファイル
 │   ├── battalion.yaml
 │   ├── settings.yaml

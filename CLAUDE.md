@@ -1,11 +1,11 @@
-# panzer-project システム構成
+# multi-agent-GuP システム構成
 
 > **Version**: 1.0.0
 > **Last Updated**: 2026-01-29
 
 ## 概要
 
-panzer-projectは、Claude Code + tmux を使ったマルチエージェント並列開発基盤である。
+multi-agent-GuPは、Claude Code + tmux を使ったマルチエージェント並列開発基盤である。
 ガールズ＆パンツァーをモチーフとした大隊構造で、チーム開発を効率化する。
 
 **パンツァー・フォー！**
@@ -54,7 +54,7 @@ summaryの「次のステップ」を見てすぐ作業してはならぬ。ま�
 ## ディレクトリ構造
 
 ```
-panzer-project/
+multi-agent-GuP/
 ├── CLAUDE.md                 # このファイル
 ├── config/
 │   ├── battalion.yaml        # 大隊構成

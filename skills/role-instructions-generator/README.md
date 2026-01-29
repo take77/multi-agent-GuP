@@ -157,7 +157,7 @@ speech_style:
 
 ## 参考
 
-このスキルは `panzer-project` の `instructions/*.md` と `characters/*.yaml` を参考に設計された。
+このスキルは `multi-agent-GuP` の `instructions/*.md` と `characters/*.yaml` を参考に設計された。
 
 ## バージョン
 

@@ -12,7 +12,7 @@
 # ============================================================
 
 # 作業ディレクトリ
-WORK_DIR="/home/take77-ubuntu-2/Developments/products/panzer-project"
+WORK_DIR="/home/take77-ubuntu-2/Developments/products/multi-agent-GuP"
 MEETINGS_DIR="${WORK_DIR}/queue/meetings"
 
 # 色設定

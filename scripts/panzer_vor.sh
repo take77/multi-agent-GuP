@@ -14,7 +14,7 @@
 set -e
 
 # 作業ディレクトリ
-WORK_DIR="/home/take77-ubuntu-2/Developments/products/panzer-project"
+WORK_DIR="/home/take77-ubuntu-2/Developments/products/multi-agent-GuP"
 
 # 色設定（ログ用）
 GREEN='\033[0;32m'

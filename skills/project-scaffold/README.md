@@ -83,7 +83,7 @@ structure:
 
 ## 参考
 
-このスキルは `panzer-project` の構成を参考に設計された。
+このスキルは `multi-agent-GuP` の構成を参考に設計された。
 
 ## バージョン
 
