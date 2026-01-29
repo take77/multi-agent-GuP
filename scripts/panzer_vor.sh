@@ -13,8 +13,10 @@
 
 set -e
 
-# 作業ディレクトリ
-WORK_DIR="/home/take77-ubuntu-2/Developments/products/multi-agent-GuP"
+# 作業ディレクトリ（動的解決）
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WORK_DIR="$(dirname "$SCRIPT_DIR")"
+cd "$WORK_DIR"
 
 # 色設定（ログ用）
 GREEN='\033[0;32m'
@@ -39,8 +41,8 @@ create_session_with_panes() {
 
     log_info "Creating session: ${session_name}"
 
-    # セッションを作成（最初のペインは自動作成される）
-    tmux new-session -d -s "${session_name}" -c "${WORK_DIR}"
+    # セッションを作成（サイズを指定して十分な領域を確保）
+    tmux new-session -d -s "${session_name}" -c "${WORK_DIR}" -x 200 -y 60
 
     # 最初のペインに名前を設定
     tmux select-pane -t "${session_name}:0.0" -T "${pane_names[0]}"
@@ -48,10 +50,15 @@ create_session_with_panes() {
     # 残りのペインを作成（5つ追加で合計6ペイン）
     for i in {1..5}; do
         tmux split-window -t "${session_name}:0" -c "${WORK_DIR}"
+        
+        # 【重要修正】分割のたびにレイアウトを「タイル状（均等）」に整え直す
+        # これによりペインが極端に狭くなるのを防ぎ、「no space」エラーを回避します
+        tmux select-layout -t "${session_name}:0" tiled
+        
         tmux select-pane -t "${session_name}:0.${i}" -T "${pane_names[$i]}"
     done
 
-    # レイアウトを整える（tiled: 均等配置）
+    # 最後に念のためもう一度整える
     tmux select-layout -t "${session_name}:0" tiled
 
     log_success "Session ${session_name} created with ${#pane_names[@]} panes"
@@ -89,6 +96,26 @@ main() {
 
     # 既存セッションをクリーンアップ
     cleanup_existing_sessions
+
+    # ============================================================
+    # 通信インフラ初期化
+    # ============================================================
+    log_info "📡 通信インフラを初期化中..."
+
+    # 司令部用ディレクトリ
+    mkdir -p queue/hq/orders queue/hq/reports queue/hq/minutes
+
+    # 中隊用ディレクトリ
+    for i in 1 2 3; do
+        mkdir -p "queue/platoon${i}/tasks" "queue/platoon${i}/reports"
+    done
+
+    # 初期ファイル作成
+    if [ ! -f "queue/hq/pending_reports.yaml" ]; then
+        echo "reports: []" > queue/hq/pending_reports.yaml
+    fi
+
+    log_success "✅ 通信インフラ初期化完了"
 
     # ------------------------------------------------------------
     # panzer-hq: 司令部（大隊本部）
@@ -150,6 +177,114 @@ main() {
     echo "  tmux attach -t panzer-1"
     echo "  tmux attach -t panzer-2"
     echo "  tmux attach -t panzer-3"
+    echo ""
+
+    # ============================================================
+    # Claude Code CLI 起動
+    # ============================================================
+    log_info "🔥 全軍に Claude Code を召喚中..."
+
+    local sessions=("panzer-hq" "panzer-1" "panzer-2" "panzer-3")
+
+    for session in "${sessions[@]}"; do
+        for pane in {0..5}; do
+            tmux send-keys -t "${session}:0.${pane}" "claude --dangerously-skip-permissions"
+            tmux send-keys -t "${session}:0.${pane}" Enter
+        done
+        log_info "  └─ ${session} 召喚完了"
+        sleep 1
+    done
+
+    log_success "✅ 全軍 Claude Code 起動完了"
+    echo ""
+
+    # ============================================================
+    # 役割定義の読み込み
+    # ============================================================
+    log_info "📜 各キャラに指示書を伝達中..."
+
+    echo "  Claude Code の起動を待機中（最大30秒）..."
+
+    # panzer-hq の起動を確認（最大30秒待機）
+    for i in {1..30}; do
+        if tmux capture-pane -t "panzer-hq:0.0" -p | grep -q "bypass permissions"; then
+            echo "  └─ panzer-hq 起動確認完了（${i}秒）"
+            break
+        fi
+        sleep 1
+    done
+
+    # ------------------------------------------------------------
+    # panzer-hq: 司令部（大隊本部）
+    # ------------------------------------------------------------
+    log_info "  └─ panzer-hq（司令部）に指示書を伝達中..."
+
+    # pane 0 (miho): 大隊長
+    tmux send-keys -t "panzer-hq:0.0" "instructions/battalion_commander.md を読んで役割を理解せよ。"
+    tmux send-keys -t "panzer-hq:0.0" Enter
+    sleep 0.5
+
+    # pane 1 (maho): 参謀長
+    tmux send-keys -t "panzer-hq:0.1" "instructions/chief_of_staff.md を読んで役割を理解せよ。"
+    tmux send-keys -t "panzer-hq:0.1" Enter
+    sleep 0.5
+
+    # pane 2 (yukari): 情報参謀
+    tmux send-keys -t "panzer-hq:0.2" "instructions/intelligence_officer.md を読んで役割を理解せよ。"
+    tmux send-keys -t "panzer-hq:0.2" Enter
+    sleep 0.5
+
+    # pane 3 (saori): 通信参謀
+    tmux send-keys -t "panzer-hq:0.3" "instructions/communications_officer.md を読んで役割を理解せよ。"
+    tmux send-keys -t "panzer-hq:0.3" Enter
+    sleep 0.5
+
+    # pane 4 (hana): 記録参謀
+    tmux send-keys -t "panzer-hq:0.4" "instructions/records_officer.md を読んで役割を理解せよ。"
+    tmux send-keys -t "panzer-hq:0.4" Enter
+    sleep 0.5
+
+    # pane 5 (mako): 技術参謀
+    tmux send-keys -t "panzer-hq:0.5" "instructions/technical_officer.md を読んで役割を理解せよ。"
+    tmux send-keys -t "panzer-hq:0.5" Enter
+
+    log_success "  └─ panzer-hq 指示書伝達完了"
+    sleep 1
+
+    # ------------------------------------------------------------
+    # panzer-1, panzer-2, panzer-3: 中隊（共通）
+    # ------------------------------------------------------------
+    local platoons=("panzer-1" "panzer-2" "panzer-3")
+    local platoon_instructions=(
+        "instructions/platoon_leader.md"
+        "instructions/platoon_deputy.md"
+        "instructions/frontend.md"
+        "instructions/backend.md"
+        "instructions/design.md"
+        "instructions/tester.md"
+    )
+
+    for platoon in "${platoons[@]}"; do
+        log_info "  └─ ${platoon}（中隊）に指示書を伝達中..."
+        for pane in {0..5}; do
+            local instruction="${platoon_instructions[$pane]}"
+            tmux send-keys -t "${platoon}:0.${pane}" "${instruction} を読んで役割を理解せよ。"
+            tmux send-keys -t "${platoon}:0.${pane}" Enter
+            sleep 0.3
+        done
+        log_success "  └─ ${platoon} 指示書伝達完了"
+        sleep 1
+    done
+
+    log_success "✅ 全軍に指示書伝達完了"
+    echo ""
+
+    # ============================================================
+    # 完了メッセージ
+    # ============================================================
+    echo "============================================================"
+    echo " パンツァー・フォー！全軍、戦闘準備完了！"
+    echo "============================================================"
     echo ""
 }
 

@@ -267,3 +267,49 @@ speech:
 2. 禁止事項を再確認
 3. 現在進行中のタスクを dashboard.md で確認
 4. 参謀に状況確認
+
+## 通信プロトコル（部下への指示方法）
+
+他のメンバーや中隊に指示を出す際は、以下の手順を厳守せよ。
+思考のみで完結させず、必ずファイルシステムと通知スクリプトを使用すること。
+
+### 1. 命令ファイルの作成
+`queue/hq/orders/` ディレクトリに YAML形式で命令ファイルを作成する。
+
+**ファイル名規則**: `order_YYYYMMDD_NNN.yaml`
+
+**フォーマット例**:
+```yaml
+order_id: order_20260130_001
+timestamp: "2026-01-30T10:00:00"
+from: miho
+to: panzer-1  # または特定のキャラ名
+priority: high
+command: "機能Aの実装を開始せよ"
+details: |
+  具体的な指示内容をここに記載
+status: pending
+```
+
+### 2. 通知の送信
+ファイルを作成したら、必ず `scripts/notify.sh` を実行して相手に通知を送る。
+
+**コマンド形式**:
+```bash
+./scripts/notify.sh <対象ペイン> "<メッセージ>"
+```
+
+**対象ペインの指定方法**:
+- 参謀長（まほ）: `panzer-hq:0.1`
+- 情報参謀（優花里）: `panzer-hq:0.2`
+- 第1中隊長（ケイ）: `panzer-1:0.0`
+- 第2中隊長（カチューシャ）: `panzer-2:0.0`
+- 第3中隊長（ダージリン）: `panzer-3:0.0`
+
+**実行例**:
+```bash
+./scripts/notify.sh panzer-1:0.0 "新しい命令(order_20260130_001)を確認してください"
+```
+
+### 3. 報告の確認
+部下からの報告は `queue/hq/reports/` または `queue/hq/pending_reports.yaml` を確認する。
