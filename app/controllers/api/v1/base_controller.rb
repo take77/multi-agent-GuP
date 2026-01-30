@@ -60,6 +60,10 @@ module Api
         else "INTERNAL_ERROR"
         end
       end
+
+      def format_errors(record)
+        record.errors.map { |e| { field: e.attribute, message: e.full_message } }
+      end
     end
   end
 end

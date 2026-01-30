@@ -37,6 +37,12 @@ module Api
 
       # POST /api/v1/novels/:novel_id/character_relationships
       def create
+        character_ids = [relationship_params[:character_id], relationship_params[:related_character_id]].compact
+        unless character_ids.length == 2 &&
+               Character.where(id: character_ids, novel_id: @novel_id).count == 2
+          return render_error("指定キャラクターがこの小説に存在しません", status: :not_found)
+        end
+
         relationship = CharacterRelationship.new(
           relationship_params.merge(novel_id: @novel_id)
         )
@@ -75,10 +81,6 @@ module Api
           :character_id, :related_character_id,
           :relationship_type, :description, :intensity
         )
-      end
-
-      def format_errors(record)
-        record.errors.map { |e| { field: e.attribute, message: e.full_message } }
       end
     end
   end

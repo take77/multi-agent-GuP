@@ -56,10 +56,6 @@ module Api
           :personality, :speech_style, :background, :role
         )
       end
-
-      def format_errors(record)
-        record.errors.map { |e| { field: e.attribute, message: e.full_message } }
-      end
     end
   end
 end

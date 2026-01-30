@@ -54,10 +54,6 @@ module Api
       def world_setting_params
         params.require(:world_setting).permit(:category, :title, :description, :details)
       end
-
-      def format_errors(record)
-        record.errors.map { |e| { field: e.attribute, message: e.full_message } }
-      end
     end
   end
 end

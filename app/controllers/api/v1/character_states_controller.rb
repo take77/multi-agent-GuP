@@ -35,6 +35,10 @@ module Api
 
       # POST /api/v1/novels/:novel_id/character_states
       def create
+        unless Character.exists?(id: character_state_params[:character_id], novel_id: @novel_id)
+          return render_error("指定キャラクターがこの小説に存在しません", status: :not_found)
+        end
+
         character_state = CharacterState.new(character_state_params)
 
         if character_state.save
@@ -75,10 +79,6 @@ module Api
           :emotional_state, :physical_state, :knowledge,
           :notes, inventory: []
         )
-      end
-
-      def format_errors(record)
-        record.errors.map { |e| { field: e.attribute, message: e.full_message } }
       end
     end
   end
