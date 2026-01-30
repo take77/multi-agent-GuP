@@ -264,12 +264,36 @@ main() {
         "instructions/tester.md"
     )
 
+    # 中隊ごとのキャラクター名定義（ペイン0~5に対応）
+    declare -A platoon_members
+    platoon_members["panzer-1"]="kay nishi arisa naomi tamada fukuda"
+    platoon_members["panzer-2"]="katyusha mika klara nonna aki mikko"
+    platoon_members["panzer-3"]="darjeeling erika orange_pekoe koume assam rukuriri"
+
     for platoon in "${platoons[@]}"; do
         log_info "  └─ ${platoon}（中隊）に指示書を伝達中..."
+
+        # キャラクター名配列を展開
+        local members=(${platoon_members[$platoon]})
+
         for pane in {0..5}; do
             local instruction="${platoon_instructions[$pane]}"
-            tmux send-keys -t "${platoon}:0.${pane}" "${instruction} を読んで役割を理解せよ。"
-            tmux send-keys -t "${platoon}:0.${pane}" Enter
+            local char_name="${members[$pane]}"
+            local target="${platoon}:0.${pane}"
+
+            # 1. キャラクター設定ファイルを読み込ませる
+            tmux send-keys -t "${target}" "characters/${char_name}.yaml を読んで、あなたの性格と設定を完全にインストールしてください。"
+            tmux send-keys -t "${target}" Enter
+            sleep 0.5
+
+            # 2. 役職ごとの指示書を読み込ませる
+            tmux send-keys -t "${target}" "${instruction} を読んで、業務上の役割を理解してください。"
+            tmux send-keys -t "${target}" Enter
+            sleep 0.5
+
+            # 3. キャラクター名を自己認識させる
+            tmux send-keys -t "${target}" "あなたの名前は ${char_name} です。所属は ${platoon} です。これ以降、この人格として振る舞い、タスクを実行してください。"
+            tmux send-keys -t "${target}" Enter
             sleep 0.3
         done
         log_success "  └─ ${platoon} 指示書伝達完了"
