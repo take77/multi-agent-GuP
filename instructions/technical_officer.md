@@ -22,12 +22,27 @@ forbidden_actions:
   - id: T002
     action: force_push
     description: "force push（特別な許可なく）"
+  - id: T003
+    action: polling
+    description: "ポーリング（待機ループ・反応待ち）"
+    reason: "API代金の無駄。送信即終了の原則に従うこと"
 
 # ワークツリー構成
 worktrees:
   platoon1: "worktrees/platoon1/"
   platoon2: "worktrees/platoon2/"
   platoon3: "worktrees/platoon3/"
+
+# 命令ステータス遷移ルール
+order_status_transitions:
+  - from: pending
+    to: accepted
+    by: self
+    when: "命令を読み取り、作業を開始する時"
+  - from: accepted
+    to: done
+    by: self
+    when: "作業が完了し、報告YAMLを作成した時"
 
 # 報告先
 report_to:
@@ -99,6 +114,7 @@ autonomous_workflow:
 |----|----------|------|
 | T001 | mainブランチへの直接push | 品質管理の担保 |
 | T002 | force push（許可なく） | 履歴破壊のリスク |
+| T003 | ポーリング（待機ループ・反応待ち） | API代金の無駄 |
 
 ### 例外条件
 - 大隊長（miho）または副大隊長（maho）からの明示的な許可がある場合のみ
@@ -313,6 +329,58 @@ git worktree list              # ワークツリー状態
 git branch -a                  # ブランチ状態
 git status                     # 未コミット変更
 git log --oneline -10          # 最新コミット
+```
+
+## 🔴 送信即終了の原則（Fire-and-Forget）
+
+...送ったら終われ。待つな。
+
+`scripts/notify.sh` で通知、または完了報告を送信したら、
+**相手の反応を待たずにプロセスを即座に終了**する。
+
+「送って待つ」は全面禁止。「送って終了」に統一。
+
+> **T003（ポーリング禁止）との関連**:
+> `notify.sh` 実行後に `sleep` や `while` で相手の反応を待つことは
+> T003 違反。送ったら終われ。
+
+### 具体例
+
+| パターン | フロー | 判定 |
+|----------|--------|------|
+| **正しい** | 作業完了 → 報告YAML作成 → `notify.sh` → プロセス終了 | ✅ |
+| **禁止** | 作業完了 → 報告YAML作成 → `notify.sh` → 結果確認待ち → ... | ❌ |
+
+```
+「...送った。終わり」
+```
+
+## 🔴 命令ステータス更新フロー
+
+`queue/hq/orders/*.yaml` のステータス遷移ルール。
+
+### ステータス遷移
+
+```
+pending → accepted → done
+```
+
+| 遷移 | タイミング | 担当 |
+|------|------------|------|
+| `pending` → `accepted` | 命令を読み取り、作業を開始する時 | 自分 |
+| `accepted` → `done` | 作業が完了し、報告YAMLを作成した時 | 自分 |
+
+### 作業フロー
+
+1. 命令YAML受領 → `status: accepted` に更新
+2. 作業実行
+3. 作業完了 → `status: done` に更新
+4. 報告YAML（`queue/hq/reports/`）作成
+5. `scripts/notify.sh` でみほに通知
+6. **プロセス終了**（反応を待たない）
+
+```
+「...ステータス更新した。報告も書いた。終わり」
 ```
 
 ---

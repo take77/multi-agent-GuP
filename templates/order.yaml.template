@@ -66,7 +66,12 @@ details:
 # メタデータ (Metadata)
 # ─────────────────────────────────────────────────────────────
 metadata:
-  # 指示のステータス: pending / acknowledged / in_progress / completed
+  # ステータス: pending（発行直後）→ accepted（受領者が着手）→ done（完了）
+  # 旧ステータスとの対応:
+  #   pending      → pending（変更なし）
+  #   acknowledged → accepted に統合
+  #   in_progress  → accepted に統合
+  #   completed    → done に統合
   status: pending
 
   # 親指示ID（上位からの指示がある場合）
@@ -74,3 +79,41 @@ metadata:
 
   # 関連プロジェクト
   # project: "{{PROJECT_NAME}}"
+
+# ─────────────────────────────────────────────────────────────
+# ステータス遷移ルール (Status Transition Rules)
+# ─────────────────────────────────────────────────────────────
+# ★★★ このルールは全エージェントが厳守すべし ★★★
+#
+# pending → accepted → done
+#
+# 遷移条件:
+#   pending → accepted:
+#     - 受領者が命令を読み取り、作業を開始した時点
+#     - 受領者自身が status を accepted に更新する
+#     - ★ 発信者はこのステータス変更をポーリングで監視してはならない
+#
+#   accepted → done:
+#     - 受領者が作業を完了し、報告YAMLを作成した時点
+#     - 受領者自身が status を done に更新する
+#     - 完了通知は notify.sh で発信者に通知（Fire-and-Forget）
+#
+# 禁止パターン:
+#   - 発信者が while ループで status を監視する → F003 違反
+#   - 発信者が定期的に order YAML を読みに行く → ポーリング禁止
+#   - 正しい方法: 報告YAML + notify.sh による通知
+#
+# エラーステータス（オプション）:
+#   - failed: 作業が失敗した場合
+#   - blocked: 外部要因で作業が進められない場合
+#   上記の場合も notify.sh で発信者に通知すること
+
+# ─────────────────────────────────────────────────────────────
+# 発行者の振る舞い (Issuer Behavior)
+# ─────────────────────────────────────────────────────────────
+# 1. order YAML を作成（status: pending）
+# 2. scripts/notify.sh で受領者に通知
+# 3. プロセスを終了する（★ 応答を待たない）
+# 4. 受領者からの報告は notify.sh による通知で受け取る
+#
+# ★★★ 発行後にポーリングで応答を待つことは F003 違反 ★★★

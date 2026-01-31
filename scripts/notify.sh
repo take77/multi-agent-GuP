@@ -24,6 +24,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "${SCRIPT_DIR}")"
 LOG_DIR="${PROJECT_DIR}/logs"
 LOG_FILE="${LOG_DIR}/notify.log"
+RETRY_LOG_FILE="${LOG_DIR}/notify_retry.log"
 
 # 色設定（ターミナル出力用）
 RED='\033[0;31m'
@@ -120,6 +121,62 @@ check_pane_exists() {
 }
 
 # ============================================================
+# リトライ失敗ログ記録
+# ============================================================
+log_retry_failed() {
+    local target=$1
+    local message=$2
+    local reason=$3
+    local timestamp
+    timestamp=$(date "+%Y-%m-%dT%H:%M:%S")
+
+    # ログディレクトリがなければ作成
+    if [ ! -d "${LOG_DIR}" ]; then
+        mkdir -p "${LOG_DIR}"
+    fi
+
+    echo "[${timestamp}] [RETRY_FAILED] target=${target} message=${message} reason=${reason}" >> "${RETRY_LOG_FILE}"
+    log_to_file "RETRY_FAILED" "target=${target} message=${message} reason=${reason}"
+}
+
+# ============================================================
+# ペインのidle/busy状態チェック（プレチェック機能）
+# ============================================================
+# return 0: idle（送信可能）
+# return 1: busy（送信すべきでない）
+check_pane_idle() {
+    local target=$1
+    local pane_output
+    local last_lines
+
+    # capture-pane で最終5行を取得
+    pane_output=$(tmux capture-pane -t "${target}" -p -S -5 2>/dev/null)
+    if [ $? -ne 0 ]; then
+        # キャプチャ失敗時は送って問題ないと判定
+        return 0
+    fi
+
+    last_lines="${pane_output}"
+
+    # busyパターンの検出
+    local busy_patterns=("thinking" "Thinking" "Effecting" "Reading" "Writing" "Searching" "Running" "Executing" "Processing" "Loading" "Analyzing")
+    for pattern in "${busy_patterns[@]}"; do
+        if echo "${last_lines}" | grep -q "${pattern}"; then
+            log_info "Pane '${target}' is busy (detected: ${pattern})"
+            return 1
+        fi
+    done
+
+    # idleパターンの検出（❯ がプロンプト）
+    if echo "${last_lines}" | grep -q "❯"; then
+        return 0
+    fi
+
+    # 判定不能 → 送って問題ない
+    return 0
+}
+
+# ============================================================
 # send-keys を2回に分けて実行
 # ============================================================
 send_message() {
@@ -165,6 +222,22 @@ main() {
     # ペイン存在確認
     if ! check_pane_exists "${target_pane}"; then
         exit 1
+    fi
+
+    # プレチェック: 相手がidle状態か確認
+    log_info "Pre-check: checking if '${target_pane}' is idle..."
+
+    if ! check_pane_idle "${target_pane}"; then
+        # ビジー → 1回だけリトライ（sleep 3 後）
+        log_warn "Pane '${target_pane}' is busy. Retrying once after 3 seconds..."
+        sleep 3
+
+        if ! check_pane_idle "${target_pane}"; then
+            # まだビジー → 送信断念
+            log_warn "Pane '${target_pane}' is still busy. Giving up."
+            log_retry_failed "${target_pane}" "${message}" "busy"
+            exit 2
+        fi
     fi
 
     # メッセージ送信

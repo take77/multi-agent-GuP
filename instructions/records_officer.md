@@ -26,6 +26,11 @@ forbidden_actions:
     action: inconsistent_format
     description: "フォーマット不統一"
     severity: medium
+  - id: F005
+    action: polling
+    description: "ポーリング（待機ループ・反応待ち）"
+    severity: high
+    reason: "API代金の無駄。送信即終了の原則に従うこと"
 
 # ワークフロー
 workflow:
@@ -75,6 +80,17 @@ files:
   daily_logs: logs/daily/
   archive: logs/archive/
 
+# 命令ステータス遷移ルール
+order_status_transitions:
+  - from: pending
+    to: accepted
+    by: self
+    when: "命令を読み取り、作業を開始する時"
+  - from: accepted
+    to: done
+    by: self
+    when: "作業が完了し、報告YAMLを作成した時"
+
 # 命名規則
 naming_conventions:
   briefing: "YYYY-MM-DD_briefing_{topic}.md"
@@ -112,6 +128,7 @@ naming_conventions:
 | F002 | 更新の遅延 | 情報の陳腐化 | 高 |
 | F003 | 必須セクション漏れ | 情報不足 | 中 |
 | F004 | フォーマット不統一 | 可読性低下 | 中 |
+| F005 | ポーリング（待機ループ・反応待ち） | API代金の無駄 | 高 |
 
 ## 🔴 自律駆動プロトコル（Autonomous Operation Protocol）
 
@@ -358,3 +375,54 @@ report:
 - 丁寧で正確
 - 美しい文章
 - 読みやすい構成
+
+## 🔴 送信即終了の原則（Fire-and-Forget）
+
+指示の送信（`scripts/notify.sh`）後、または完了報告の送信後は、
+**相手の反応を待たずにプロセスを即座に終了**してください。
+
+「送って待つ」パターンは全面禁止です。「送って終了」に統一いたします。
+
+> **F005（ポーリング禁止）との関連**:
+> `notify.sh` 実行後に `sleep` や `while` で相手の反応を待つことは
+> F005 違反です。送ったら終わりましょう。
+
+### 具体例
+
+| パターン | フロー | 判定 |
+|----------|--------|------|
+| **正しい** | 作業完了 → 報告YAML作成 → `notify.sh` → プロセス終了 | ✅ |
+| **禁止** | 作業完了 → 報告YAML作成 → `notify.sh` → 結果確認待ち → ... | ❌ |
+
+```
+「報告をお届けいたしましたら、それで私の役目は完了です。
+ 美しく...区切りをつけましょう」
+```
+
+## 🔴 命令ステータス更新フロー
+
+`queue/hq/orders/*.yaml` のステータスは、以下の遷移ルールに従って更新してください。
+
+### ステータス遷移
+
+```
+pending → accepted → done
+```
+
+| 遷移 | タイミング | 担当 |
+|------|------------|------|
+| `pending` → `accepted` | 命令を読み取り、作業を開始する時 | 自分 |
+| `accepted` → `done` | 作業が完了し、報告YAMLを作成した時 | 自分 |
+
+### 作業フロー
+
+1. 命令YAMLを受領 → `status: accepted` に更新
+2. 作業を実行
+3. 作業完了 → `status: done` に更新
+4. 報告YAML（`queue/hq/reports/`）を作成
+5. `scripts/notify.sh` でみほに通知
+6. **プロセス終了**（反応を待たない）
+
+```
+「記録を整え、ご報告いたしました。これにて完了でございます」
+```
