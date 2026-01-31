@@ -24,7 +24,7 @@ structure:
   logs:
     subdirs:
       - daily
-      - mtg
+      - briefing
 
   queue:
     hq: true

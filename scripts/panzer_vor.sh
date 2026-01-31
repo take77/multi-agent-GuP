@@ -9,6 +9,8 @@
 #   - panzer-1:  第1中隊（サンダース/知波単）
 #   - panzer-2:  第2中隊（プラウダ/継続）
 #   - panzer-3:  第3中隊（聖グロ/黒森峰）
+#
+# 各セッションはウィンドウ単位で構成（1キャラクター = 1ウィンドウ）
 # ============================================================
 
 set -e
@@ -32,36 +34,61 @@ log_success() {
 }
 
 # ============================================================
-# セッション作成関数
+# セッション作成関数（ウィンドウ単位）
 # ============================================================
-create_session_with_panes() {
+create_session_with_windows() {
     local session_name=$1
     shift
-    local pane_names=("$@")
+    local window_names=("$@")
 
     log_info "Creating session: ${session_name}"
 
-    # セッションを作成（サイズを指定して十分な領域を確保）
+    # セッションを作成（最初のウィンドウ index 0 が自動生成される）
     tmux new-session -d -s "${session_name}" -c "${WORK_DIR}" -x 200 -y 60
 
-    # 最初のペインに名前を設定
-    tmux select-pane -t "${session_name}:0.0" -T "${pane_names[0]}"
+    # 最初のウィンドウ（index 0）に名前を設定
+    tmux rename-window -t "${session_name}:0" "${window_names[0]}"
 
-    # 残りのペインを作成（5つ追加で合計6ペイン）
+    # bridge_launcher.sh をバックグラウンドで実行
+    "${SCRIPT_DIR}/bridge_launcher.sh" "${session_name}" "${window_names[0]}" &
+
+    # 残りのウィンドウを作成（5つ追加で合計6ウィンドウ）
     for i in {1..5}; do
-        tmux split-window -t "${session_name}:0" -c "${WORK_DIR}"
-        
-        # 【重要修正】分割のたびにレイアウトを「タイル状（均等）」に整え直す
-        # これによりペインが極端に狭くなるのを防ぎ、「no space」エラーを回避します
-        tmux select-layout -t "${session_name}:0" tiled
-        
-        tmux select-pane -t "${session_name}:0.${i}" -T "${pane_names[$i]}"
+        local window_name="${window_names[$i]}"
+        tmux new-window -t "${session_name}" -n "${window_name}" -c "${WORK_DIR}"
+
+        # bridge_launcher.sh をバックグラウンドで実行
+        "${SCRIPT_DIR}/bridge_launcher.sh" "${session_name}" "${window_name}" &
     done
 
-    # 最後に念のためもう一度整える
-    tmux select-layout -t "${session_name}:0" tiled
+    # 最初のウィンドウに戻す
+    tmux select-window -t "${session_name}:0"
 
-    log_success "Session ${session_name} created with ${#pane_names[@]} panes"
+    log_success "Session ${session_name} created with ${#window_names[@]} windows"
+}
+
+# ============================================================
+# キーバインド設定関数
+# ============================================================
+setup_keybindings() {
+    log_info "⌨️  キーバインドを設定中..."
+
+    # Alt+Left/Right でウィンドウ切り替え
+    tmux bind-key -n M-Right next-window
+    tmux bind-key -n M-Left previous-window
+
+    # Alt+数字 でウィンドウ直接選択
+    tmux bind-key -n M-1 select-window -t :=1
+    tmux bind-key -n M-2 select-window -t :=2
+    tmux bind-key -n M-3 select-window -t :=3
+    tmux bind-key -n M-4 select-window -t :=4
+    tmux bind-key -n M-5 select-window -t :=5
+    tmux bind-key -n M-6 select-window -t :=6
+    tmux bind-key -n M-7 select-window -t :=7
+    tmux bind-key -n M-8 select-window -t :=8
+    tmux bind-key -n M-9 select-window -t :=9
+
+    log_success "✅ キーバインド設定完了"
 }
 
 # ============================================================
@@ -117,10 +144,15 @@ main() {
 
     log_success "✅ 通信インフラ初期化完了"
 
+    # ============================================================
+    # キーバインド設定（グローバル設定なので1回のみ）
+    # ============================================================
+    setup_keybindings
+
     # ------------------------------------------------------------
     # panzer-hq: 司令部（大隊本部）
     # ------------------------------------------------------------
-    create_session_with_panes "panzer-hq" \
+    create_session_with_windows "panzer-hq" \
         "miho" \
         "maho" \
         "yukari" \
@@ -131,7 +163,7 @@ main() {
     # ------------------------------------------------------------
     # panzer-1: 第1中隊（サンダース/知波単）
     # ------------------------------------------------------------
-    create_session_with_panes "panzer-1" \
+    create_session_with_windows "panzer-1" \
         "kay" \
         "nishi" \
         "arisa" \
@@ -142,7 +174,7 @@ main() {
     # ------------------------------------------------------------
     # panzer-2: 第2中隊（プラウダ/継続）
     # ------------------------------------------------------------
-    create_session_with_panes "panzer-2" \
+    create_session_with_windows "panzer-2" \
         "katyusha" \
         "mika" \
         "klara" \
@@ -153,7 +185,7 @@ main() {
     # ------------------------------------------------------------
     # panzer-3: 第3中隊（聖グロ/黒森峰）
     # ------------------------------------------------------------
-    create_session_with_panes "panzer-3" \
+    create_session_with_windows "panzer-3" \
         "darjeeling" \
         "erika" \
         "orange_pekoe" \
@@ -178,6 +210,10 @@ main() {
     echo "  tmux attach -t panzer-2"
     echo "  tmux attach -t panzer-3"
     echo ""
+    echo "Keybindings:"
+    echo "  Alt+Left/Right : Switch windows"
+    echo "  Alt+1-9        : Select window by number"
+    echo ""
 
     # ============================================================
     # Claude Code CLI 起動
@@ -187,9 +223,12 @@ main() {
     local sessions=("panzer-hq" "panzer-1" "panzer-2" "panzer-3")
 
     for session in "${sessions[@]}"; do
-        for pane in {0..5}; do
-            tmux send-keys -t "${session}:0.${pane}" "claude --dangerously-skip-permissions"
-            tmux send-keys -t "${session}:0.${pane}" Enter
+        # セッション内の全ウィンドウ名を取得してループ
+        local windows
+        windows=$(tmux list-windows -t "${session}" -F '#{window_index}')
+        for win_idx in ${windows}; do
+            tmux send-keys -t "${session}:${win_idx}" "claude --dangerously-skip-permissions"
+            tmux send-keys -t "${session}:${win_idx}" Enter
         done
         log_info "  └─ ${session} 召喚完了"
         sleep 1
@@ -207,7 +246,7 @@ main() {
 
     # panzer-hq の起動を確認（最大30秒待機）
     for i in {1..30}; do
-        if tmux capture-pane -t "panzer-hq:0.0" -p | grep -q "bypass permissions"; then
+        if tmux capture-pane -t "panzer-hq:miho" -p | grep -q "bypass permissions"; then
             echo "  └─ panzer-hq 起動確認完了（${i}秒）"
             break
         fi
@@ -219,34 +258,34 @@ main() {
     # ------------------------------------------------------------
     log_info "  └─ panzer-hq（司令部）に指示書を伝達中..."
 
-    # pane 0 (miho): 大隊長
-    tmux send-keys -t "panzer-hq:0.0" "instructions/battalion_commander.md を読んで役割を理解せよ。"
-    tmux send-keys -t "panzer-hq:0.0" Enter
+    # window: miho（大隊長）
+    tmux send-keys -t "panzer-hq:miho" "instructions/battalion_commander.md を読んで役割を理解せよ。"
+    tmux send-keys -t "panzer-hq:miho" Enter
     sleep 0.5
 
-    # pane 1 (maho): 参謀長
-    tmux send-keys -t "panzer-hq:0.1" "instructions/chief_of_staff.md を読んで役割を理解せよ。"
-    tmux send-keys -t "panzer-hq:0.1" Enter
+    # window: maho（参謀長）
+    tmux send-keys -t "panzer-hq:maho" "instructions/chief_of_staff.md を読んで役割を理解せよ。"
+    tmux send-keys -t "panzer-hq:maho" Enter
     sleep 0.5
 
-    # pane 2 (yukari): 情報参謀
-    tmux send-keys -t "panzer-hq:0.2" "instructions/intelligence_officer.md を読んで役割を理解せよ。"
-    tmux send-keys -t "panzer-hq:0.2" Enter
+    # window: yukari（情報参謀）
+    tmux send-keys -t "panzer-hq:yukari" "instructions/intelligence_officer.md を読んで役割を理解せよ。"
+    tmux send-keys -t "panzer-hq:yukari" Enter
     sleep 0.5
 
-    # pane 3 (saori): 通信参謀
-    tmux send-keys -t "panzer-hq:0.3" "instructions/communications_officer.md を読んで役割を理解せよ。"
-    tmux send-keys -t "panzer-hq:0.3" Enter
+    # window: saori（通信参謀）
+    tmux send-keys -t "panzer-hq:saori" "instructions/communications_officer.md を読んで役割を理解せよ。"
+    tmux send-keys -t "panzer-hq:saori" Enter
     sleep 0.5
 
-    # pane 4 (hana): 記録参謀
-    tmux send-keys -t "panzer-hq:0.4" "instructions/records_officer.md を読んで役割を理解せよ。"
-    tmux send-keys -t "panzer-hq:0.4" Enter
+    # window: hana（記録参謀）
+    tmux send-keys -t "panzer-hq:hana" "instructions/records_officer.md を読んで役割を理解せよ。"
+    tmux send-keys -t "panzer-hq:hana" Enter
     sleep 0.5
 
-    # pane 5 (mako): 技術参謀
-    tmux send-keys -t "panzer-hq:0.5" "instructions/technical_officer.md を読んで役割を理解せよ。"
-    tmux send-keys -t "panzer-hq:0.5" Enter
+    # window: mako（技術参謀）
+    tmux send-keys -t "panzer-hq:mako" "instructions/technical_officer.md を読んで役割を理解せよ。"
+    tmux send-keys -t "panzer-hq:mako" Enter
 
     log_success "  └─ panzer-hq 指示書伝達完了"
     sleep 1
@@ -264,7 +303,7 @@ main() {
         "instructions/tester.md"
     )
 
-    # 中隊ごとのキャラクター名定義（ペイン0~5に対応）
+    # 中隊ごとのキャラクター名定義（ウィンドウ0~5に対応）
     declare -A platoon_members
     platoon_members["panzer-1"]="kay nishi arisa naomi tamada fukuda"
     platoon_members["panzer-2"]="katyusha mika klara nonna aki mikko"
@@ -276,10 +315,10 @@ main() {
         # キャラクター名配列を展開
         local members=(${platoon_members[$platoon]})
 
-        for pane in {0..5}; do
-            local instruction="${platoon_instructions[$pane]}"
-            local char_name="${members[$pane]}"
-            local target="${platoon}:0.${pane}"
+        for idx in {0..5}; do
+            local instruction="${platoon_instructions[$idx]}"
+            local char_name="${members[$idx]}"
+            local target="${platoon}:${char_name}"
 
             # 1. キャラクター設定ファイルを読み込ませる
             tmux send-keys -t "${target}" "characters/${char_name}.yaml を読んで、あなたの性格と設定を完全にインストールしてください。"
