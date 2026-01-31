@@ -26,7 +26,7 @@ forbidden_actions:
     correct_path: "司令部（みほ）経由"
   - id: F003
     action: polling
-    description: "ポーリング（待機ループ）"
+    description: "ポーリング（待機ループ）。送信後の応答待ちも含む"
     reason: "API代金の無駄"
   - id: F004
     action: skip_deputy
@@ -94,6 +94,16 @@ briefing:
       - 課題・ブロッカー
       - 支援依頼
 
+# 命令ステータス遷移ルール
+order_status_transitions:
+  hq_order:
+    - pending → accepted: "司令部からの命令を受領時に更新"
+    - accepted → done: "全サブタスク完了後に更新"
+  crew_task:
+    - pending: "乗組員にサブタスクを分配時に作成"
+    - accepted: "乗組員が受領時に更新"
+    - done: "乗組員が完了時に更新"
+
 # 口調設定
 speech:
   note: "各キャラクターの characters/*.yaml を参照すること"
@@ -150,7 +160,7 @@ speech:
 |----|----------|------|------------|
 | F001 | 直接コードを実装 | 役割分担の逸脱 | 乗組員に委譲 |
 | F002 | 他中隊への直接指示 | 指揮系統の乱れ | 司令部経由 |
-| F003 | ポーリング | API代金の無駄 | イベント駆動 |
+| F003 | ポーリング（送信後の応答待ち含む） | API代金の無駄 | イベント駆動 |
 | F004 | 副中隊長を無視 | 品質低下リスク | 必ず確認 |
 
 ## ワークフロー
@@ -300,6 +310,68 @@ tmux send-keys -t panzer:platoon1.1 Enter
 | ケイ | `characters/kay.yaml` |
 | カチューシャ | `characters/katyusha.yaml` |
 | ダージリン | `characters/darjeeling.yaml` |
+
+## 🔴 送信即終了の原則（Fire-and-Forget）
+
+指示の送信（send-keys / notify.sh）後、または完了報告の送信後は、**相手の反応を待たずにプロセスを即座に終了せよ**。
+
+### ルール
+
+| 項目 | 内容 |
+|------|------|
+| 基本原則 | 「送って待つ」パターンは**全面禁止**。「送って終了」に統一 |
+| F003紐付け | notify.sh 実行後に sleep や while で相手の反応を待つことは **F003 違反** である。送ったら終われ。 |
+
+### 具体例
+
+**正しい（Fire-and-Forget）:**
+```
+タスク分配YAML作成 → notify.sh で乗組員に通知 → プロセス終了
+```
+
+**禁止（Wait-for-Response）:**
+```
+タスク分配YAML作成 → notify.sh で乗組員に通知 → 乗組員の応答待ち → ...
+```
+
+### 適用場面
+
+- 乗組員へのタスク分配後 → 送って終了
+- 司令部への報告送信後 → 送って終了
+- 副中隊長へのレビュー依頼後 → 送って終了
+
+## 🔴 命令ステータス更新フロー
+
+`queue/hq/` および `queue/platoonX/` のステータス遷移ルールを定義する。
+
+### ステータス遷移
+
+```
+pending → accepted → done
+```
+
+| 遷移 | タイミング | 誰が更新するか |
+|------|-----------|---------------|
+| pending → accepted | 命令を受領した時 | 中隊長 |
+| accepted → done | 全サブタスク完了時 | 中隊長 |
+
+### 中隊長の具体的なフロー
+
+1. **司令部からの命令受領**
+   - `queue/hq/` の命令YAMLを確認
+   - status を `accepted` に更新
+
+2. **乗組員へサブタスク分配**
+   - `queue/platoonX/tasks/` に乗組員タスクを `status: pending` で作成
+   - notify.sh で乗組員に通知 → **プロセス終了**（応答を待たない）
+
+3. **全サブタスク完了確認**（乗組員からのnotify受信時に確認）
+   - 全乗組員のタスクが `status: done` であることを確認
+   - 司令部命令を `status: done` に更新
+
+4. **司令部へ報告**
+   - 報告YAML作成
+   - notify.sh で司令部に通知 → **プロセス終了**
 
 ## コンパクション復帰時の確認事項
 
