@@ -7,7 +7,7 @@ skill:
   version: "1.0"
   description: |
     プロジェクト通信用YAMLテンプレートを自動生成するスキル。
-    指示（order）、報告（report）、タスク（task）、MTG関連など、
+    指示（order）、報告（report）、タスク（task）、BRIEFING関連など、
     マルチエージェントシステムで使用する様々なテンプレートを生成する。
   category: template
   author: multi-agent-GuP
@@ -72,15 +72,15 @@ outputs:
     path: templates/task.yaml.template
     description: タスクテンプレート
 
-  - name: mtg_schedule_template
+  - name: briefing_schedule_template
     type: yaml
-    path: templates/mtg_schedule.yaml.template
-    description: MTGスケジュールテンプレート
+    path: templates/briefing_schedule.yaml.template
+    description: BRIEFINGスケジュールテンプレート
 
-  - name: mtg_discussion_template
+  - name: briefing_discussion_template
     type: yaml
-    path: templates/mtg_discussion.yaml.template
-    description: MTG議事録テンプレート
+    path: templates/briefing_discussion.yaml.template
+    description: BRIEFING議事録テンプレート
 
 template_types:
   - type: order
@@ -131,10 +131,10 @@ template_types:
       - acceptance_criteria
       - context
 
-  - type: mtg_schedule
-    purpose: "MTGスケジュール定義"
+  - type: briefing_schedule
+    purpose: "BRIEFINGスケジュール定義"
     required_fields:
-      - mtg_id
+      - briefing_id
       - type
       - organizer
       - scheduled_time
@@ -145,10 +145,10 @@ template_types:
       - preparation
       - metadata
 
-  - type: mtg_discussion
-    purpose: "MTG議事録"
+  - type: briefing_discussion
+    purpose: "BRIEFING議事録"
     required_fields:
-      - mtg_id
+      - briefing_id
       - timestamp
       - participants
       - decisions
@@ -198,12 +198,12 @@ workflow:
       - dependency_tracking
 
   - step: 5
-    action: generate_mtg_templates
-    description: MTG関連テンプレートを生成
+    action: generate_briefing_templates
+    description: BRIEFING関連テンプレートを生成
     input: project_config
     output:
-      - templates/mtg_schedule.yaml.template
-      - templates/mtg_discussion.yaml.template
+      - templates/briefing_schedule.yaml.template
+      - templates/briefing_discussion.yaml.template
 
   - step: 6
     action: validate_output

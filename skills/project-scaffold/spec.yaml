@@ -102,7 +102,7 @@ workflow:
     description: ログディレクトリの作成
     details:
       - logs/daily/
-      - logs/mtg/
+      - logs/briefing/
 
   - step: 6
     action: place_template_files
@@ -140,7 +140,7 @@ directory_template:
   nested:
     logs:
       - daily
-      - mtg
+      - briefing
     queue:
       - hq
       # platoon{N} は動的生成

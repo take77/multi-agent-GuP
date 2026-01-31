@@ -1,18 +1,18 @@
 # ============================================================
-# MTG議事録テンプレート (Meeting Minutes Template)
+# BRIEFING議事録テンプレート (Briefing Minutes Template)
 # ============================================================
-# 用途: MTGの議事録・決定事項・アクションアイテムの正式記録
+# 用途: BRIEFINGの議事録・決定事項・アクションアイテムの正式記録
 #
 # 使用方法:
 #   1. このテンプレートをコピー
 #   2. {{PLACEHOLDER}} を実際の値に置換
-#   3. MTG中または直後に記録
+#   3. BRIEFING中または直後に記録
 #   4. 関係者に共有
 #
 # 配置先:
-#   - 司令部MTG:   queue/hq/minutes/mtg_{{ID}}.yaml
-#   - 中隊MTG:     queue/platoon{{N}}/minutes/mtg_{{ID}}.yaml
-#   - 全体MTG:     queue/battalion/minutes/mtg_{{ID}}.yaml
+#   - 司令部BRIEFING:   queue/hq/minutes/briefing_{{ID}}.yaml
+#   - 中隊BRIEFING:     queue/platoon{{N}}/minutes/briefing_{{ID}}.yaml
+#   - 全体BRIEFING:     queue/battalion/minutes/briefing_{{ID}}.yaml
 #
 # 必須/オプションの凡例:
 #   [必須] - 必ず記入
@@ -20,26 +20,26 @@
 # ============================================================
 
 # ═══════════════════════════════════════════════════════════════
-# 1. MTG基本情報 (Meeting Information) [必須]
+# 1. BRIEFING基本情報 (Briefing Information) [必須]
 # ═══════════════════════════════════════════════════════════════
-meeting:
-  # MTG識別子 [必須]
-  # 形式: mtg_{type}_{YYYYMMDD}_{連番}
-  # 例: mtg_hq_20260129_001
-  mtg_id: "{{MTG_ID}}"
+briefing:
+  # BRIEFING識別子 [必須]
+  # 形式: briefing_{type}_{YYYYMMDD}_{連番}
+  # 例: briefing_hq_20260129_001
+  briefing_id: "{{BRIEFING_ID}}"
 
-  # MTGタイプ [必須]
-  # hq_meeting:       司令部会議（大隊長・副大隊長・参謀）
-  # platoon_meeting:  中隊会議（中隊長・副中隊長・メンバー）
-  # battalion_meeting: 全体会議（全員参加）
-  type: "{{MTG_TYPE}}"  # hq_meeting / platoon_meeting / battalion_meeting
+  # BRIEFINGタイプ [必須]
+  # hq_briefing:       司令部会議（大隊長・副大隊長・参謀）
+  # platoon_briefing:  中隊会議（中隊長・副中隊長・メンバー）
+  # battalion_briefing: 全体会議（全員参加）
+  type: "{{BRIEFING_TYPE}}"  # hq_briefing / platoon_briefing / battalion_briefing
 
-  # MTGタイトル [必須]
-  title: "{{MTG_TITLE}}"
+  # BRIEFINGタイトル [必須]
+  title: "{{BRIEFING_TITLE}}"
 
   # 開催日時 [必須]
   # ISO 8601形式: YYYY-MM-DDTHH:MM:SS
-  datetime: "{{MTG_DATETIME}}"
+  datetime: "{{BRIEFING_DATETIME}}"
 
   # 所要時間（分） [必須]
   duration_minutes: {{DURATION_MINUTES}}
@@ -114,7 +114,7 @@ agenda:
 # ═══════════════════════════════════════════════════════════════
 decisions:
   # 決定事項1
-  - decision_id: "dec_{{MTG_ID}}_001"
+  - decision_id: "dec_{{BRIEFING_ID}}_001"
     # 決定内容 [必須]
     description: "{{DECISION_DESCRIPTION_1}}"
     # 決定者（最終承認者） [必須]
@@ -127,7 +127,7 @@ decisions:
     # effective_from: "{{EFFECTIVE_DATE_1}}"
 
   # 決定事項2
-  - decision_id: "dec_{{MTG_ID}}_002"
+  - decision_id: "dec_{{BRIEFING_ID}}_002"
     description: "{{DECISION_DESCRIPTION_2}}"
     decided_by: "{{DECIDER_ID_2}}"
     rationale: "{{DECISION_RATIONALE_2}}"
@@ -140,7 +140,7 @@ decisions:
 # ═══════════════════════════════════════════════════════════════
 action_items:
   # アクション1
-  - action_id: "ai_{{MTG_ID}}_001"
+  - action_id: "ai_{{BRIEFING_ID}}_001"
     # 内容 [必須]
     description: "{{ACTION_DESCRIPTION_1}}"
     # 担当者 [必須]
@@ -153,10 +153,10 @@ action_items:
     # 状態 [必須]
     status: pending  # pending / in_progress / done
     # 関連決定事項 [オプション]
-    related_decision: "dec_{{MTG_ID}}_001"
+    related_decision: "dec_{{BRIEFING_ID}}_001"
 
   # アクション2
-  - action_id: "ai_{{MTG_ID}}_002"
+  - action_id: "ai_{{BRIEFING_ID}}_002"
     description: "{{ACTION_DESCRIPTION_2}}"
     assignee: "{{ASSIGNEE_ID_2}}"
     deadline: "{{DEADLINE_2}}"
@@ -166,11 +166,11 @@ action_items:
   # 追加のアクションアイテム...
 
 # ═══════════════════════════════════════════════════════════════
-# 6. 次回MTG予定 (Next Meeting) [オプション]
+# 6. 次回BRIEFING予定 (Next Briefing) [オプション]
 # ═══════════════════════════════════════════════════════════════
-next_meeting:
+next_briefing:
   # 次回予定日時 [オプション]
-  scheduled_datetime: "{{NEXT_MTG_DATETIME}}"
+  scheduled_datetime: "{{NEXT_BRIEFING_DATETIME}}"
 
   # 次回議題案 [オプション]
   agenda_preview:
@@ -212,10 +212,10 @@ metadata:
 # ============================================================
 # プレースホルダー一覧
 # ============================================================
-# {{MTG_ID}}              - MTG識別子 (例: mtg_hq_20260129_001)
-# {{MTG_TYPE}}            - MTGタイプ (hq_meeting/platoon_meeting/battalion_meeting)
-# {{MTG_TITLE}}           - MTGタイトル
-# {{MTG_DATETIME}}        - 開催日時 (ISO 8601)
+# {{BRIEFING_ID}}              - BRIEFING識別子 (例: briefing_hq_20260129_001)
+# {{BRIEFING_TYPE}}            - BRIEFINGタイプ (hq_briefing/platoon_briefing/battalion_briefing)
+# {{BRIEFING_TITLE}}           - BRIEFINGタイトル
+# {{BRIEFING_DATETIME}}        - 開催日時 (ISO 8601)
 # {{DURATION_MINUTES}}    - 所要時間（分）
 # {{ORGANIZER_ID}}        - 主催者ID
 # {{RECORDER_ID}}         - 記録者ID
@@ -236,7 +236,7 @@ metadata:
 # {{ASSIGNEE_ID_N}}       - 担当者ID
 # {{DEADLINE_N}}          - 期限 (YYYY-MM-DD)
 # {{PRIORITY_N}}          - 優先度 (high/medium/low)
-# {{NEXT_MTG_DATETIME}}   - 次回MTG予定日時
+# {{NEXT_BRIEFING_DATETIME}}   - 次回BRIEFING予定日時
 # {{NEXT_AGENDA_N}}       - 次回議題案
 # {{CREATED_TIMESTAMP}}   - 作成日時
 # {{UPDATED_TIMESTAMP}}   - 最終更新日時

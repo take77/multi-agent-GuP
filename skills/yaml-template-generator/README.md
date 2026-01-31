@@ -4,7 +4,7 @@
 
 ## 概要
 
-マルチエージェントシステムで使用する通信用YAMLテンプレート群を、プロジェクト設定から自動生成する。指示（order）、報告（report）、タスク（task）、MTG関連など、様々なテンプレートを統一的なフォーマットで生成できる。
+マルチエージェントシステムで使用する通信用YAMLテンプレート群を、プロジェクト設定から自動生成する。指示（order）、報告（report）、タスク（task）、BRIEFING関連など、様々なテンプレートを統一的なフォーマットで生成できる。
 
 提案者: チームメンバー2（D2作業中に提案）
 
@@ -13,7 +13,7 @@
 - 指示テンプレート生成（order）
 - 報告テンプレート生成（report）
 - タスクテンプレート生成（task）
-- MTGテンプレート生成（mtg_schedule, mtg_discussion）
+- BRIEFINGテンプレート生成（briefing_schedule, briefing_discussion）
 - `{{PLACEHOLDER}}` 形式のプレースホルダー
 - YAMLコメントでの使用方法説明
 
@@ -59,8 +59,8 @@ queue_structure:
 | order.yaml.template | YAML | 指示テンプレート |
 | report.yaml.template | YAML | 報告テンプレート |
 | task.yaml.template | YAML | タスクテンプレート |
-| mtg_schedule.yaml.template | YAML | MTGスケジュールテンプレート |
-| mtg_discussion.yaml.template | YAML | MTG議事録テンプレート |
+| briefing_schedule.yaml.template | YAML | BRIEFINGスケジュールテンプレート |
+| briefing_discussion.yaml.template | YAML | BRIEFING議事録テンプレート |
 
 ## ワークフロー
 
@@ -94,8 +94,8 @@ queue_structure:
              │
              ▼
     ┌────────────────┐
-    │ 5. MTGテンプレ  │
-    │   mtg_*.yaml   │
+    │ 5. BRIEFINGテンプレ  │
+    │   briefing_*.yaml   │
     └────────┬───────┘
              │
              ▼

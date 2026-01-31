@@ -53,7 +53,7 @@ structure:
 ├── templates/           # テンプレート
 ├── logs/
 │   ├── daily/           # 日次ログ
-│   └── mtg/             # ミーティングログ
+│   └── briefing/             # ミーティングログ
 ├── queue/
 │   ├── hq/              # 本部キュー
 │   └── platoon{N}/      # 中隊別キュー

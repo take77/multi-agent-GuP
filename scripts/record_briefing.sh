@@ -2,18 +2,18 @@
 # ============================================================
 # Panzer Project - Discussion Recorder
 # ============================================================
-# MTG中の議論を記録するスクリプト
+# BRIEFING中の議論を記録するスクリプト
 #
 # 使用例:
-#   ./record_briefing.sh mtg_001 miho "パンツァー・フォー！"
-#   ./record_briefing.sh mtg_001 kay "OK! Let's do it!"
-#   ./record_briefing.sh mtg_001 --decision "機能Aはplatoon1が担当"
-#   ./record_briefing.sh mtg_001 --action "バグ修正" --assignee naomi --deadline "2026-01-30"
+#   ./record_briefing.sh briefing_001 miho "パンツァー・フォー！"
+#   ./record_briefing.sh briefing_001 kay "OK! Let's do it!"
+#   ./record_briefing.sh briefing_001 --decision "機能Aはplatoon1が担当"
+#   ./record_briefing.sh briefing_001 --action "バグ修正" --assignee naomi --deadline "2026-01-30"
 # ============================================================
 
 # 作業ディレクトリ
 WORK_DIR="/home/take77-ubuntu-2/Developments/products/multi-agent-GuP"
-MEETINGS_DIR="${WORK_DIR}/queue/meetings"
+BRIEFINGS_DIR="${WORK_DIR}/queue/briefings"
 
 # 色設定
 RED='\033[0;31m'
@@ -31,9 +31,9 @@ show_help() {
 Panzer Project - Discussion Recorder
 
 Usage:
-  $(basename "$0") MTG_ID SPEAKER "CONTENT"           Record a comment
-  $(basename "$0") MTG_ID --decision "CONTENT"        Record a decision
-  $(basename "$0") MTG_ID --action "CONTENT" [OPTIONS]  Record an action item
+  $(basename "$0") BRIEFING_ID SPEAKER "CONTENT"           Record a comment
+  $(basename "$0") BRIEFING_ID --decision "CONTENT"        Record a decision
+  $(basename "$0") BRIEFING_ID --action "CONTENT" [OPTIONS]  Record an action item
 
 Options for --action:
   --assignee NAME     Assign to a person
@@ -41,13 +41,13 @@ Options for --action:
   --priority LEVEL    Set priority (high/medium/low)
 
 Examples:
-  $(basename "$0") mtg_001 miho "パンツァー・フォー！"
-  $(basename "$0") mtg_001 kay "OK! Let's do it!"
-  $(basename "$0") mtg_001 --decision "機能Aはplatoon1が担当"
-  $(basename "$0") mtg_001 --action "バグ修正" --assignee naomi --deadline "2026-01-30"
+  $(basename "$0") briefing_001 miho "パンツァー・フォー！"
+  $(basename "$0") briefing_001 kay "OK! Let's do it!"
+  $(basename "$0") briefing_001 --decision "機能Aはplatoon1が担当"
+  $(basename "$0") briefing_001 --action "バグ修正" --assignee naomi --deadline "2026-01-30"
 
 Discussion file location:
-  queue/meetings/mtg_{id}/discussion.yaml
+  queue/briefings/briefing_{id}/discussion.yaml
 EOF
 }
 
@@ -62,14 +62,14 @@ get_timestamp() {
 # 議事録ディレクトリとファイルの確認・作成
 # ============================================================
 ensure_discussion_file() {
-    local mtg_id=$1
-    local mtg_dir="${MEETINGS_DIR}/mtg_${mtg_id}"
-    local discussion_file="${mtg_dir}/discussion.yaml"
+    local briefing_id=$1
+    local briefing_dir="${BRIEFINGS_DIR}/briefing_${briefing_id}"
+    local discussion_file="${briefing_dir}/discussion.yaml"
 
     # ディレクトリ作成
-    if [ ! -d "$mtg_dir" ]; then
-        mkdir -p "$mtg_dir"
-        echo -e "${BLUE}[INFO]${NC} Created meeting directory: ${mtg_dir}" >&2
+    if [ ! -d "$briefing_dir" ]; then
+        mkdir -p "$briefing_dir"
+        echo -e "${BLUE}[INFO]${NC} Created briefing directory: ${briefing_dir}" >&2
     fi
 
     # ファイルが存在しない場合は新規作成
@@ -78,12 +78,12 @@ ensure_discussion_file() {
         timestamp=$(get_timestamp)
         cat > "$discussion_file" << EOF
 # ============================================================
-# MTG議事録 - ${mtg_id}
+# BRIEFING議事録 - ${briefing_id}
 # ============================================================
 # Created: ${timestamp}
 
-meeting:
-  mtg_id: "${mtg_id}"
+briefing:
+  briefing_id: "${briefing_id}"
   created_at: "${timestamp}"
   status: in_progress
 
@@ -103,13 +103,13 @@ EOF
 # 発言を追記
 # ============================================================
 record_comment() {
-    local mtg_id=$1
+    local briefing_id=$1
     local speaker=$2
     local content=$3
     local discussion_file
     local timestamp
 
-    discussion_file=$(ensure_discussion_file "$mtg_id")
+    discussion_file=$(ensure_discussion_file "$briefing_id")
     timestamp=$(get_timestamp)
 
     # YAML形式で追記（discussions配列に追加）
@@ -153,13 +153,13 @@ record_comment() {
 # 決定事項を追記
 # ============================================================
 record_decision() {
-    local mtg_id=$1
+    local briefing_id=$1
     local content=$2
     local discussion_file
     local timestamp
     local decision_id
 
-    discussion_file=$(ensure_discussion_file "$mtg_id")
+    discussion_file=$(ensure_discussion_file "$briefing_id")
     timestamp=$(get_timestamp)
 
     # 決定事項のIDを生成（連番）
@@ -206,7 +206,7 @@ record_decision() {
 # アクションアイテムを追記
 # ============================================================
 record_action() {
-    local mtg_id=$1
+    local briefing_id=$1
     local content=$2
     local assignee=$3
     local deadline=$4
@@ -215,7 +215,7 @@ record_action() {
     local timestamp
     local action_id
 
-    discussion_file=$(ensure_discussion_file "$mtg_id")
+    discussion_file=$(ensure_discussion_file "$briefing_id")
     timestamp=$(get_timestamp)
 
     # アクションIDを生成
@@ -279,7 +279,7 @@ main() {
         exit 1
     fi
 
-    local mtg_id=$1
+    local briefing_id=$1
     shift
 
     # 2番目の引数を確認
@@ -293,7 +293,7 @@ main() {
                 echo -e "${RED}[ERROR]${NC} --decision requires content"
                 exit 1
             fi
-            record_decision "$mtg_id" "$2"
+            record_decision "$briefing_id" "$2"
             ;;
         --action)
             if [ -z "$2" ]; then
@@ -337,7 +337,7 @@ main() {
                 exit 1
             fi
 
-            record_action "$mtg_id" "$content" "$assignee" "$deadline" "$priority"
+            record_action "$briefing_id" "$content" "$assignee" "$deadline" "$priority"
             ;;
         -*)
             echo -e "${RED}[ERROR]${NC} Unknown option: $1"
@@ -355,7 +355,7 @@ main() {
                 exit 1
             fi
 
-            record_comment "$mtg_id" "$speaker" "$content"
+            record_comment "$briefing_id" "$speaker" "$content"
             ;;
     esac
 }

@@ -24,7 +24,7 @@ structure:
   logs:
     subdirs:
       - daily
-      - mtg
+      - briefing
 
 options:
   include_gitignore: true
