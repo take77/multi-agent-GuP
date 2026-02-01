@@ -39,12 +39,12 @@ workflow_briefing:
     action: execute_call_briefing
     command: "./scripts/call_briefing.sh"
     variants:
-      - type: hq_briefing
-        args: 'hq_briefing "<議題>"'
-      - type: platoon_briefing
-        args: 'platoon_briefing <中隊> "<議題>"'
-      - type: battalion_briefing
-        args: 'battalion_briefing "<議題>"'
+      - type: hq_meeting
+        args: 'hq_meeting "<議題>"'
+      - type: platoon_meeting
+        args: 'platoon_meeting <中隊> "<議題>"'
+      - type: battalion_meeting
+        args: 'battalion_meeting "<議題>"'
     post_action: "schedule の status を in_progress に更新"
   - step: 2
     action: schedule_briefing
@@ -225,9 +225,9 @@ cat queue/hq/briefing_schedule.yaml
 
 | ブリーフィング種類 | コマンド |
 |-------------------|---------|
-| 司令部会議（hq_briefing） | `./scripts/call_briefing.sh hq_briefing "<議題>"` |
-| 中隊会議（platoon_briefing） | `./scripts/call_briefing.sh platoon_briefing <中隊> "<議題>"` |
-| 大隊会議（battalion_briefing） | `./scripts/call_briefing.sh battalion_briefing "<議題>"` |
+| 司令部会議（hq_meeting） | `./scripts/call_briefing.sh hq_meeting "<議題>"` |
+| 中隊会議（platoon_meeting） | `./scripts/call_briefing.sh platoon_meeting <中隊> "<議題>"` |
+| 大隊会議（battalion_meeting） | `./scripts/call_briefing.sh battalion_meeting "<議題>"` |
 
 **STEP 3: スケジュール更新**
 - 実行後、`briefing_schedule.yaml` の該当エントリの status を `in_progress` に更新する
@@ -235,13 +235,13 @@ cat queue/hq/briefing_schedule.yaml
 ### 例
 ```bash
 # 司令部会議の招集
-./scripts/call_briefing.sh hq_briefing "次回作戦の打ち合わせ"
+./scripts/call_briefing.sh hq_meeting "次回作戦の打ち合わせ"
 
 # 中隊会議の招集（アヒル中隊）
-./scripts/call_briefing.sh platoon_briefing ahiru "進捗確認ミーティング"
+./scripts/call_briefing.sh platoon_meeting ahiru "進捗確認ミーティング"
 
 # 大隊会議の招集
-./scripts/call_briefing.sh battalion_briefing "全体方針の共有"
+./scripts/call_briefing.sh battalion_meeting "全体方針の共有"
 ```
 
 ## 報告YAMLテンプレート

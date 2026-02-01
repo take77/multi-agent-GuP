@@ -1,16 +1,16 @@
 #!/bin/bash
 # ============================================================
-# end_briefing.sh - BRIEFING終了・議事録生成スクリプト
+# end_briefing.sh - MTG終了・議事録生成スクリプト
 # ============================================================
 # ガルパン・マルチエージェントシステム用
-# BRIEFINGを終了し、議事録を生成・配布する
+# MTGを終了し、議事録を生成・配布する
 #
 # 使用例:
-#   ./scripts/end_briefing.sh briefing_001
-#   ./scripts/end_briefing.sh briefing_001 --no-notify
+#   ./scripts/end_briefing.sh mtg_001
+#   ./scripts/end_briefing.sh mtg_001 --no-notify
 #
 # 処理フロー:
-#   1. queue/briefings/briefing_{id}/ の内容を読み込み
+#   1. queue/meetings/mtg_{id}/ の内容を読み込み
 #   2. 議論記録を時系列で整理
 #   3. 決定事項・アクションアイテムを抽出
 #   4. 完成した議事録を保存先に移動
@@ -30,7 +30,7 @@ NC='\033[0m' # No Color
 # スクリプトのディレクトリを取得
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-BRIEFINGS_DIR="$PROJECT_ROOT/queue/briefings"
+MEETINGS_DIR="$PROJECT_ROOT/queue/meetings"
 LOG_DIR="$PROJECT_ROOT/logs"
 LOG_FILE="$LOG_DIR/end_briefing.log"
 
@@ -130,20 +130,20 @@ get_yaml_array() {
 }
 
 # ============================================================
-# BRIEFINGディレクトリ構造の確認
+# MTGディレクトリ構造の確認
 # ============================================================
 
-validate_briefing_dir() {
-    local briefing_id=$1
-    local briefing_dir="$BRIEFINGS_DIR/$briefing_id"
+validate_meeting_dir() {
+    local mtg_id=$1
+    local mtg_dir="$MEETINGS_DIR/$mtg_id"
 
-    if [[ ! -d "$briefing_dir" ]]; then
-        print_error "BRIEFINGディレクトリが見つかりません: $briefing_dir"
+    if [[ ! -d "$mtg_dir" ]]; then
+        print_error "MTGディレクトリが見つかりません: $mtg_dir"
         return 1
     fi
 
     # 必要なファイルの確認
-    if [[ ! -f "$briefing_dir/schedule.yaml" ]]; then
+    if [[ ! -f "$mtg_dir/schedule.yaml" ]]; then
         print_warning "schedule.yaml が見つかりません（スキップ）"
     fi
 
@@ -151,36 +151,36 @@ validate_briefing_dir() {
 }
 
 # ============================================================
-# BRIEFING情報の読み込み
+# MTG情報の読み込み
 # ============================================================
 
-load_briefing_info() {
-    local briefing_id=$1
-    local briefing_dir="$BRIEFINGS_DIR/$briefing_id"
+load_meeting_info() {
+    local mtg_id=$1
+    local mtg_dir="$MEETINGS_DIR/$mtg_id"
 
     # デフォルト値
-    BRIEFING_TYPE="general_briefing"
-    BRIEFING_ORGANIZER="unknown"
-    BRIEFING_RECORDER="hana"
-    BRIEFING_DATETIME=$(date "+%Y-%m-%dT%H:%M:%S")
-    BRIEFING_TOPIC="BRIEFING"
+    MTG_TYPE="general_meeting"
+    MTG_ORGANIZER="unknown"
+    MTG_RECORDER="hana"
+    MTG_DATETIME=$(date "+%Y-%m-%dT%H:%M:%S")
+    MTG_TOPIC="MTG"
 
     # schedule.yaml から読み込み
-    if [[ -f "$briefing_dir/schedule.yaml" ]]; then
+    if [[ -f "$mtg_dir/schedule.yaml" ]]; then
         local type_val
-        type_val=$(get_yaml_value "$briefing_dir/schedule.yaml" "briefing.type")
-        [[ -n "$type_val" ]] && BRIEFING_TYPE="$type_val"
+        type_val=$(get_yaml_value "$mtg_dir/schedule.yaml" "meeting.type")
+        [[ -n "$type_val" ]] && MTG_TYPE="$type_val"
 
         local org_val
-        org_val=$(get_yaml_value "$briefing_dir/schedule.yaml" "briefing.organizer")
-        [[ -n "$org_val" ]] && BRIEFING_ORGANIZER="$org_val"
+        org_val=$(get_yaml_value "$mtg_dir/schedule.yaml" "meeting.organizer")
+        [[ -n "$org_val" ]] && MTG_ORGANIZER="$org_val"
 
         local topic_val
-        topic_val=$(get_yaml_value "$briefing_dir/schedule.yaml" "briefing.topic")
-        [[ -n "$topic_val" ]] && BRIEFING_TOPIC="$topic_val"
+        topic_val=$(get_yaml_value "$mtg_dir/schedule.yaml" "meeting.topic")
+        [[ -n "$topic_val" ]] && MTG_TOPIC="$topic_val"
     fi
 
-    print_info "BRIEFING情報を読み込みました: $briefing_id (type: $BRIEFING_TYPE)"
+    print_info "MTG情報を読み込みました: $mtg_id (type: $MTG_TYPE)"
 }
 
 # ============================================================
@@ -188,15 +188,15 @@ load_briefing_info() {
 # ============================================================
 
 get_participants() {
-    local briefing_id=$1
-    local briefing_dir="$BRIEFINGS_DIR/$briefing_id"
+    local mtg_id=$1
+    local mtg_dir="$MEETINGS_DIR/$mtg_id"
 
     PARTICIPANTS=()
 
-    if [[ -f "$briefing_dir/schedule.yaml" ]]; then
+    if [[ -f "$mtg_dir/schedule.yaml" ]]; then
         while IFS= read -r participant; do
             [[ -n "$participant" ]] && PARTICIPANTS+=("$participant")
-        done < <(get_yaml_array "$briefing_dir/schedule.yaml" "briefing.participants")
+        done < <(get_yaml_array "$mtg_dir/schedule.yaml" "meeting.participants")
     fi
 
     # デフォルト参加者（空の場合）
@@ -210,14 +210,14 @@ get_participants() {
 # ============================================================
 
 collect_discussions() {
-    local briefing_id=$1
-    local briefing_dir="$BRIEFINGS_DIR/$briefing_id"
+    local mtg_id=$1
+    local mtg_dir="$MEETINGS_DIR/$mtg_id"
 
     DISCUSSIONS=""
 
     # discussion*.yaml ファイルを収集
-    if [[ -d "$briefing_dir" ]]; then
-        for disc_file in "$briefing_dir"/discussion*.yaml "$briefing_dir"/disc*.yaml; do
+    if [[ -d "$mtg_dir" ]]; then
+        for disc_file in "$mtg_dir"/discussion*.yaml "$mtg_dir"/disc*.yaml; do
             if [[ -f "$disc_file" ]]; then
                 print_info "議論記録を読み込み: $(basename "$disc_file")"
                 DISCUSSIONS+="$(cat "$disc_file")\n---\n"
@@ -231,14 +231,14 @@ collect_discussions() {
 # ============================================================
 
 extract_decisions() {
-    local briefing_id=$1
-    local briefing_dir="$BRIEFINGS_DIR/$briefing_id"
+    local mtg_id=$1
+    local mtg_dir="$MEETINGS_DIR/$mtg_id"
 
     DECISIONS=()
     local dec_count=0
 
     # decision*.yaml または discussion 内の decisions を抽出
-    for file in "$briefing_dir"/*.yaml; do
+    for file in "$mtg_dir"/*.yaml; do
         if [[ -f "$file" ]]; then
             while IFS= read -r decision; do
                 if [[ -n "$decision" ]]; then
@@ -257,14 +257,14 @@ extract_decisions() {
 # ============================================================
 
 extract_action_items() {
-    local briefing_id=$1
-    local briefing_dir="$BRIEFINGS_DIR/$briefing_id"
+    local mtg_id=$1
+    local mtg_dir="$MEETINGS_DIR/$mtg_id"
 
     ACTION_ITEMS=()
     local ai_count=0
 
     # action_items を抽出
-    for file in "$briefing_dir"/*.yaml; do
+    for file in "$mtg_dir"/*.yaml; do
         if [[ -f "$file" ]]; then
             while IFS= read -r action; do
                 if [[ -n "$action" ]]; then
@@ -283,7 +283,7 @@ extract_action_items() {
 # ============================================================
 
 generate_minutes_yaml() {
-    local briefing_id=$1
+    local mtg_id=$1
     local output_file=$2
     local end_time
     end_time=$(date "+%Y-%m-%dT%H:%M:%S")
@@ -293,19 +293,19 @@ generate_minutes_yaml() {
 
     cat > "$output_file" << EOF
 # ============================================================
-# 議事録 (Briefing Minutes)
+# 議事録 (Meeting Minutes)
 # Generated by end_briefing.sh
 # ============================================================
 
 minutes:
-  briefing_id: "$briefing_id"
-  type: "$BRIEFING_TYPE"
-  datetime: "$BRIEFING_DATETIME"
+  mtg_id: "$mtg_id"
+  type: "$MTG_TYPE"
+  datetime: "$MTG_DATETIME"
   end_time: "$end_time"
   duration_minutes: $duration
-  organizer: "$BRIEFING_ORGANIZER"
-  recorder: "$BRIEFING_RECORDER"
-  topic: "$BRIEFING_TOPIC"
+  organizer: "$MTG_ORGANIZER"
+  recorder: "$MTG_RECORDER"
+  topic: "$MTG_TOPIC"
 
   participants:
     attended:
@@ -320,7 +320,7 @@ EOF
     absent: []
 
   summary: |
-    $BRIEFING_TOPIC に関するBRIEFINGを実施。
+    $MTG_TOPIC に関するMTGを実施。
     決定事項 ${#DECISIONS[@]}件、アクションアイテム ${#ACTION_ITEMS[@]}件。
 
   decisions:
@@ -334,7 +334,7 @@ EOF
             cat >> "$output_file" << EOF
     - id: "$dec_id"
       description: "$dec_desc"
-      decided_by: "$BRIEFING_ORGANIZER"
+      decided_by: "$MTG_ORGANIZER"
 EOF
         done
     else
@@ -368,7 +368,7 @@ EOF
 
     cat >> "$output_file" << EOF
 
-  next_briefing:
+  next_meeting:
     date: "TBD"
     agenda: "進捗確認"
 
@@ -385,27 +385,27 @@ EOF
 # ============================================================
 
 get_destination_dir() {
-    local briefing_type=$1
+    local mtg_type=$1
     local dest_dir=""
 
-    case "$briefing_type" in
-        hq_briefing|commander_briefing)
+    case "$mtg_type" in
+        hq_meeting|commander_meeting)
             dest_dir="$PROJECT_ROOT/queue/hq/minutes"
             ;;
-        platoon_briefing|platoon1_briefing)
+        platoon_meeting|platoon1_meeting)
             dest_dir="$PROJECT_ROOT/queue/platoon1/minutes"
             ;;
-        platoon2_briefing)
+        platoon2_meeting)
             dest_dir="$PROJECT_ROOT/queue/platoon2/minutes"
             ;;
-        platoon3_briefing)
+        platoon3_meeting)
             dest_dir="$PROJECT_ROOT/queue/platoon3/minutes"
             ;;
-        battalion_briefing)
+        battalion_meeting)
             dest_dir="$PROJECT_ROOT/queue/battalion/minutes"
             ;;
         *)
-            dest_dir="$PROJECT_ROOT/queue/briefings/minutes"
+            dest_dir="$PROJECT_ROOT/queue/meetings/minutes"
             ;;
     esac
 
@@ -417,7 +417,7 @@ get_destination_dir() {
 # ============================================================
 
 notify_participants() {
-    local briefing_id=$1
+    local mtg_id=$1
     local minutes_path=$2
 
     print_header "=== 参加者への通知 ==="
@@ -430,7 +430,7 @@ notify_participants() {
     fi
 
     # 各参加者に通知（セッション名は推測）
-    local message="議事録が完成しました: $briefing_id - $minutes_path"
+    local message="議事録が完成しました: $mtg_id - $minutes_path"
 
     # HQ（司令部）への通知
     if "$notify_script" "panzer-hq:0.0" "$message" 2>/dev/null; then
@@ -475,20 +475,20 @@ display_action_items() {
 
 show_help() {
     cat << 'EOF'
-BRIEFING終了・議事録生成スクリプト - ガルパン・マルチエージェントシステム
+MTG終了・議事録生成スクリプト - ガルパン・マルチエージェントシステム
 
 使用法:
-  ./scripts/end_briefing.sh <briefing_id> [options]
+  ./scripts/end_briefing.sh <mtg_id> [options]
 
 引数:
-  briefing_id          BRIEFINGのID（例: briefing_001）
+  mtg_id          MTGのID（例: mtg_001）
 
 オプション:
   --no-notify     参加者への通知をスキップ
   --help, -h      このヘルプを表示
 
 処理フロー:
-  1. queue/briefings/<briefing_id>/ の内容を読み込み
+  1. queue/meetings/<mtg_id>/ の内容を読み込み
   2. 議論記録を時系列で整理
   3. 決定事項を抽出してリスト化
   4. アクションアイテムを抽出してリスト化
@@ -496,14 +496,14 @@ BRIEFING終了・議事録生成スクリプト - ガルパン・マルチエー
   6. 参加者に通知（--no-notify で省略可）
 
 出力:
-  - 議事録YAML: queue/{hq|platoon{N}|battalion}/minutes/<briefing_id>_minutes.yaml
+  - 議事録YAML: queue/{hq|platoon{N}|battalion}/minutes/<mtg_id>_minutes.yaml
 
 例:
-  # BRIEFINGを終了して議事録を生成
-  ./scripts/end_briefing.sh briefing_001
+  # MTGを終了して議事録を生成
+  ./scripts/end_briefing.sh mtg_001
 
   # 通知なしで終了
-  ./scripts/end_briefing.sh briefing_001 --no-notify
+  ./scripts/end_briefing.sh mtg_001 --no-notify
 EOF
 }
 
@@ -512,7 +512,7 @@ EOF
 # ============================================================
 
 main() {
-    local briefing_id=""
+    local mtg_id=""
     local no_notify=false
 
     # 引数パース
@@ -532,55 +532,55 @@ main() {
                 exit 1
                 ;;
             *)
-                briefing_id="$1"
+                mtg_id="$1"
                 shift
                 ;;
         esac
     done
 
     # 引数チェック
-    if [[ -z "$briefing_id" ]]; then
-        print_error "BRIEFING IDが指定されていません"
-        echo "使用法: ./scripts/end_briefing.sh <briefing_id>"
+    if [[ -z "$mtg_id" ]]; then
+        print_error "MTG IDが指定されていません"
+        echo "使用法: ./scripts/end_briefing.sh <mtg_id>"
         exit 1
     fi
 
-    print_header "=== BRIEFING終了処理開始: $briefing_id ==="
+    print_header "=== MTG終了処理開始: $mtg_id ==="
     echo ""
 
-    # 1. BRIEFINGディレクトリの検証
-    if ! validate_briefing_dir "$briefing_id"; then
+    # 1. MTGディレクトリの検証
+    if ! validate_meeting_dir "$mtg_id"; then
         # ディレクトリがなくてもデモ用に続行
-        print_warning "BRIEFINGディレクトリがないためデモモードで実行"
-        mkdir -p "$BRIEFINGS_DIR/$briefing_id"
+        print_warning "MTGディレクトリがないためデモモードで実行"
+        mkdir -p "$MEETINGS_DIR/$mtg_id"
     fi
 
-    # 2. BRIEFING情報の読み込み
-    load_briefing_info "$briefing_id"
+    # 2. MTG情報の読み込み
+    load_meeting_info "$mtg_id"
 
     # 3. 参加者リストの取得
-    get_participants "$briefing_id"
+    get_participants "$mtg_id"
     print_info "参加者: ${PARTICIPANTS[*]}"
 
     # 4. 議論記録の収集
-    collect_discussions "$briefing_id"
+    collect_discussions "$mtg_id"
 
     # 5. 決定事項の抽出
-    extract_decisions "$briefing_id"
+    extract_decisions "$mtg_id"
 
     # 6. アクションアイテムの抽出
-    extract_action_items "$briefing_id"
+    extract_action_items "$mtg_id"
 
     # 7. 保存先の決定と作成
     local dest_dir
-    dest_dir=$(get_destination_dir "$BRIEFING_TYPE")
+    dest_dir=$(get_destination_dir "$MTG_TYPE")
     mkdir -p "$dest_dir"
 
-    local minutes_file="$dest_dir/${briefing_id}_minutes.yaml"
+    local minutes_file="$dest_dir/${mtg_id}_minutes.yaml"
 
     # 8. 議事録YAMLの生成
     echo ""
-    generate_minutes_yaml "$briefing_id" "$minutes_file"
+    generate_minutes_yaml "$mtg_id" "$minutes_file"
 
     # 9. アクションアイテム一覧の表示
     echo ""
@@ -588,13 +588,13 @@ main() {
 
     # 10. 参加者への通知
     if [[ "$no_notify" == false ]]; then
-        notify_participants "$briefing_id" "$minutes_file"
+        notify_participants "$mtg_id" "$minutes_file"
     else
         print_info "通知はスキップされました（--no-notify）"
     fi
 
     echo ""
-    print_header "=== BRIEFING終了処理完了 ==="
+    print_header "=== MTG終了処理完了 ==="
     echo -e "議事録: ${GREEN}$minutes_file${NC}"
     echo ""
 }

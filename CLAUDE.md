@@ -83,7 +83,7 @@ multi-agent-GuP/
 ├── worktrees/                # git worktree用
 ├── status/                   # ステータス管理
 └── logs/                     # ログファイル
-    ├── briefing/
+    ├── mtg/
     └── daily/
 ```
 

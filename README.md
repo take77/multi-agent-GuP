@@ -45,20 +45,6 @@
 └───────────────┘ └───────────────┘ └───────────────┘
 ```
 
-### ウィンドウ単位のエージェント起動
-- `panzer_vor.sh` により、各エージェントが独立したtmuxウィンドウで動作
-- macOS / Linux でネイティブターミナルウィンドウを自動オープン（`bridge_launcher.sh`）
-- Alt+←→ / Alt+1-9 キーバインドによるウィンドウ間の高速切り替え（tmux prefix不要）
-
-### 自律駆動プロトコル
-- 司令部参謀（まほ・ゆかり・さおり・華・麻子）がnotify受信で即座に自律的作業を開始
-- ACKプロトコル（`pending` → `accepted` → `done`）によるYAMLステータスベースの静的同期
-- 送信即終了ルール（Fire-and-Forget）: 指示送信後にプロセスが待機せず即座に終了
-
-### notify.sh のインテリジェント通知
-- tmux capture-pane による送信先のアイドル状態プレチェック機能
-- アイドル確認後に送信することで、処理中エージェントへの割り込みを防止
-
 ### git worktree による並列作業
 - 各中隊が独立したworktreeで作業
 - 競合を避けながら並列開発が可能
@@ -98,7 +84,6 @@ cat config/settings.yaml
 
 ```bash
 # Panzer Project を起動（24エージェント展開）
-# 各エージェントが独立したtmuxウィンドウで起動される
 ./scripts/panzer_vor.sh
 
 # セッション一覧を確認
@@ -106,19 +91,6 @@ tmux list-sessions
 
 # 司令部セッションにアタッチ
 tmux attach -t panzer-hq
-```
-
-> **Note**: `panzer_vor.sh` は各エージェントをウィンドウ単位で起動します。
-> macOS では Terminal.app（AppleScript経由）、Linux では Konsole / GNOME Terminal が
-> `bridge_launcher.sh` により自動オープンされます。
-
-### ウィンドウ間の切り替え
-
-```bash
-# Altキーバインドでウィンドウを切り替え（tmux prefix 不要）
-Alt + ←    # 前のウィンドウへ
-Alt + →    # 次のウィンドウへ
-Alt + 1-9  # 指定番号のウィンドウへ直接ジャンプ
 ```
 
 ---
@@ -159,12 +131,11 @@ multi-agent-GuP/
 │   └── battalion_briefing.yaml.template # 大隊ブリーフィング
 │
 ├── scripts/             # 運用スクリプト
-│   ├── panzer_vor.sh        # システム起動（ウィンドウ単位）
-│   ├── bridge_launcher.sh   # マルチOS対応ターミナル起動
+│   ├── panzer_vor.sh        # システム起動
 │   ├── call_briefing.sh     # ブリーフィング開催
 │   ├── record_briefing.sh   # 議論記録
 │   ├── end_briefing.sh      # ブリーフィング終了・議事録生成
-│   ├── notify.sh            # 通知送信（アイドルプレチェック付き）
+│   ├── notify.sh            # 通知送信
 │   └── worktree.sh          # worktree管理
 │
 ├── skills/              # スキル定義（10種類）
@@ -224,14 +195,14 @@ multi-agent-GuP/
 
 ```bash
 # 発言を記録
-./scripts/record_briefing.sh briefing_001 miho "パンツァー・フォー！"
-./scripts/record_briefing.sh briefing_001 kay "OK! Let's do it!"
+./scripts/record_briefing.sh mtg_001 miho "パンツァー・フォー！"
+./scripts/record_briefing.sh mtg_001 kay "OK! Let's do it!"
 
 # 決定事項を記録
-./scripts/record_briefing.sh briefing_001 --decision "機能Aはplatoon1が担当"
+./scripts/record_briefing.sh mtg_001 --decision "機能Aはplatoon1が担当"
 
 # アクションアイテムを記録
-./scripts/record_briefing.sh briefing_001 --action "API設計書作成" \
+./scripts/record_briefing.sh mtg_001 --action "API設計書作成" \
   --assignee naomi --deadline "2026-01-30"
 ```
 
@@ -239,9 +210,9 @@ multi-agent-GuP/
 
 ```bash
 # ブリーフィングを終了し議事録を生成
-./scripts/end_briefing.sh briefing_001
+./scripts/end_briefing.sh mtg_001
 
-# 生成される議事録: queue/hq/minutes/briefing_001_minutes.yaml
+# 生成される議事録: queue/hq/minutes/mtg_001_minutes.yaml
 ```
 
 ### タスクの割り当て方法
@@ -264,9 +235,6 @@ EOF
 ---
 
 ## キャラクター一覧
-
-> **Note**: 下表の「セッション」欄はペイン番号（歴史的表記）です。
-> 現在は各エージェントが独立したtmuxウィンドウで動作しています。
 
 ### 司令部 (panzer-hq) - 6名
 
