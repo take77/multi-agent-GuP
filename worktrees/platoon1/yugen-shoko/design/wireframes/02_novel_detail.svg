@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 375 812" width="375" height="812">
+  <title>小説詳細ページ - ワイヤーフレーム</title>
+  <desc>小説の詳細情報とエピソード一覧。</desc>
+
+  <!-- Background -->
+  <rect width="375" height="812" fill="#F9F8F6"/>
+
+  <!-- Status Bar -->
+  <text x="187" y="30" font-family="sans-serif" font-size="12" fill="#2D2D2D" text-anchor="middle">9:41</text>
+
+  <!-- Header with back button -->
+  <rect x="0" y="44" width="375" height="48" fill="#F9F8F6"/>
+  <text x="16" y="74" font-family="sans-serif" font-size="16" fill="#2D2D2D">&lt; 戻る</text>
+  <!-- Bookmark icon -->
+  <path d="M335 56 L335 78 L347 72 L359 78 L359 56 Z" fill="none" stroke="#2D2D2D" stroke-width="1.5"/>
+
+  <!-- Hero Cover Area -->
+  <rect x="0" y="92" width="375" height="200" fill="#E8E4DF"/>
+  <!-- Gradient overlay -->
+  <rect x="0" y="232" width="375" height="60" fill="url(#fadeGrad)" opacity="0.8"/>
+  <defs>
+    <linearGradient id="fadeGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F9F8F6" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#F9F8F6" stop-opacity="1"/>
+    </linearGradient>
+  </defs>
+  <!-- Cover image label -->
+  <text x="187" y="180" font-family="sans-serif" font-size="12" fill="#6B6B6B" text-anchor="middle">カバーイメージ</text>
+  <text x="187" y="196" font-family="sans-serif" font-size="10" fill="#6B6B6B" text-anchor="middle">375 x 200</text>
+
+  <!-- Title Section -->
+  <text x="24" y="316" font-family="serif" font-size="22" font-weight="700" fill="#2D2D2D">蒼穹の剣聖伝説</text>
+  <text x="24" y="338" font-family="sans-serif" font-size="13" fill="#6B6B6B">クリエイト &amp; レビュー 著</text>
+
+  <!-- Badges -->
+  <rect x="24" y="352" width="64" height="24" rx="12" fill="#F0ECE7"/>
+  <text x="56" y="368" font-family="sans-serif" font-size="10" fill="#5A5A5A" text-anchor="middle">ファンタジー</text>
+  <rect x="96" y="352" width="48" height="24" rx="12" fill="#F0ECE7"/>
+  <text x="120" y="368" font-family="sans-serif" font-size="10" fill="#5A5A5A" text-anchor="middle">冒険</text>
+  <rect x="152" y="352" width="48" height="24" rx="12" fill="#F0ECE7"/>
+  <text x="176" y="368" font-family="sans-serif" font-size="10" fill="#5A5A5A" text-anchor="middle">連載中</text>
+
+  <!-- Stats Row -->
+  <rect x="24" y="388" width="327" height="48" rx="8" fill="#FFFFFF" stroke="#D9D5CF" stroke-width="0.5"/>
+  <text x="78" y="410" font-family="sans-serif" font-size="16" font-weight="700" fill="#2D2D2D" text-anchor="middle">42</text>
+  <text x="78" y="426" font-family="sans-serif" font-size="9" fill="#6B6B6B" text-anchor="middle">エピソード</text>
+  <line x1="132" y1="396" x2="132" y2="428" stroke="#D9D5CF" stroke-width="0.5"/>
+  <text x="187" y="410" font-family="sans-serif" font-size="16" font-weight="700" fill="#2D2D2D" text-anchor="middle">1.2k</text>
+  <text x="187" y="426" font-family="sans-serif" font-size="9" fill="#6B6B6B" text-anchor="middle">お気に入り</text>
+  <line x1="242" y1="396" x2="242" y2="428" stroke="#D9D5CF" stroke-width="0.5"/>
+  <text x="297" y="410" font-family="sans-serif" font-size="16" font-weight="700" fill="#2D2D2D" text-anchor="middle">4.5</text>
+  <text x="297" y="426" font-family="sans-serif" font-size="9" fill="#6B6B6B" text-anchor="middle">評価</text>
+
+  <!-- Synopsis -->
+  <text x="24" y="462" font-family="serif" font-size="15" font-weight="700" fill="#2D2D2D">あらすじ</text>
+  <text x="24" y="482" font-family="sans-serif" font-size="13" fill="#2D2D2D">天空の浮遊城に封印された古代の剣。</text>
+  <text x="24" y="500" font-family="sans-serif" font-size="13" fill="#2D2D2D">若き剣士レイドは、師匠の遺言に導かれ</text>
+  <text x="24" y="518" font-family="sans-serif" font-size="13" fill="#2D2D2D">果てなき旅路へと踏み出す...</text>
+  <text x="24" y="536" font-family="sans-serif" font-size="12" fill="#9D8CA1">もっと読む</text>
+
+  <!-- CTA Button -->
+  <rect x="24" y="552" width="327" height="48" rx="10" fill="#9D8CA1"/>
+  <text x="187" y="581" font-family="sans-serif" font-size="15" font-weight="500" fill="#FFFFFF" text-anchor="middle">第1話から読む</text>
+
+  <!-- Divider -->
+  <line x1="24" y1="616" x2="351" y2="616" stroke="#D9D5CF" stroke-width="0.5"/>
+
+  <!-- Episode List Header -->
+  <text x="24" y="642" font-family="serif" font-size="15" font-weight="700" fill="#2D2D2D">エピソード一覧</text>
+  <text x="351" y="642" font-family="sans-serif" font-size="12" fill="#9D8CA1" text-anchor="end">新しい順</text>
+
+  <!-- Episode Item 1 -->
+  <rect x="24" y="656" width="327" height="52" rx="0" fill="transparent"/>
+  <text x="24" y="676" font-family="sans-serif" font-size="13" font-weight="500" fill="#2D2D2D">第42話: 覚醒の刻</text>
+  <text x="24" y="696" font-family="sans-serif" font-size="11" fill="#6B6B6B">2h前 ・ 約5分</text>
+  <rect x="307" y="664" width="44" height="24" rx="12" fill="#9D8CA1"/>
+  <text x="329" y="680" font-family="sans-serif" font-size="10" fill="#FFFFFF" text-anchor="middle">NEW</text>
+  <line x1="24" y1="708" x2="351" y2="708" stroke="#D9D5CF" stroke-width="0.25"/>
+
+  <!-- Episode Item 2 -->
+  <text x="24" y="728" font-family="sans-serif" font-size="13" font-weight="500" fill="#2D2D2D">第41話: 迷いの森</text>
+  <text x="24" y="748" font-family="sans-serif" font-size="11" fill="#6B6B6B">1日前 ・ 約6分</text>
+  <line x1="24" y1="760" x2="351" y2="760" stroke="#D9D5CF" stroke-width="0.25"/>
+
+  <!-- Episode Item 3 (partial) -->
+  <text x="24" y="780" font-family="sans-serif" font-size="13" font-weight="500" fill="#2D2D2D">第40話: 約束の地</text>
+  <text x="24" y="800" font-family="sans-serif" font-size="11" fill="#6B6B6B">2日前 ・ 約4分</text>
+
+  <!-- Frame -->
+  <rect x="0" y="0" width="375" height="812" fill="none" stroke="#CCC" stroke-width="0.5" stroke-dasharray="4"/>
+</svg>

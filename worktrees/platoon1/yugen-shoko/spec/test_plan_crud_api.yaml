@@ -1,0 +1,576 @@
+# ============================================================
+# 『幽玄書庫』CRUD API テスト計画書
+# ============================================================
+# タスクID: P1-TE-001
+# 作成者: 福田（第1中隊テスト担当）
+# 作成日: 2026-01-30
+# ステータス: Phase 1 先行策定（Phase 2 API完成後に実行）
+
+test_plan:
+  id: P1-TE-001
+  title: "幽玄書庫 CRUD API テスト計画"
+  version: "1.0"
+  author: fukuda
+  date: "2026-01-30"
+
+  # テスト対象
+  target_apis:
+    - "/api/v1/novels"
+    - "/api/v1/novels/:novel_id/episodes"
+    - "/api/v1/novels/:novel_id/chapters"
+
+  # 認証方式
+  authentication:
+    method: devise_token_auth
+    headers:
+      - access-token
+      - client
+      - uid
+
+  # カバレッジ目標
+  coverage:
+    overall: "80%以上"
+    critical_paths: "100%"
+
+  # ==========================================================
+  # 1. 小説 API テストケース (/api/v1/novels)
+  # ==========================================================
+  novels:
+    # --- 認証テスト ---
+    authentication:
+      - id: N-AUTH-001
+        method: GET
+        endpoint: "/api/v1/novels"
+        scenario: "未認証で小説一覧を取得"
+        expected_status: 200
+        note: "一覧は公開情報のため未認証でもアクセス可"
+
+      - id: N-AUTH-002
+        method: GET
+        endpoint: "/api/v1/novels/:id"
+        scenario: "未認証で小説詳細を取得"
+        expected_status: 200
+        note: "詳細も公開情報のため未認証でもアクセス可"
+
+      - id: N-AUTH-003
+        method: POST
+        endpoint: "/api/v1/novels"
+        scenario: "未認証で小説を作成しようとする"
+        expected_status: 401
+        note: "認証必須エンドポイント"
+
+      - id: N-AUTH-004
+        method: PUT
+        endpoint: "/api/v1/novels/:id"
+        scenario: "未認証で小説を更新しようとする"
+        expected_status: 401
+        note: "認証必須エンドポイント"
+
+      - id: N-AUTH-005
+        method: DELETE
+        endpoint: "/api/v1/novels/:id"
+        scenario: "未認証で小説を削除しようとする"
+        expected_status: 401
+        note: "認証必須エンドポイント"
+
+      - id: N-AUTH-006
+        method: PUT
+        endpoint: "/api/v1/novels/:id"
+        scenario: "他ユーザーの小説を更新しようとする"
+        expected_status: 403
+        note: "自分の小説のみ更新可"
+
+      - id: N-AUTH-007
+        method: DELETE
+        endpoint: "/api/v1/novels/:id"
+        scenario: "他ユーザーの小説を削除しようとする"
+        expected_status: 403
+        note: "自分の小説のみ削除可"
+
+    # --- CRUD 正常系テスト ---
+    crud_success:
+      - id: N-CRUD-001
+        method: GET
+        endpoint: "/api/v1/novels"
+        scenario: "小説一覧を取得する"
+        expected_status: 200
+        expected_body:
+          - "小説の配列が返る"
+          - "各小説にtitle, synopsis, genre, status, cover_image_url, published_at, total_episodesが含まれる"
+
+      - id: N-CRUD-002
+        method: GET
+        endpoint: "/api/v1/novels/:id"
+        scenario: "小説詳細を取得する"
+        expected_status: 200
+        expected_body:
+          - "指定IDの小説情報が返る"
+          - "全カラムの値が正しく返される"
+
+      - id: N-CRUD-003
+        method: POST
+        endpoint: "/api/v1/novels"
+        scenario: "認証済みユーザーが小説を新規作成する"
+        expected_status: 201
+        request_body:
+          title: "テスト小説"
+          synopsis: "テスト概要"
+          genre: "fantasy"
+          status: "draft"
+        expected_body:
+          - "作成された小説の情報が返る"
+          - "user_idが認証ユーザーのIDと一致"
+
+      - id: N-CRUD-004
+        method: PUT
+        endpoint: "/api/v1/novels/:id"
+        scenario: "認証済みユーザーが自分の小説を更新する"
+        expected_status: 200
+        request_body:
+          title: "更新後タイトル"
+        expected_body:
+          - "更新後の小説情報が返る"
+          - "titleが更新されている"
+
+      - id: N-CRUD-005
+        method: DELETE
+        endpoint: "/api/v1/novels/:id"
+        scenario: "認証済みユーザーが自分の小説を削除する"
+        expected_status: 200
+        expected_body:
+          - "削除成功のレスポンス"
+          - "再取得すると404"
+
+    # --- CRUD 異常系テスト ---
+    crud_error:
+      - id: N-ERR-001
+        method: POST
+        endpoint: "/api/v1/novels"
+        scenario: "titleなしで小説を作成しようとする"
+        expected_status: 422
+        request_body:
+          synopsis: "概要のみ"
+        expected_body:
+          - "バリデーションエラーメッセージ"
+
+      - id: N-ERR-002
+        method: POST
+        endpoint: "/api/v1/novels"
+        scenario: "不正なgenre値で小説を作成しようとする"
+        expected_status: 422
+        request_body:
+          title: "テスト"
+          genre: "invalid_genre"
+
+      - id: N-ERR-003
+        method: POST
+        endpoint: "/api/v1/novels"
+        scenario: "不正なstatus値で小説を作成しようとする"
+        expected_status: 422
+        request_body:
+          title: "テスト"
+          status: "invalid_status"
+
+      - id: N-ERR-004
+        method: GET
+        endpoint: "/api/v1/novels/999999"
+        scenario: "存在しない小説の詳細を取得しようとする"
+        expected_status: 404
+
+      - id: N-ERR-005
+        method: PUT
+        endpoint: "/api/v1/novels/999999"
+        scenario: "存在しない小説を更新しようとする"
+        expected_status: 404
+
+      - id: N-ERR-006
+        method: DELETE
+        endpoint: "/api/v1/novels/999999"
+        scenario: "存在しない小説を削除しようとする"
+        expected_status: 404
+
+    # --- ページネーション・フィルタテスト ---
+    pagination_and_filter:
+      - id: N-PAGE-001
+        method: GET
+        endpoint: "/api/v1/novels?page=1&per_page=10"
+        scenario: "ページネーション: 1ページ目を取得"
+        expected_status: 200
+        expected_body:
+          - "最大10件の小説が返る"
+          - "ページネーションメタ情報が含まれる（total_count, total_pages, current_page）"
+
+      - id: N-PAGE-002
+        method: GET
+        endpoint: "/api/v1/novels?page=2&per_page=5"
+        scenario: "ページネーション: 2ページ目を取得"
+        expected_status: 200
+        expected_body:
+          - "2ページ目のデータが返る"
+
+      - id: N-PAGE-003
+        method: GET
+        endpoint: "/api/v1/novels?page=9999"
+        scenario: "ページネーション: 存在しないページを取得"
+        expected_status: 200
+        expected_body:
+          - "空配列が返る"
+
+      - id: N-FILT-001
+        method: GET
+        endpoint: "/api/v1/novels?genre=fantasy"
+        scenario: "ジャンルフィルタ: fantasyのみ取得"
+        expected_status: 200
+        expected_body:
+          - "全てfantasyジャンルの小説のみ返る"
+
+      - id: N-FILT-002
+        method: GET
+        endpoint: "/api/v1/novels?status=published"
+        scenario: "ステータスフィルタ: publishedのみ取得"
+        expected_status: 200
+        expected_body:
+          - "全てpublishedステータスの小説のみ返る"
+
+      - id: N-FILT-003
+        method: GET
+        endpoint: "/api/v1/novels?genre=fantasy&status=published"
+        scenario: "複合フィルタ: genre+status"
+        expected_status: 200
+        expected_body:
+          - "fantasyかつpublishedの小説のみ返る"
+
+      - id: N-FILT-004
+        method: GET
+        endpoint: "/api/v1/novels?genre=fantasy&page=1&per_page=5"
+        scenario: "フィルタ+ページネーション併用"
+        expected_status: 200
+        expected_body:
+          - "fantasyジャンルの1ページ目（最大5件）が返る"
+
+  # ==========================================================
+  # 2. エピソード API テストケース
+  #    (/api/v1/novels/:novel_id/episodes)
+  # ==========================================================
+  episodes:
+    # --- 認証テスト ---
+    authentication:
+      - id: E-AUTH-001
+        method: GET
+        endpoint: "/api/v1/novels/:novel_id/episodes"
+        scenario: "未認証でエピソード一覧を取得"
+        expected_status: 200
+        note: "公開情報のため未認証OK"
+
+      - id: E-AUTH-002
+        method: GET
+        endpoint: "/api/v1/novels/:novel_id/episodes/:id"
+        scenario: "未認証でエピソード詳細を取得"
+        expected_status: 200
+        note: "公開情報のため未認証OK"
+
+      - id: E-AUTH-003
+        method: POST
+        endpoint: "/api/v1/novels/:novel_id/episodes"
+        scenario: "未認証でエピソードを作成しようとする"
+        expected_status: 401
+
+      - id: E-AUTH-004
+        method: PUT
+        endpoint: "/api/v1/novels/:novel_id/episodes/:id"
+        scenario: "未認証でエピソードを更新しようとする"
+        expected_status: 401
+
+      - id: E-AUTH-005
+        method: DELETE
+        endpoint: "/api/v1/novels/:novel_id/episodes/:id"
+        scenario: "未認証でエピソードを削除しようとする"
+        expected_status: 401
+
+      - id: E-AUTH-006
+        method: POST
+        endpoint: "/api/v1/novels/:novel_id/episodes"
+        scenario: "他ユーザーの小説にエピソードを作成しようとする"
+        expected_status: 403
+
+      - id: E-AUTH-007
+        method: PUT
+        endpoint: "/api/v1/novels/:novel_id/episodes/:id"
+        scenario: "他ユーザーの小説のエピソードを更新しようとする"
+        expected_status: 403
+
+      - id: E-AUTH-008
+        method: DELETE
+        endpoint: "/api/v1/novels/:novel_id/episodes/:id"
+        scenario: "他ユーザーの小説のエピソードを削除しようとする"
+        expected_status: 403
+
+    # --- CRUD 正常系テスト ---
+    crud_success:
+      - id: E-CRUD-001
+        method: GET
+        endpoint: "/api/v1/novels/:novel_id/episodes"
+        scenario: "エピソード一覧を取得する"
+        expected_status: 200
+        expected_body:
+          - "エピソードの配列が返る"
+          - "各エピソードにtitle, episode_number, published_at, word_count, statusが含まれる"
+
+      - id: E-CRUD-002
+        method: GET
+        endpoint: "/api/v1/novels/:novel_id/episodes/:id"
+        scenario: "エピソード詳細を取得する（本文含む）"
+        expected_status: 200
+        expected_body:
+          - "指定IDのエピソード情報が返る"
+          - "bodyフィールド（本文）が含まれる"
+
+      - id: E-CRUD-003
+        method: POST
+        endpoint: "/api/v1/novels/:novel_id/episodes"
+        scenario: "認証済みユーザーがエピソードを新規作成する"
+        expected_status: 201
+        request_body:
+          title: "第1話 始まり"
+          body: "本文テキスト"
+          episode_number: 1
+          status: "draft"
+        expected_body:
+          - "作成されたエピソードの情報が返る"
+          - "novel_idが親小説のIDと一致"
+
+      - id: E-CRUD-004
+        method: POST
+        endpoint: "/api/v1/novels/:novel_id/episodes"
+        scenario: "chapter_id付きでエピソードを作成する"
+        expected_status: 201
+        request_body:
+          title: "第1話"
+          body: "本文"
+          episode_number: 1
+          chapter_id: "(valid chapter_id)"
+          status: "draft"
+
+      - id: E-CRUD-005
+        method: PUT
+        endpoint: "/api/v1/novels/:novel_id/episodes/:id"
+        scenario: "エピソードを更新する"
+        expected_status: 200
+        request_body:
+          title: "更新タイトル"
+          body: "更新本文"
+        expected_body:
+          - "更新後のエピソード情報が返る"
+
+      - id: E-CRUD-006
+        method: DELETE
+        endpoint: "/api/v1/novels/:novel_id/episodes/:id"
+        scenario: "エピソードを削除する"
+        expected_status: 200
+
+    # --- CRUD 異常系テスト ---
+    crud_error:
+      - id: E-ERR-001
+        method: POST
+        endpoint: "/api/v1/novels/:novel_id/episodes"
+        scenario: "titleなしでエピソードを作成しようとする"
+        expected_status: 422
+
+      - id: E-ERR-002
+        method: POST
+        endpoint: "/api/v1/novels/:novel_id/episodes"
+        scenario: "episode_numberなしでエピソードを作成しようとする"
+        expected_status: 422
+
+      - id: E-ERR-003
+        method: GET
+        endpoint: "/api/v1/novels/999999/episodes"
+        scenario: "存在しない小説のエピソード一覧を取得"
+        expected_status: 404
+
+      - id: E-ERR-004
+        method: GET
+        endpoint: "/api/v1/novels/:novel_id/episodes/999999"
+        scenario: "存在しないエピソード詳細を取得"
+        expected_status: 404
+
+      - id: E-ERR-005
+        method: POST
+        endpoint: "/api/v1/novels/:novel_id/episodes"
+        scenario: "存在しないchapter_idを指定してエピソードを作成"
+        expected_status: 422
+
+    # --- ページネーションテスト ---
+    pagination:
+      - id: E-PAGE-001
+        method: GET
+        endpoint: "/api/v1/novels/:novel_id/episodes?page=1&per_page=10"
+        scenario: "エピソード一覧ページネーション"
+        expected_status: 200
+        expected_body:
+          - "最大10件のエピソードが返る"
+          - "ページネーションメタ情報が含まれる"
+
+      - id: E-PAGE-002
+        method: GET
+        endpoint: "/api/v1/novels/:novel_id/episodes?page=9999"
+        scenario: "存在しないページ"
+        expected_status: 200
+        expected_body:
+          - "空配列が返る"
+
+  # ==========================================================
+  # 3. 章 API テストケース
+  #    (/api/v1/novels/:novel_id/chapters)
+  # ==========================================================
+  chapters:
+    # --- 認証テスト ---
+    authentication:
+      - id: C-AUTH-001
+        method: GET
+        endpoint: "/api/v1/novels/:novel_id/chapters"
+        scenario: "未認証で章一覧を取得"
+        expected_status: 200
+
+      - id: C-AUTH-002
+        method: GET
+        endpoint: "/api/v1/novels/:novel_id/chapters/:id"
+        scenario: "未認証で章詳細を取得"
+        expected_status: 200
+
+      - id: C-AUTH-003
+        method: POST
+        endpoint: "/api/v1/novels/:novel_id/chapters"
+        scenario: "未認証で章を作成しようとする"
+        expected_status: 401
+
+      - id: C-AUTH-004
+        method: PUT
+        endpoint: "/api/v1/novels/:novel_id/chapters/:id"
+        scenario: "未認証で章を更新しようとする"
+        expected_status: 401
+
+      - id: C-AUTH-005
+        method: DELETE
+        endpoint: "/api/v1/novels/:novel_id/chapters/:id"
+        scenario: "未認証で章を削除しようとする"
+        expected_status: 401
+
+      - id: C-AUTH-006
+        method: POST
+        endpoint: "/api/v1/novels/:novel_id/chapters"
+        scenario: "他ユーザーの小説に章を作成しようとする"
+        expected_status: 403
+
+      - id: C-AUTH-007
+        method: PUT
+        endpoint: "/api/v1/novels/:novel_id/chapters/:id"
+        scenario: "他ユーザーの小説の章を更新しようとする"
+        expected_status: 403
+
+      - id: C-AUTH-008
+        method: DELETE
+        endpoint: "/api/v1/novels/:novel_id/chapters/:id"
+        scenario: "他ユーザーの小説の章を削除しようとする"
+        expected_status: 403
+
+    # --- CRUD 正常系テスト ---
+    crud_success:
+      - id: C-CRUD-001
+        method: GET
+        endpoint: "/api/v1/novels/:novel_id/chapters"
+        scenario: "章一覧を取得する"
+        expected_status: 200
+        expected_body:
+          - "章の配列が返る"
+          - "各章にtitle, chapter_number, synopsisが含まれる"
+
+      - id: C-CRUD-002
+        method: GET
+        endpoint: "/api/v1/novels/:novel_id/chapters/:id"
+        scenario: "章詳細を取得する"
+        expected_status: 200
+        expected_body:
+          - "指定IDの章情報が返る"
+          - "紐付くエピソード一覧も取得可能"
+
+      - id: C-CRUD-003
+        method: POST
+        endpoint: "/api/v1/novels/:novel_id/chapters"
+        scenario: "認証済みユーザーが章を新規作成する"
+        expected_status: 201
+        request_body:
+          title: "第一章 出発"
+          chapter_number: 1
+          synopsis: "物語の始まり"
+
+      - id: C-CRUD-004
+        method: PUT
+        endpoint: "/api/v1/novels/:novel_id/chapters/:id"
+        scenario: "章を更新する"
+        expected_status: 200
+        request_body:
+          title: "更新: 第一章"
+          synopsis: "更新後の概要"
+
+      - id: C-CRUD-005
+        method: DELETE
+        endpoint: "/api/v1/novels/:novel_id/chapters/:id"
+        scenario: "章を削除する"
+        expected_status: 200
+
+    # --- CRUD 異常系テスト ---
+    crud_error:
+      - id: C-ERR-001
+        method: POST
+        endpoint: "/api/v1/novels/:novel_id/chapters"
+        scenario: "titleなしで章を作成しようとする"
+        expected_status: 422
+
+      - id: C-ERR-002
+        method: POST
+        endpoint: "/api/v1/novels/:novel_id/chapters"
+        scenario: "chapter_numberなしで章を作成しようとする"
+        expected_status: 422
+
+      - id: C-ERR-003
+        method: POST
+        endpoint: "/api/v1/novels/:novel_id/chapters"
+        scenario: "重複するchapter_numberで章を作成しようとする"
+        expected_status: 422
+        note: "ユニーク制約 [novel_id, chapter_number]"
+
+      - id: C-ERR-004
+        method: GET
+        endpoint: "/api/v1/novels/999999/chapters"
+        scenario: "存在しない小説の章一覧を取得"
+        expected_status: 404
+
+      - id: C-ERR-005
+        method: GET
+        endpoint: "/api/v1/novels/:novel_id/chapters/999999"
+        scenario: "存在しない章詳細を取得"
+        expected_status: 404
+
+  # ==========================================================
+  # テストケース集計
+  # ==========================================================
+  summary:
+    novels:
+      authentication: 7
+      crud_success: 5
+      crud_error: 6
+      pagination_and_filter: 7
+      subtotal: 25
+    episodes:
+      authentication: 8
+      crud_success: 6
+      crud_error: 5
+      pagination: 2
+      subtotal: 21
+    chapters:
+      authentication: 8
+      crud_success: 5
+      crud_error: 5
+      subtotal: 18
+    total: 64

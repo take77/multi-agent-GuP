@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 375 812" width="375" height="812">
+  <title>小説一覧ページ - ワイヤーフレーム</title>
+  <desc>カード形式の小説一覧。モバイルファースト設計。</desc>
+
+  <!-- Background -->
+  <rect width="375" height="812" fill="#F9F8F6" rx="0"/>
+
+  <!-- Status Bar -->
+  <rect width="375" height="44" fill="#F9F8F6"/>
+  <text x="187" y="30" font-family="sans-serif" font-size="12" fill="#2D2D2D" text-anchor="middle">9:41</text>
+
+  <!-- Header -->
+  <rect x="0" y="44" width="375" height="56" fill="#F9F8F6"/>
+  <text x="16" y="78" font-family="serif" font-size="20" font-weight="700" fill="#2D2D2D">幽玄書庫</text>
+  <text x="16" y="93" font-family="sans-serif" font-size="11" fill="#6B6B6B">Ethereal Library</text>
+  <!-- Theme Toggle -->
+  <circle cx="343" cy="72" r="16" fill="none" stroke="#D9D5CF" stroke-width="1.5"/>
+  <circle cx="343" cy="72" r="6" fill="#2D2D2D"/>
+  <!-- Search Icon -->
+  <circle cx="299" cy="72" r="16" fill="none" stroke="#D9D5CF" stroke-width="1.5"/>
+  <circle cx="296" cy="69" r="5" fill="none" stroke="#2D2D2D" stroke-width="1.5"/>
+  <line x1="300" y1="73" x2="303" y2="76" stroke="#2D2D2D" stroke-width="1.5"/>
+
+  <!-- Divider -->
+  <line x1="16" y1="100" x2="359" y2="100" stroke="#D9D5CF" stroke-width="0.5"/>
+
+  <!-- Genre Tabs -->
+  <rect x="16" y="108" width="64" height="28" rx="14" fill="#9D8CA1"/>
+  <text x="48" y="126" font-family="sans-serif" font-size="11" fill="#FFFFFF" text-anchor="middle">すべて</text>
+  <rect x="88" y="108" width="72" height="28" rx="14" fill="none" stroke="#D9D5CF" stroke-width="1"/>
+  <text x="124" y="126" font-family="sans-serif" font-size="11" fill="#6B6B6B" text-anchor="middle">ファンタジー</text>
+  <rect x="168" y="108" width="56" height="28" rx="14" fill="none" stroke="#D9D5CF" stroke-width="1"/>
+  <text x="196" y="126" font-family="sans-serif" font-size="11" fill="#6B6B6B" text-anchor="middle">冒険</text>
+  <rect x="232" y="108" width="56" height="28" rx="14" fill="none" stroke="#D9D5CF" stroke-width="1"/>
+  <text x="260" y="126" font-family="sans-serif" font-size="11" fill="#6B6B6B" text-anchor="middle">恋愛</text>
+  <rect x="296" y="108" width="64" height="28" rx="14" fill="none" stroke="#D9D5CF" stroke-width="1"/>
+  <text x="328" y="126" font-family="sans-serif" font-size="11" fill="#6B6B6B" text-anchor="middle">ダーク</text>
+
+  <!-- Card 1 -->
+  <rect x="16" y="152" width="343" height="160" rx="12" fill="#FFFFFF" stroke="#D9D5CF" stroke-width="0.5"/>
+  <!-- Thumbnail placeholder -->
+  <rect x="28" y="164" width="88" height="136" rx="6" fill="#E8E4DF"/>
+  <text x="72" y="236" font-family="sans-serif" font-size="10" fill="#6B6B6B" text-anchor="middle">表紙画像</text>
+  <!-- Card content -->
+  <text x="128" y="184" font-family="serif" font-size="15" font-weight="700" fill="#2D2D2D">蒼穹の剣聖伝説</text>
+  <text x="128" y="200" font-family="sans-serif" font-size="11" fill="#6B6B6B">クリエイト &amp; レビュー 著</text>
+  <text x="128" y="220" font-family="sans-serif" font-size="12" fill="#2D2D2D">天空の浮遊城に封印された古代の剣...</text>
+  <text x="128" y="236" font-family="sans-serif" font-size="12" fill="#2D2D2D">若き剣士は運命に導かれ旅立つ。</text>
+  <!-- Badges -->
+  <rect x="128" y="256" width="64" height="22" rx="11" fill="#F0ECE7"/>
+  <text x="160" y="271" font-family="sans-serif" font-size="10" fill="#5A5A5A" text-anchor="middle">ファンタジー</text>
+  <rect x="200" y="256" width="48" height="22" rx="11" fill="#F0ECE7"/>
+  <text x="224" y="271" font-family="sans-serif" font-size="10" fill="#5A5A5A" text-anchor="middle">連載中</text>
+  <!-- Episode count -->
+  <text x="128" y="296" font-family="sans-serif" font-size="10" fill="#6B6B6B">全42話 ・ 更新: 2h前</text>
+
+  <!-- Card 2 -->
+  <rect x="16" y="324" width="343" height="160" rx="12" fill="#FFFFFF" stroke="#D9D5CF" stroke-width="0.5"/>
+  <rect x="28" y="336" width="88" height="136" rx="6" fill="#E8E4DF"/>
+  <text x="72" y="408" font-family="sans-serif" font-size="10" fill="#6B6B6B" text-anchor="middle">表紙画像</text>
+  <text x="128" y="356" font-family="serif" font-size="15" font-weight="700" fill="#2D2D2D">異世界薬師の日常録</text>
+  <text x="128" y="372" font-family="sans-serif" font-size="11" fill="#6B6B6B">ドラマ &amp; アーカイブ 著</text>
+  <text x="128" y="392" font-family="sans-serif" font-size="12" fill="#2D2D2D">現代の薬剤師が異世界に転生。</text>
+  <text x="128" y="408" font-family="sans-serif" font-size="12" fill="#2D2D2D">薬草と魔法の知識で人々を救う。</text>
+  <rect x="128" y="428" width="48" height="22" rx="11" fill="#F0ECE7"/>
+  <text x="152" y="443" font-family="sans-serif" font-size="10" fill="#5A5A5A" text-anchor="middle">日常</text>
+  <rect x="184" y="428" width="56" height="22" rx="11" fill="#F0ECE7"/>
+  <text x="212" y="443" font-family="sans-serif" font-size="10" fill="#5A5A5A" text-anchor="middle">異世界</text>
+  <text x="128" y="468" font-family="sans-serif" font-size="10" fill="#6B6B6B">全28話 ・ 更新: 5h前</text>
+
+  <!-- Card 3 (partially visible) -->
+  <rect x="16" y="496" width="343" height="160" rx="12" fill="#FFFFFF" stroke="#D9D5CF" stroke-width="0.5"/>
+  <rect x="28" y="508" width="88" height="136" rx="6" fill="#E8E4DF"/>
+  <text x="72" y="580" font-family="sans-serif" font-size="10" fill="#6B6B6B" text-anchor="middle">表紙画像</text>
+  <text x="128" y="528" font-family="serif" font-size="15" font-weight="700" fill="#2D2D2D">月夜の魔法使い</text>
+  <text x="128" y="544" font-family="sans-serif" font-size="11" fill="#6B6B6B">アート &amp; リズム 著</text>
+  <text x="128" y="564" font-family="sans-serif" font-size="12" fill="#2D2D2D">月が満ちる夜にだけ魔法が使える</text>
+  <text x="128" y="580" font-family="sans-serif" font-size="12" fill="#2D2D2D">少女の成長と冒険の物語。</text>
+  <rect x="128" y="600" width="40" height="22" rx="11" fill="#F0ECE7"/>
+  <text x="148" y="615" font-family="sans-serif" font-size="10" fill="#5A5A5A" text-anchor="middle">魔法</text>
+
+  <!-- Floating Action Button (Discover/Swipe Mode) -->
+  <circle cx="335" cy="724" r="28" fill="#9D8CA1"/>
+  <text x="335" y="720" font-family="sans-serif" font-size="20" fill="#FFFFFF" text-anchor="middle">&#x2661;</text>
+  <text x="335" y="735" font-family="sans-serif" font-size="8" fill="#FFFFFF" text-anchor="middle">発見</text>
+
+  <!-- Bottom Navigation -->
+  <rect x="0" y="756" width="375" height="56" fill="#FFFFFF" stroke="#D9D5CF" stroke-width="0.5"/>
+  <!-- Home -->
+  <rect x="37" y="764" width="24" height="3" rx="1" fill="#9D8CA1"/>
+  <rect x="37" y="770" width="24" height="16" rx="2" fill="none" stroke="#9D8CA1" stroke-width="1.5"/>
+  <text x="49" y="798" font-family="sans-serif" font-size="9" fill="#9D8CA1" text-anchor="middle">ホーム</text>
+  <!-- Library -->
+  <rect x="128" y="764" width="24" height="20" rx="2" fill="none" stroke="#6B6B6B" stroke-width="1.5"/>
+  <line x1="132" y1="770" x2="148" y2="770" stroke="#6B6B6B" stroke-width="1"/>
+  <line x1="132" y1="776" x2="148" y2="776" stroke="#6B6B6B" stroke-width="1"/>
+  <text x="140" y="798" font-family="sans-serif" font-size="9" fill="#6B6B6B" text-anchor="middle">書庫</text>
+  <!-- Bookmarks -->
+  <path d="M224 764 L224 784 L236 778 L248 784 L248 764 Z" fill="none" stroke="#6B6B6B" stroke-width="1.5"/>
+  <text x="236" y="798" font-family="sans-serif" font-size="9" fill="#6B6B6B" text-anchor="middle">しおり</text>
+  <!-- Profile -->
+  <circle cx="331" cy="772" r="8" fill="none" stroke="#6B6B6B" stroke-width="1.5"/>
+  <text x="331" y="798" font-family="sans-serif" font-size="9" fill="#6B6B6B" text-anchor="middle">マイ</text>
+
+  <!-- Annotations -->
+  <rect x="0" y="0" width="375" height="812" fill="none" stroke="#CCC" stroke-width="0.5" stroke-dasharray="4"/>
+</svg>
