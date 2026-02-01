@@ -1,0 +1,26 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+development:
+  <<: *default
+  database: yugen_shoko_development
+  username: yugen
+  password: yugen_dev
+  host: db
+  port: 5432
+
+test:
+  <<: *default
+  database: yugen_shoko_test
+  username: yugen
+  password: yugen_dev
+  host: db
+  port: 5432
+
+production:
+  <<: *default
+  database: yugen_shoko_production
+  username: <%= ENV["DB_USERNAME"] %>
+  password: <%= ENV["DB_PASSWORD"] %>

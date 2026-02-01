@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+yugen-shoko/node_modules/
+
+# Next.js
+yugen-shoko/.next/
+yugen-shoko/out/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Ruby/Rails
+log/
+tmp/
+storage/
+vendor/bundle
+
+# OS
+.DS_Store
+*.swp
+*.swo
+
+# IDE
+.idea/
+.vscode/
