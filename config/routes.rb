@@ -14,6 +14,9 @@ Rails.application.routes.draw do
           end
         end
         resources :character_states, only: %i[index show create update destroy]
+        resources :characters, only: [] do
+          get :timeline, to: "character_states#timeline"
+        end
         resources :relationship_logs, only: %i[index show]
         get :context_summary, to: "context_summaries#show"
       end

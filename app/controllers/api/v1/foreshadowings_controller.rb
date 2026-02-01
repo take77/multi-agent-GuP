@@ -47,6 +47,10 @@ module Api
 
       # PATCH /api/v1/novels/:novel_id/foreshadowings/:id/resolve
       def resolve
+        unless params[:resolved_episode_id].present?
+          return render_error("resolved_episode_id は必須パラメータです", status: :bad_request)
+        end
+
         if @foreshadowing.update(
           status: :resolved,
           resolved_episode_id: params[:resolved_episode_id]

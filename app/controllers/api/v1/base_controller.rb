@@ -9,6 +9,9 @@ module Api
 
       def set_novel
         # 第1中隊の認証基盤・Novelモデルが揃い次第、正式な認証・認可チェックに置き換え
+        unless params[:novel_id].present? && params[:novel_id].to_s.match?(/\A\d+\z/) && params[:novel_id].to_i > 0
+          return render_error("novel_id が不正です", status: :bad_request)
+        end
         @novel_id = params[:novel_id].to_i
         # TODO: 認証ユーザーが所有する小説かチェック
         # @novel = current_user.novels.find(params[:novel_id])

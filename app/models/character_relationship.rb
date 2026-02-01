@@ -14,4 +14,13 @@ class CharacterRelationship < ApplicationRecord
   validates :relationship_type, presence: true
   validates :intensity, numericality: { only_integer: true, in: 1..10 }, allow_nil: true
   validates :character_id, uniqueness: { scope: :related_character_id }
+  validate :prevent_self_reference
+
+  private
+
+  def prevent_self_reference
+    if character_id.present? && character_id == related_character_id
+      errors.add(:related_character_id, "自分自身との関係は設定できません")
+    end
+  end
 end
