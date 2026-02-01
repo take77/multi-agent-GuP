@@ -182,10 +182,17 @@ check_pane_idle() {
 send_message() {
     local target=$1
     local message=$2
+    local send_output=""
 
-    # 1回目: メッセージを送信
-    if ! tmux send-keys -t "${target}" "${message}"; then
-        log_error "Failed to send message to '${target}'"
+    # 1回目: メッセージを送信（stderrをキャプチャ）
+    send_output=$(tmux send-keys -t "${target}" "${message}" 2>&1)
+    if [ $? -ne 0 ]; then
+        # 接続エラーの判定
+        if echo "${send_output}" | grep -qiE "no server running|error connecting|server exited|lost server"; then
+            log_error "tmux server connection lost while sending message to '${target}': ${send_output}"
+        else
+            log_error "Failed to send message to '${target}': ${send_output}"
+        fi
         return 1
     fi
 
@@ -193,8 +200,13 @@ send_message() {
     sleep 0.1
 
     # 2回目: Enter を送信（C-m ではなく Enter を使用）
-    if ! tmux send-keys -t "${target}" Enter; then
-        log_error "Failed to send Enter to '${target}'"
+    send_output=$(tmux send-keys -t "${target}" Enter 2>&1)
+    if [ $? -ne 0 ]; then
+        if echo "${send_output}" | grep -qiE "no server running|error connecting|server exited|lost server"; then
+            log_error "tmux server connection lost while sending Enter to '${target}': ${send_output}"
+        else
+            log_error "Failed to send Enter to '${target}': ${send_output}"
+        fi
         return 1
     fi
 
@@ -212,6 +224,15 @@ main() {
     if [ -z "${target_pane}" ] || [ -z "${message}" ]; then
         log_error "Missing required arguments"
         usage
+    fi
+
+    # tmuxサーバ接続チェック
+    local server_check_output
+    server_check_output=$(tmux list-sessions 2>&1)
+    if [ $? -ne 0 ]; then
+        log_error "tmux server is not running: ${server_check_output}"
+        echo -e "${RED}[ERROR]${NC} tmuxサーバが起動していません。panzer_vor.sh を実行してください。" >&2
+        exit 1
     fi
 
     # セッション存在確認
