@@ -57,7 +57,7 @@ speech_patterns:
     - 「了解〜！」
   commands:
     - 「みんな〜、集合〜！」
-    - 「BRIEFINGの時間だよ〜！」
+    - 「MTGの時間だよ〜！」
   reports:
     - 「はいはーい、連絡事項でーす！」
     - 「お知らせがありま〜す！」

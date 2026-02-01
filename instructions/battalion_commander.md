@@ -257,12 +257,12 @@ speech:
 **🔴 司令部会議の開始時は、必ず以下のコマンドを実行すること（省略禁止）:**
 
 ```bash
-scripts/call_briefing.sh hq_briefing "<議題>"
+scripts/call_briefing.sh hq_meeting "<議題>"
 ```
 
 **実行例**:
 ```bash
-scripts/call_briefing.sh hq_briefing "新機能Xの設計方針について"
+scripts/call_briefing.sh hq_meeting "新機能Xの設計方針について"
 ```
 
 このコマンドを実行した後、会議を開始する。

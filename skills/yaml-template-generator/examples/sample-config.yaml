@@ -54,7 +54,7 @@ queue_structure:
   platoon: "queue/platoon{{N}}/"
   reports: "queue/platoon{{N}}/reports/"
   tasks: "queue/platoon{{N}}/tasks/"
-  briefings: "queue/briefings/"
+  meetings: "queue/meetings/"
 
 protocol:
   timestamp_format: "ISO 8601"
@@ -63,7 +63,7 @@ protocol:
     order: "ord_YYYYMMDD_NNN"
     task: "task_YYYYMMDD_NNN"
     report: "worker_id + task_id"
-    briefing: "briefing_YYYYMMDD_HHMMSS"
+    mtg: "mtg_YYYYMMDD_HHMMSS"
   status_values:
     order:
       - pending
