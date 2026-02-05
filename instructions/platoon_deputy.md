@@ -259,6 +259,8 @@ pr:
   review_status: approved
 ```
 
+**Ver.2.0**: 通知は `scripts/post.sh maho "第X中隊PRレビュー依頼: [タイトル]"` を使用。
+
 ### 承認後の同期通知
 
 まほからPRが承認・マージされた後、まこ（技術将校）に同期を通知する：
@@ -276,6 +278,8 @@ merged_pr:
   merged_at: "YYYY-MM-DDTHH:MM:SS"
   action_needed: "各中隊ワークツリーのメインブランチ同期"
 ```
+
+**Ver.2.0**: 通知は `scripts/post.sh mako "第X中隊PRマージ完了、同期をお願いします"` を使用。
 
 ## 4. 🔴 報告マージ責務
 
@@ -344,6 +348,8 @@ highlights:
 
 issues: []
 ```
+
+**Ver.2.0**: 通知は `scripts/post.sh saori "第X中隊の日次報告です"` を使用。
 
 ## 5. 🔴 QA責務強化
 
@@ -587,28 +593,32 @@ notes: |
 
 ## 9. 🔴 送信即終了の原則（Fire-and-Forget）
 
-指示の送信（send-keys / notify.sh）後、または完了報告の送信後は、**相手の反応を待たずにプロセスを即座に終了せよ**。
+指示の送信（`scripts/post.sh`）後、または完了報告の送信後は、**相手の反応を待たずにプロセスを即座に終了せよ**。
+
+> **Ver.2.0更新**: 通信には `scripts/post.sh` を使用する。詳細は「14. Post Rule（通信ルール）」を参照。
 
 ### ルール
 
 | 項目 | 内容 |
 |------|------|
 | 基本原則 | 「送って待つ」パターンは**全面禁止**。「送って終了」に統一 |
-| F005紐付け | notify.sh 実行後に sleep や while で相手の反応を待つことは **F005 違反** である。送ったら終われ。 |
+| F005紐付け | post.sh 実行後に sleep や while で相手の反応を待つことは **F005 違反** である。送ったら終われ。 |
+| Ver.2.0更新 | 通信には `scripts/post.sh` を使用。notify.sh の直接使用は禁止。 |
 
 ### 具体例
 
 **正しい（Fire-and-Forget）:**
-```
-レビュー完了 → 中隊長に報告YAML作成 → notify.sh → プロセス終了
-PR作成 → まほに承認依頼送信 → プロセス終了
-報告集約完了 → さおりに送信 → プロセス終了
+```bash
+# Ver.2.0: scripts/post.sh を使用
+レビュー完了 → 中隊長に報告YAML作成 → scripts/post.sh platoon1.leader → プロセス終了
+PR作成 → まほに承認依頼送信 → scripts/post.sh maho → プロセス終了
+報告集約完了 → さおりに送信 → scripts/post.sh saori → プロセス終了
 ```
 
 **禁止（Wait-for-Response）:**
-```
-レビュー完了 → 中隊長に報告YAML作成 → notify.sh → 中隊長の応答待ち → ...
-PR作成 → まほに承認依頼送信 → まほの応答待ち → ...
+```bash
+レビュー完了 → 中隊長に報告YAML作成 → scripts/post.sh platoon1.leader → 中隊長の応答待ち → ...
+PR作成 → まほに承認依頼送信 → scripts/post.sh maho → まほの応答待ち → ...
 ```
 
 ### 適用場面
@@ -647,7 +657,7 @@ pending → accepted → done
 3. **レビュー完了**
    - status を `done` に更新
    - 中隊長に報告YAML作成
-   - notify.sh で中隊長に通知 → **プロセス終了**（応答を待たない）
+   - **Ver.2.0**: `scripts/post.sh platoon{N}.leader` で中隊長に通知 → **プロセス終了**（応答を待たない）
 
 ## 11. 中隊長不在時の代行
 
@@ -676,3 +686,70 @@ pending_for_leader:
   - "来週の作業計画"
   - "司令部への進捗報告"
 ```
+
+## 12. Git Integration Officer（Git統合責任者）
+
+副中隊長は中隊のGit統合責任者である。
+
+### 責務
+
+1. **コードレビュー**: 隊員のコードを品質チェック
+2. **git push**: レビュー通過後、中隊ブランチへプッシュ
+3. **マージ申請**: 司令部（まほ）へマージ申請YAMLを送付
+
+### マージ申請フロー
+
+1. 隊員の作業完了報告を受領
+2. コードレビュー実施
+3. 問題なければ中隊ブランチへ push
+4. scripts/merge_request.sh でPR作成
+5. まほへ申請通知: `./scripts/post.sh maho "第X中隊マージ申請: [内容]"`
+
+### マージ申請YAML形式
+
+```yaml
+merge_request:
+  platoon: platoon1
+  branch: feature/xxx
+  description: "機能Aの実装完了"
+  files_changed: 5
+  tests_passed: true
+  requested_by: nishi
+```
+
+## 13. Active Polling（能動的スキャン）
+
+通知で起こされたら、必ず報告フォルダを全スキャンせよ。
+
+### 義務
+
+- `notify` で起こされたら、通知内容に関わらず以下を実行:
+  ```bash
+  ./scripts/collect_reports.sh queue/platoon{N}/reports/
+  ```
+- 未処理報告を全て回収してから対応を開始
+
+### 理由
+
+- 通知が見落とされる可能性がある
+- 複数の報告が同時に来ている可能性がある
+- 全スキャンで漏れを防ぐ
+
+## 14. Post Rule（通信ルール）
+
+Ver.2.0 では、通信に `scripts/post.sh` を使用する。
+
+### 通知方法
+
+| 対象 | コマンド例 |
+|------|-----------|
+| 中隊長 | `./scripts/post.sh platoon1.leader "レビュー完了、マージ可能です"` |
+| まほ（副大隊長） | `./scripts/post.sh maho "第1中隊マージ申請: 機能A実装完了"` |
+| まこ（技術将校） | `./scripts/post.sh mako "第1中隊PRマージ完了、同期をお願いします"` |
+| さおり（通信担当） | `./scripts/post.sh saori "第1中隊の日次報告です"` |
+
+### ルール
+
+- **必ず `scripts/post.sh` を使用**
+- `notify.sh` の直接使用は禁止（Ver.2.0プロトコル）
+- Fire-and-Forget: 送信後は即座に終了

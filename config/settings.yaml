@@ -5,8 +5,9 @@ log_level: info
 worktree_base: worktrees/
 
 communication:
-  polling_disabled: true
-  method: send-keys
+  polling_disabled: true       # ポーリング（待機ループ）禁止
+  method: post_script          # 通知方式（post_script使用）
+  post_script_path: scripts/post.sh  # post.shスクリプトのパス
 
 model_override:
   hq:
@@ -20,3 +21,12 @@ model_override:
     default: sonnet
 
 active_agent_limit: 8
+
+# リソース制御設定
+resource_control:
+  # 中隊あたりの同時稼働最大数
+  max_active_units_per_platoon: 2
+  # 待機中の隊員の状態
+  standby_behavior: idle
+  # リソース超過時の動作（queue: キューに入れて待機）
+  on_limit_exceeded: queue
