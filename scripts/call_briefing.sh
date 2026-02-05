@@ -1,8 +1,8 @@
 #!/bin/bash
 # ============================================================
-# Panzer Project - MTG招集スクリプト (Meeting Call Script)
+# Panzer Project - ブリーフィング招集スクリプト (Briefing Call Script)
 # ============================================================
-# MTGを招集し、参加者に一斉通知を行うスクリプト
+# ブリーフィングを招集し、参加者に一斉通知を行うスクリプト
 #
 # 機能:
 #   - MTGタイプ指定（hq_meeting, platoon_meeting, battalion_meeting）

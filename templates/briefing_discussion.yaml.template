@@ -37,6 +37,60 @@ briefing:
   recorder: "{{RECORDER_ID}}"
 
 # ─────────────────────────────────────────────────────────────
+# CPUモデル会議フロー（司令部専用）
+# ─────────────────────────────────────────────────────────────
+# 司令部（HQ）ブリーフィングで使用する、CPU役割分担に基づく会議フロー
+#
+# CPU役割:
+#   - みほ（大隊長）: CPU全体の統括・最終意思決定
+#   - まほ（参謀長）: Logic（論理分析・判断）
+#   - ゆかり（情報参謀）: Memory（情報提供・知識検索）
+#   - さおり（通信参謀）: I/O Input（各中隊からの入力集約・状況報告）
+#   - はな（記録参謀）: I/O Output（記録・文書化・出力）
+#   - まこ（技術参謀）: Cache（技術的助言）
+#
+# 会議フロー:
+#   1. 議題提出（みほ or 中隊長）
+#   2. まほが論理分析（Logic）
+#   3. ゆかりが関連情報提供（Memory）
+#   4. さおりが各中隊への影響を報告（I/O Input）
+#   5. はなが議論内容を記録（I/O Output）
+#   6. みほが最終決定
+#
+cpu_flow:
+  enabled: false  # true: CPU会議フロー使用, false: 通常ブリーフィング
+  flow_steps:
+    - step: 1
+      role: "議題提出者"
+      responsible: "{{PROPOSER}}"  # みほ or 中隊長
+      action: "議題を提出"
+
+    - step: 2
+      role: "Logic（論理分析）"
+      responsible: "maho"
+      action: "論理的に分析し、判断軸を提示"
+
+    - step: 3
+      role: "Memory（情報提供）"
+      responsible: "yukari"
+      action: "関連情報・過去事例を提供"
+
+    - step: 4
+      role: "I/O Input（状況報告）"
+      responsible: "saori"
+      action: "各中隊への影響を報告"
+
+    - step: 5
+      role: "I/O Output（記録）"
+      responsible: "hana"
+      action: "議論内容を記録"
+
+    - step: 6
+      role: "CPU統括（最終決定）"
+      responsible: "miho"
+      action: "全情報を統合し、最終決定"
+
+# ─────────────────────────────────────────────────────────────
 # 議論ポイント (Discussion Points)
 # ─────────────────────────────────────────────────────────────
 discussion_points:

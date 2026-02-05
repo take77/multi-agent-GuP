@@ -7,3 +7,16 @@ worktree_base: worktrees/
 communication:
   polling_disabled: true
   method: send-keys
+
+model_override:
+  hq:
+    miho: opus
+    maho: opus
+  platoon1:
+    default: sonnet
+  platoon2:
+    default: sonnet
+  platoon3:
+    default: sonnet
+
+active_agent_limit: 8
