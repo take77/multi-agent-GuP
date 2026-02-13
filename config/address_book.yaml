@@ -1,0 +1,59 @@
+# ============================================================
+# Panzer Project - Address Book
+# ============================================================
+# 全エージェントのtmuxペインID管理
+# 使用例: scripts/post.sh maho "メッセージ"
+# ============================================================
+
+hq:
+  miho: "panzer-hq:0.0"       # 大隊長
+  maho: "panzer-hq:0.1"       # 参謀長
+  saori: "panzer-hq:0.2"      # 通信参謀
+  hana: "panzer-hq:0.3"       # 記録参謀
+  mako: "panzer-hq:0.4"       # 技術参謀
+  yukari: "panzer-hq:0.5"     # 情報参謀
+
+platoon1:
+  leader: "panzer-1:0.0"      # kay（中隊長）
+  deputy: "panzer-1:0.1"      # nishi（副長）
+  crew1: "panzer-1:0.2"       # arisa
+  crew2: "panzer-1:0.3"       # naomi
+  crew3: "panzer-1:0.4"       # tamada
+  crew4: "panzer-1:0.5"       # fukuda
+  # 名前でもアクセス可能
+  kay: "panzer-1:0.0"
+  nishi: "panzer-1:0.1"
+  arisa: "panzer-1:0.2"
+  naomi: "panzer-1:0.3"
+  tamada: "panzer-1:0.4"
+  fukuda: "panzer-1:0.5"
+
+platoon2:
+  leader: "panzer-2:0.0"      # katyusha（中隊長）
+  deputy: "panzer-2:0.1"      # mika（副長）
+  crew1: "panzer-2:0.2"       # klara
+  crew2: "panzer-2:0.3"       # nonna
+  crew3: "panzer-2:0.4"       # aki
+  crew4: "panzer-2:0.5"       # mikko
+  # 名前でもアクセス可能
+  katyusha: "panzer-2:0.0"
+  mika: "panzer-2:0.1"
+  klara: "panzer-2:0.2"
+  nonna: "panzer-2:0.3"
+  aki: "panzer-2:0.4"
+  mikko: "panzer-2:0.5"
+
+platoon3:
+  leader: "panzer-3:0.0"      # darjeeling（中隊長）
+  deputy: "panzer-3:0.1"      # erika（副長）
+  crew1: "panzer-3:0.2"       # orange_pekoe
+  crew2: "panzer-3:0.3"       # koume
+  crew3: "panzer-3:0.4"       # assam
+  crew4: "panzer-3:0.5"       # rukuriri
+  # 名前でもアクセス可能
+  darjeeling: "panzer-3:0.0"
+  erika: "panzer-3:0.1"
+  orange_pekoe: "panzer-3:0.2"
+  koume: "panzer-3:0.3"
+  assam: "panzer-3:0.4"
+  rukuriri: "panzer-3:0.5"

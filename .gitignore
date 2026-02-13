@@ -1,2 +1,16 @@
+# OS生成ファイル
 .DS_Store
+
+# ランタイム生成物（実運用時に動的に生成・更新される）
+worktrees/
+logs/
 queue/
+status/
+design/
+tmp/
+
+# ダッシュボード（実運用時にはなが動的更新）
+dashboard.md
+
+# 特殊フォルダ
+yugen-shoko/

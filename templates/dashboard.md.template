@@ -1,11 +1,16 @@
 <!-- ============================================================
-     Dashboard Template - Panzer Project
+     Dashboard Template - Multi-Agent GuP
      ============================================================
      このファイルはダッシュボードのテンプレートです。
      実際の dashboard.md を生成する際に使用します。
 
+     【プロジェクト構成】
+     - 司令部: 西住みほ（総隊長）+ 各参謀
+     - 第1中隊、第2中隊、第3中隊
+     - 各中隊は worktrees/platoon{1,2,3}/ で独立管理
+
      【更新ルール】
-     - 通信参謀（saori）がダッシュボード更新を担当
+     - はな（記録参謀）がダッシュボード更新を担当
      - 各中隊からの報告を集約して更新
      - ユーザーへの確認事項は「🚨 要対応」に必ず集約
 
@@ -14,20 +19,21 @@
      - 実際の値で置換して使用
      ============================================================ -->
 
-# 📊 戦況報告
+# 📊 multi-agent-GuP 戦況報告
 
-<!-- 【更新者】通信参謀（saori） -->
+<!-- 【更新者】はな（記録参謀） -->
 <!-- 【更新タイミング】各コマンド完了時、重要イベント発生時 -->
 
-最終更新: {{LAST_UPDATED}}
-現在のフェーズ: {{CURRENT_PHASE}}
+**プロジェクト名**: multi-agent-GuP
+**最終更新**: {{LAST_UPDATED}}
+**更新責任者**: はな（記録参謀）
 
 ---
 
 ## 🚨 要対応 - ご確認をお待ちしております
 
 <!-- 【重要】ユーザーが最初に見るべき内容をここに集約！ -->
-<!-- 【更新者】通信参謀（saori） -->
+<!-- 【更新者】はな（記録参謀） -->
 <!-- 【集約対象】スキル化候補、ブロッカー、質問事項、著作権問題、技術選択 -->
 
 ### スキル化候補 {{SKILL_CANDIDATE_COUNT}}件【承認待ち】
@@ -55,13 +61,107 @@
 | 質問 | 背景 | 担当 |
 |------|------|------|
 | {{QUESTION}} | {{CONTEXT}} | {{ASSIGNEE}} |
-<!-- 例: | 認証方式はOAuthかJWTか？ | ログイン機能設計 | バックエンド担当 | -->
+<!-- 例: | 認証方式はOAuthかJWTか？ | ログイン機能設計 | 第2中隊 | -->
+
+---
+
+## 📊 全体ステータスサマリ
+
+<!-- 【更新者】はな（記録参謀） -->
+<!-- 【更新タイミング】タスク開始・完了時 -->
+
+**現在の作戦**: {{CURRENT_OPERATION}}
+
+**全体進捗**: {{COMPLETED_TASKS}}/{{TOTAL_TASKS}}タスク完了 ({{PROGRESS_PERCENTAGE}}%)
+
+```
+進捗バー: {{PROGRESS_BAR}}
+```
+<!-- 例: ████████████░░░░░░░░ (60%) -->
+
+**アクティブエージェント**: {{ACTIVE_AGENTS}}/{{TOTAL_AGENTS}}名
+
+---
+
+## 🏢 中隊ステータス
+
+<!-- 【更新者】はな（記録参謀） -->
+<!-- 【更新タイミング】各中隊の報告時 -->
+
+### 第1中隊 - {{PLATOON1_NAME}}
+
+**中隊長**: {{PLATOON1_COMMANDER}}
+**副中隊長**: {{PLATOON1_VICE_COMMANDER}}
+**現在のステータス**: {{PLATOON1_STATUS}}
+
+[詳細を見る](worktrees/platoon1/platoon_dashboard.md)
+
+---
+
+### 第2中隊 - {{PLATOON2_NAME}}
+
+**中隊長**: {{PLATOON2_COMMANDER}}
+**副中隊長**: {{PLATOON2_VICE_COMMANDER}}
+**現在のステータス**: {{PLATOON2_STATUS}}
+
+[詳細を見る](worktrees/platoon2/platoon_dashboard.md)
+
+---
+
+### 第3中隊 - {{PLATOON3_NAME}}
+
+**中隊長**: {{PLATOON3_COMMANDER}}
+**副中隊長**: {{PLATOON3_VICE_COMMANDER}}
+**現在のステータス**: {{PLATOON3_STATUS}}
+
+[詳細を見る](worktrees/platoon3/platoon_dashboard.md)
+
+---
+
+## 🎯 司令部ステータス
+
+<!-- 【更新者】はな（記録参謀） -->
+<!-- 【更新タイミング】参謀の状態変化時 -->
+
+| 役職 | 氏名 | 状態 | 現在の作業 |
+|------|------|------|------------|
+| 総隊長 | {{COMMANDER_NAME}} | {{COMMANDER_STATUS}} | {{COMMANDER_TASK}} |
+| {{STAFF1_ROLE}} | {{STAFF1_NAME}} | {{STAFF1_STATUS}} | {{STAFF1_TASK}} |
+| {{STAFF2_ROLE}} | {{STAFF2_NAME}} | {{STAFF2_STATUS}} | {{STAFF2_TASK}} |
+| {{STAFF3_ROLE}} | {{STAFF3_NAME}} | {{STAFF3_STATUS}} | {{STAFF3_TASK}} |
+| {{STAFF4_ROLE}} | {{STAFF4_NAME}} | {{STAFF4_STATUS}} | {{STAFF4_TASK}} |
+
+<!-- 例:
+| 総隊長 | 西住みほ | ⏸️待機中 | 指揮待機 |
+| 通信参謀 | さおり | 🔄作業中 | ダッシュボード更新 |
+| 記録参謀 | はな | ✅完了 | cmd_016 報告書作成 |
+-->
+
+---
+
+## 📝 直近の意思決定ログ
+
+<!-- 【更新者】はな（記録参謀） -->
+<!-- 【更新タイミング】重要な決定が行われた時 -->
+
+| 日時 | 決定事項 | 決定者 | 影響範囲 |
+|------|----------|--------|----------|
+| {{DECISION1_TIME}} | {{DECISION1_CONTENT}} | {{DECISION1_MAKER}} | {{DECISION1_IMPACT}} |
+| {{DECISION2_TIME}} | {{DECISION2_CONTENT}} | {{DECISION2_MAKER}} | {{DECISION2_IMPACT}} |
+| {{DECISION3_TIME}} | {{DECISION3_CONTENT}} | {{DECISION3_MAKER}} | {{DECISION3_IMPACT}} |
+| {{DECISION4_TIME}} | {{DECISION4_CONTENT}} | {{DECISION4_MAKER}} | {{DECISION4_IMPACT}} |
+| {{DECISION5_TIME}} | {{DECISION5_CONTENT}} | {{DECISION5_MAKER}} | {{DECISION5_IMPACT}} |
+
+<!-- 例:
+| 14:30 | 第1中隊にPhase B割当 | 西住みほ | 第1中隊のタスク |
+| 15:00 | スキル化候補3件承認 | ユーザー | スキル実装フェーズ |
+-->
 
 ---
 
 ## 🔄 進行中 - 只今、作戦実行中！
 
-<!-- 【更新者】通信参謀（saori） -->
+<!-- 【更新者】はな（記録参謀） -->
 <!-- 【更新タイミング】タスク開始時、完了時 -->
 
 ### {{COMMAND_ID}}: {{COMMAND_DESCRIPTION}}
@@ -69,9 +169,9 @@
 | サブタスク | 担当 | 状態 | 内容 |
 |------------|------|------|------|
 | {{SUBTASK_ID}} | {{ASSIGNEE}} | {{STATUS_EMOJI}}{{STATUS}} | {{SUBTASK_DESCRIPTION}} |
-<!-- 例: | D1 | 第1中隊 | 🔄作業中 | send-keys ヘルパースクリプト | -->
-<!-- 例: | D2 | 第2中隊 | ✅完了 | YAMLテンプレート作成 | -->
-<!-- 例: | D3 | 第3中隊 | ⏸️待機中 | dashboard.md テンプレート | -->
+<!-- 例: | K1 | 第1中隊 | 🔄作業中 | instructions統一 | -->
+<!-- 例: | K2 | 第2中隊 | ✅完了 | YAMLテンプレート作成 | -->
+<!-- 例: | K3 | 第3中隊 | ⏸️待機中 | 統合テスト | -->
 
 **進捗**: {{COMPLETED_COUNT}}/{{TOTAL_COUNT}}タスク完了
 
@@ -86,20 +186,20 @@
 
 ## ✅ 本日の戦果
 
-<!-- 【更新者】通信参謀（saori） -->
+<!-- 【更新者】はな（記録参謀） -->
 <!-- 【更新タイミング】タスク完了時 -->
 
 | 時刻 | 戦場 | 任務 | 結果 |
 |------|------|------|------|
 | {{COMPLETION_TIME}} | {{PROJECT_NAME}} | {{TASK_DESCRIPTION}} | ✅完了 |
-<!-- 例: | 14:52 | multi-agent-GuP | A1: ディレクトリ構成作成 | ✅完了 | -->
-<!-- 例: | 15:30 | multi-agent-GuP | Phase C: 中隊 instructions 6件 | ✅完了 | -->
+<!-- 例: | 11:20 | multi-agent-GuP | K1: 第1中隊 instructions 作成 | ✅完了 | -->
+<!-- 例: | 14:30 | multi-agent-GuP | Phase C: 中隊構成完了 | ✅完了 | -->
 
 ---
 
 ## 🎯 スキル化候補 - 詳細
 
-<!-- 【更新者】通信参謀（saori） -->
+<!-- 【更新者】はな（記録参謀） -->
 <!-- 【更新タイミング】新規スキル化候補の報告時 -->
 
 ### {{SKILL_NUMBER}}. {{SKILL_NAME}} {{DESIGN_STATUS}}
@@ -113,13 +213,13 @@
 **提案者**: {{PROPOSER}}
 
 <!-- 例:
-### 1. project-scaffold ✅設計書作成済み
+### 1. multi-platoon-coordinator ✅設計書作成済み
 
-**説明**: マルチエージェントプロジェクトの雛形ディレクトリ構造を一括作成
+**説明**: 3中隊の並列作業を調整・統合するスキル
 
-**ユースケース**: 新規プロジェクト開始時
+**ユースケース**: 複数中隊での大規模プロジェクト
 
-**提案理由**: 同じディレクトリ構造を何度も作成するため
+**提案理由**: 中隊間の調整作業が頻繁に発生するため
 
 **提案者**: 第1中隊
 -->
@@ -128,13 +228,13 @@
 
 ## 🛠️ 生成されたスキル
 
-<!-- 【更新者】通信参謀（saori） -->
+<!-- 【更新者】はな（記録参謀） -->
 <!-- 【更新タイミング】スキルが承認・実装された時 -->
 
 | スキル名 | 説明 | 生成日 |
 |----------|------|--------|
 | {{SKILL_NAME}} | {{SKILL_DESCRIPTION}} | {{CREATED_DATE}} |
-<!-- 例: | project-scaffold | プロジェクト雛形を一括作成 | 2026-01-29 | -->
+<!-- 例: | project-scaffold | プロジェクト雛形を一括作成 | 2026-02-05 | -->
 
 <!-- スキルがない場合: -->
 <!-- なし -->
@@ -143,7 +243,7 @@
 
 ## ⏸️ 待機中
 
-<!-- 【更新者】通信参謀（saori） -->
+<!-- 【更新者】はな（記録参謀） -->
 <!-- 【更新タイミング】タスクが保留になった時 -->
 
 | タスク | 理由 | 待機開始 |
@@ -158,7 +258,7 @@
 
 ## ❓ 伺い事項
 
-<!-- 【更新者】通信参謀（saori） -->
+<!-- 【更新者】はな（記録参謀） -->
 <!-- 【更新タイミング】質問が発生した時 -->
 <!-- 【注意】重要な質問は「🚨 要対応」セクションにも必ず記載せよ！ -->
 
@@ -185,7 +285,7 @@
 1. AWS（既存システムとの親和性が高い）
 2. GCP（コスト面で優位）
 
-**担当**: SRE担当
+**担当**: 第2中隊
 -->
 
 <!-- 伺い事項がない場合: -->
@@ -203,22 +303,37 @@
      4. 状態変更のたびに更新
 
      【プレースホルダー一覧】
-     - {{LAST_UPDATED}}: 最終更新日時 (例: 2026-01-29 15:35)
-     - {{CURRENT_PHASE}}: 現在のフェーズ (例: Phase D)
+     - {{LAST_UPDATED}}: 最終更新日時 (例: 2026-02-05 11:30)
+     - {{CURRENT_OPERATION}}: 現在の作戦名
+     - {{COMPLETED_TASKS}}: 完了タスク数
+     - {{TOTAL_TASKS}}: 総タスク数
+     - {{PROGRESS_PERCENTAGE}}: 進捗率
+     - {{PROGRESS_BAR}}: 進捗バー（視覚的表現）
+     - {{ACTIVE_AGENTS}}: アクティブなエージェント数
+     - {{TOTAL_AGENTS}}: 総エージェント数
+     - {{PLATOON1_NAME}}: 第1中隊名
+     - {{PLATOON1_COMMANDER}}: 第1中隊長
+     - {{PLATOON1_VICE_COMMANDER}}: 第1中隊副中隊長
+     - {{PLATOON1_STATUS}}: 第1中隊の現在ステータス
+     - (同様に PLATOON2_, PLATOON3_ も)
+     - {{COMMANDER_NAME}}: 総隊長名
+     - {{COMMANDER_STATUS}}: 総隊長の状態
+     - {{COMMANDER_TASK}}: 総隊長の現在作業
+     - {{STAFF1_ROLE}}: 参謀1の役職
+     - {{STAFF1_NAME}}: 参謀1の氏名
+     - {{STAFF1_STATUS}}: 参謀1の状態
+     - {{STAFF1_TASK}}: 参謀1の現在作業
+     - (同様に STAFF2_, STAFF3_, STAFF4_ も)
+     - {{DECISION1_TIME}}: 意思決定1の日時
+     - {{DECISION1_CONTENT}}: 意思決定1の内容
+     - {{DECISION1_MAKER}}: 意思決定1の決定者
+     - {{DECISION1_IMPACT}}: 意思決定1の影響範囲
+     - (同様に DECISION2_ ～ DECISION5_ も)
      - {{SKILL_CANDIDATE_COUNT}}: スキル化候補件数
-     - {{SKILL_NAME}}: スキル名
-     - {{SKILL_DESCRIPTION}}: スキル説明
-     - {{PROPOSER}}: 提案者
-     - {{DESIGN_STATUS}}: 設計書状態 (✅作成済み/🔄作成中/未作成)
-     - {{COMMAND_ID}}: コマンドID (例: cmd_006)
+     - {{COMMAND_ID}}: コマンドID (例: cmd_016)
      - {{COMMAND_DESCRIPTION}}: コマンド説明
-     - {{SUBTASK_ID}}: サブタスクID (例: D1)
+     - {{SUBTASK_ID}}: サブタスクID (例: K1)
      - {{ASSIGNEE}}: 担当者
      - {{STATUS}}: 状態 (作業中/完了/待機中)
      - {{STATUS_EMOJI}}: 状態アイコン (🔄/✅/⏸️/❌)
-     - {{COMPLETED_COUNT}}: 完了タスク数
-     - {{TOTAL_COUNT}}: 総タスク数
-     - {{COMPLETION_TIME}}: 完了時刻
-     - {{PROJECT_NAME}}: プロジェクト名
-     - {{TASK_DESCRIPTION}}: タスク説明
      ============================================================ -->

@@ -4,14 +4,14 @@
 # ============================================================
 # ガルパン・マルチエージェントシステム起動スクリプト
 #
-# セッション構成:
-#   - MAG (1セッション・4ウィンドウ・各6ペイン)
-#     - HQ:       司令部（大隊本部）
-#     - Platoon1: 第1中隊（サンダース/知波単）
-#     - Platoon2: 第2中隊（プラウダ/継続）
-#     - Platoon3: 第3中隊（聖グロ/黒森峰）
+# セッション構成（README仕様準拠）:
+#   - panzer-hq : 司令部（大隊本部）6ペイン
+#   - panzer-1  : 第1中隊（サンダース/知波単）6ペイン
+#   - panzer-2  : 第2中隊（プラウダ/継続）6ペイン
+#   - panzer-3  : 第3中隊（聖グロ/黒森峰）6ペイン
 #
-# 各ウィンドウはペイン単位で構成（1キャラクター = 1ペイン）
+# 各セッションは1ウィンドウ（ウィンドウ0）・6ペイン構成
+# アクセス例: panzer-hq:0.0, panzer-1:0.0, panzer-2:0.0, panzer-3:0.0
 # ============================================================
 
 set -e
@@ -21,8 +21,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WORK_DIR="$(dirname "$SCRIPT_DIR")"
 cd "$WORK_DIR"
 
-# セッション名
-SESSION_NAME="MAG"
+# セッション名（4セッション構成）
+SESSION_HQ="panzer-hq"
+SESSION_1="panzer-1"
+SESSION_2="panzer-2"
+SESSION_3="panzer-3"
 
 # 色設定（ログ用）
 GREEN='\033[0;32m'
@@ -38,38 +41,28 @@ log_success() {
 }
 
 # ============================================================
-# 中隊ウィンドウ作成関数（ペイン単位）
+# セッション作成関数（6ペイン構成）
 # ============================================================
-# 引数: session_name window_name member1 member2 member3 member4 member5 member6
-# HQウィンドウ（最初のウィンドウ）の場合は is_first=true で呼ぶ
-create_platoon_window() {
+# 引数: session_name member1 member2 member3 member4 member5 member6
+create_session_with_panes() {
     local session_name=$1
-    local window_name=$2
-    shift 2
+    shift
     local members=("$@")
 
-    if tmux has-session -t "${session_name}" 2>/dev/null; then
-        # セッション存在 → 新ウィンドウを追加
-        tmux new-window -t "${session_name}" -n "${window_name}" -c "${WORK_DIR}"
-    else
-        # セッション不在 → セッション作成（最初のウィンドウが自動生成）
-        tmux new-session -d -s "${session_name}" -n "${window_name}" -c "${WORK_DIR}" -x 240 -y 80
-    fi
+    # セッション作成（ウィンドウ0が自動生成）
+    tmux new-session -d -s "${session_name}" -c "${WORK_DIR}" -x 240 -y 80
 
-    log_info "  └─ Window ${window_name}: ${members[0]} (pane 0)"
+    log_info "  └─ Session ${session_name}: ${members[0]} (pane 0)"
 
     # 残り5名のペインを split-window で追加（ペイン1〜5）
     for i in {1..5}; do
-        tmux split-window -t "${session_name}:${window_name}" -c "${WORK_DIR}"
+        tmux split-window -t "${session_name}:0" -c "${WORK_DIR}"
         # 分割直後に毎回tiledで空間均等化 → 次のsplitでno spaceを防止
-        tmux select-layout -t "${session_name}:${window_name}" tiled
-        log_info "  └─ Window ${window_name}: ${members[$i]} (pane ${i})"
+        tmux select-layout -t "${session_name}:0" tiled
+        log_info "  └─ Session ${session_name}: ${members[$i]} (pane ${i})"
     done
 
-    # bridge_launcher.sh をウィンドウ単位で呼び出し
-    "${SCRIPT_DIR}/bridge_launcher.sh" "${session_name}" "${window_name}" &
-
-    log_success "  Window ${window_name} created with ${#members[@]} panes"
+    log_success "  Session ${session_name} created with ${#members[@]} panes"
 }
 
 # ============================================================
@@ -100,11 +93,21 @@ setup_keybindings() {
 # 既存セッション存在チェック（二重起動防止）
 # ============================================================
 check_existing_sessions() {
-    if ! tmux has-session -t "${SESSION_NAME}" 2>/dev/null; then
+    local existing_sessions=""
+    local has_existing=false
+
+    for session in "${SESSION_HQ}" "${SESSION_1}" "${SESSION_2}" "${SESSION_3}"; do
+        if tmux has-session -t "${session}" 2>/dev/null; then
+            existing_sessions="${existing_sessions} ${session}"
+            has_existing=true
+        fi
+    done
+
+    if [ "$has_existing" = false ]; then
         return 0
     fi
 
-    log_info "既存セッションを検出: ${SESSION_NAME}"
+    log_info "既存セッションを検出:${existing_sessions}"
     echo ""
     echo "  [R] 既存セッションをkillしてクリーン再起動"
     echo "  [A] 起動を中止（Abort）"
@@ -133,10 +136,12 @@ check_existing_sessions() {
 # 既存セッションのクリーンアップ
 # ============================================================
 cleanup_existing_sessions() {
-    if tmux has-session -t "${SESSION_NAME}" 2>/dev/null; then
-        log_info "Killing existing session: ${SESSION_NAME}"
-        tmux kill-session -t "${SESSION_NAME}"
-    fi
+    for session in "${SESSION_HQ}" "${SESSION_1}" "${SESSION_2}" "${SESSION_3}"; do
+        if tmux has-session -t "${session}" 2>/dev/null; then
+            log_info "Killing existing session: ${session}"
+            tmux kill-session -t "${session}"
+        fi
+    done
 }
 
 # ============================================================
@@ -179,55 +184,55 @@ main() {
     log_success "✅ 通信インフラ初期化完了"
 
     # ============================================================
+    # 4セッション作成（各セッション1ウィンドウ・6ペイン）
+    # ============================================================
+    log_info "🏗️  4セッションを構築中..."
+
+    # ------------------------------------------------------------
+    # panzer-hq: 司令部（大隊本部）
+    # ------------------------------------------------------------
+    create_session_with_panes "${SESSION_HQ}" \
+        "miho" "maho" "yukari" "saori" "hana" "mako"
+
+    # ============================================================
     # キーバインド設定（グローバル設定なので1回のみ）
     # ============================================================
     setup_keybindings
 
-    # ============================================================
-    # セッション「MAG」作成 - 4ウィンドウ × 6ペイン
-    # ============================================================
-    log_info "🏗️  セッション ${SESSION_NAME} を構築中..."
-
     # ------------------------------------------------------------
-    # HQ: 司令部（大隊本部）— セッション作成時の最初のウィンドウ
+    # panzer-1: 第1中隊（サンダース/知波単）
     # ------------------------------------------------------------
-    create_platoon_window "${SESSION_NAME}" "HQ" \
-        "miho" "maho" "yukari" "saori" "hana" "mako"
-
-    # ------------------------------------------------------------
-    # Platoon1: 第1中隊（サンダース/知波単）
-    # ------------------------------------------------------------
-    create_platoon_window "${SESSION_NAME}" "Platoon1" \
+    create_session_with_panes "${SESSION_1}" \
         "kay" "nishi" "arisa" "naomi" "tamada" "fukuda"
 
     # ------------------------------------------------------------
-    # Platoon2: 第2中隊（プラウダ/継続）
+    # panzer-2: 第2中隊（プラウダ/継続）
     # ------------------------------------------------------------
-    create_platoon_window "${SESSION_NAME}" "Platoon2" \
+    create_session_with_panes "${SESSION_2}" \
         "katyusha" "mika" "klara" "nonna" "aki" "mikko"
 
     # ------------------------------------------------------------
-    # Platoon3: 第3中隊（聖グロ/黒森峰）
+    # panzer-3: 第3中隊（聖グロ/黒森峰）
     # ------------------------------------------------------------
-    create_platoon_window "${SESSION_NAME}" "Platoon3" \
+    create_session_with_panes "${SESSION_3}" \
         "darjeeling" "erika" "orange_pekoe" "koume" "assam" "rukuriri"
 
-    # 最初のウィンドウ（HQ）に戻す
-    tmux select-window -t "${SESSION_NAME}:HQ"
-
     echo ""
     echo "============================================================"
-    echo " Session ${SESSION_NAME} created successfully!"
+    echo " Sessions created successfully!"
     echo "============================================================"
     echo ""
-    echo "Session: ${SESSION_NAME}"
-    echo "  - HQ       : 司令部（miho, maho, yukari, saori, hana, mako）"
-    echo "  - Platoon1 : 第1中隊（kay, nishi, arisa, naomi, tamada, fukuda）"
-    echo "  - Platoon2 : 第2中隊（katyusha, mika, klara, nonna, aki, mikko）"
-    echo "  - Platoon3 : 第3中隊（darjeeling, erika, orange_pekoe, koume, assam, rukuriri）"
+    echo "Sessions:"
+    echo "  - ${SESSION_HQ} : 司令部（miho, maho, yukari, saori, hana, mako）"
+    echo "  - ${SESSION_1}  : 第1中隊（kay, nishi, arisa, naomi, tamada, fukuda）"
+    echo "  - ${SESSION_2}  : 第2中隊（katyusha, mika, klara, nonna, aki, mikko）"
+    echo "  - ${SESSION_3}  : 第3中隊（darjeeling, erika, orange_pekoe, koume, assam, rukuriri）"
     echo ""
-    echo "To attach to the session:"
-    echo "  tmux attach -t ${SESSION_NAME}"
+    echo "To attach to sessions:"
+    echo "  tmux attach -t ${SESSION_HQ}"
+    echo "  tmux attach -t ${SESSION_1}"
+    echo "  tmux attach -t ${SESSION_2}"
+    echo "  tmux attach -t ${SESSION_3}"
     echo ""
     echo "Keybindings:"
     echo "  Alt+Left/Right : Switch windows"
@@ -239,17 +244,13 @@ main() {
     # ============================================================
     log_info "🔥 全軍に Claude Code を召喚中..."
 
-    local windows=("HQ" "Platoon1" "Platoon2" "Platoon3")
-
-    for window in "${windows[@]}"; do
-        # ウィンドウ内の全ペインに対して send-keys
-        local panes
-        panes=$(tmux list-panes -t "${SESSION_NAME}:${window}" -F '#{pane_index}')
-        for pane_idx in ${panes}; do
-            tmux send-keys -t "${SESSION_NAME}:${window}.${pane_idx}" "claude --dangerously-skip-permissions"
-            tmux send-keys -t "${SESSION_NAME}:${window}.${pane_idx}" Enter
+    for session in "${SESSION_HQ}" "${SESSION_1}" "${SESSION_2}" "${SESSION_3}"; do
+        # セッション内の全ペイン（0.0〜0.5）に対して send-keys
+        for pane_idx in {0..5}; do
+            tmux send-keys -t "${session}:0.${pane_idx}" "claude --dangerously-skip-permissions"
+            tmux send-keys -t "${session}:0.${pane_idx}" Enter
         done
-        log_info "  └─ ${window} 召喚完了"
+        log_info "  └─ ${session} 召喚完了"
         sleep 1
     done
 
@@ -263,56 +264,56 @@ main() {
 
     echo "  Claude Code の起動を待機中（最大30秒）..."
 
-    # HQ の起動を確認（最大30秒待機）
+    # panzer-hq の起動を確認（最大30秒待機）
     for i in {1..30}; do
-        if tmux capture-pane -t "${SESSION_NAME}:HQ.0" -p | grep -q "bypass permissions"; then
-            echo "  └─ HQ 起動確認完了（${i}秒）"
+        if tmux capture-pane -t "${SESSION_HQ}:0.0" -p | grep -q "bypass permissions"; then
+            echo "  └─ ${SESSION_HQ} 起動確認完了（${i}秒）"
             break
         fi
         sleep 1
     done
 
     # ------------------------------------------------------------
-    # HQ: 司令部（大隊本部）
+    # panzer-hq: 司令部（大隊本部）
     # ------------------------------------------------------------
-    log_info "  └─ HQ（司令部）に指示書を伝達中..."
+    log_info "  └─ ${SESSION_HQ}（司令部）に指示書を伝達中..."
 
     # pane 0: miho（大隊長）
-    tmux send-keys -t "${SESSION_NAME}:HQ.0" "instructions/battalion_commander.md を読んで役割を理解せよ。"
-    tmux send-keys -t "${SESSION_NAME}:HQ.0" Enter
+    tmux send-keys -t "${SESSION_HQ}:0.0" "instructions/battalion_commander.md を読んで役割を理解せよ。"
+    tmux send-keys -t "${SESSION_HQ}:0.0" Enter
     sleep 0.5
 
     # pane 1: maho（参謀長）
-    tmux send-keys -t "${SESSION_NAME}:HQ.1" "instructions/chief_of_staff.md を読んで役割を理解せよ。"
-    tmux send-keys -t "${SESSION_NAME}:HQ.1" Enter
+    tmux send-keys -t "${SESSION_HQ}:0.1" "instructions/chief_of_staff.md を読んで役割を理解せよ。"
+    tmux send-keys -t "${SESSION_HQ}:0.1" Enter
     sleep 0.5
 
     # pane 2: yukari（情報参謀）
-    tmux send-keys -t "${SESSION_NAME}:HQ.2" "instructions/intelligence_officer.md を読んで役割を理解せよ。"
-    tmux send-keys -t "${SESSION_NAME}:HQ.2" Enter
+    tmux send-keys -t "${SESSION_HQ}:0.2" "instructions/intelligence_officer.md を読んで役割を理解せよ。"
+    tmux send-keys -t "${SESSION_HQ}:0.2" Enter
     sleep 0.5
 
     # pane 3: saori（通信参謀）
-    tmux send-keys -t "${SESSION_NAME}:HQ.3" "instructions/communications_officer.md を読んで役割を理解せよ。"
-    tmux send-keys -t "${SESSION_NAME}:HQ.3" Enter
+    tmux send-keys -t "${SESSION_HQ}:0.3" "instructions/communications_officer.md を読んで役割を理解せよ。"
+    tmux send-keys -t "${SESSION_HQ}:0.3" Enter
     sleep 0.5
 
     # pane 4: hana（記録参謀）
-    tmux send-keys -t "${SESSION_NAME}:HQ.4" "instructions/records_officer.md を読んで役割を理解せよ。"
-    tmux send-keys -t "${SESSION_NAME}:HQ.4" Enter
+    tmux send-keys -t "${SESSION_HQ}:0.4" "instructions/records_officer.md を読んで役割を理解せよ。"
+    tmux send-keys -t "${SESSION_HQ}:0.4" Enter
     sleep 0.5
 
     # pane 5: mako（技術参謀）
-    tmux send-keys -t "${SESSION_NAME}:HQ.5" "instructions/technical_officer.md を読んで役割を理解せよ。"
-    tmux send-keys -t "${SESSION_NAME}:HQ.5" Enter
+    tmux send-keys -t "${SESSION_HQ}:0.5" "instructions/technical_officer.md を読んで役割を理解せよ。"
+    tmux send-keys -t "${SESSION_HQ}:0.5" Enter
 
-    log_success "  └─ HQ 指示書伝達完了"
+    log_success "  └─ ${SESSION_HQ} 指示書伝達完了"
     sleep 1
 
     # ------------------------------------------------------------
-    # Platoon1, Platoon2, Platoon3: 中隊（共通）
+    # panzer-1, panzer-2, panzer-3: 中隊（共通）
     # ------------------------------------------------------------
-    local platoon_windows=("Platoon1" "Platoon2" "Platoon3")
+    local platoon_sessions=("${SESSION_1}" "${SESSION_2}" "${SESSION_3}")
     local platoon_instructions=(
         "instructions/platoon_leader.md"
         "instructions/platoon_deputy.md"
@@ -322,22 +323,22 @@ main() {
         "instructions/tester.md"
     )
 
-    # 中隊ごとのキャラクター名定義（ペイン0~5に対応）
-    declare -A platoon_members
-    platoon_members["Platoon1"]="kay nishi arisa naomi tamada fukuda"
-    platoon_members["Platoon2"]="katyusha mika klara nonna aki mikko"
-    platoon_members["Platoon3"]="darjeeling erika orange_pekoe koume assam rukuriri"
+    for platoon_session in "${platoon_sessions[@]}"; do
+        log_info "  └─ ${platoon_session}（中隊）に指示書を伝達中..."
 
-    for platoon in "${platoon_windows[@]}"; do
-        log_info "  └─ ${platoon}（中隊）に指示書を伝達中..."
-
-        # キャラクター名配列を展開
-        local members=(${platoon_members[$platoon]})
+        # キャラクター名を中隊ごとに取得（Bash 3.2互換 - case文でマッピング）
+        local members_str
+        case "${platoon_session}" in
+            "${SESSION_1}") members_str="kay nishi arisa naomi tamada fukuda" ;;
+            "${SESSION_2}") members_str="katyusha mika klara nonna aki mikko" ;;
+            "${SESSION_3}") members_str="darjeeling erika orange_pekoe koume assam rukuriri" ;;
+        esac
+        local members=(${members_str})
 
         for idx in {0..5}; do
             local instruction="${platoon_instructions[$idx]}"
             local char_name="${members[$idx]}"
-            local target="${SESSION_NAME}:${platoon}.${idx}"
+            local target="${platoon_session}:0.${idx}"
 
             # 1. キャラクター設定ファイルを読み込ませる
             tmux send-keys -t "${target}" "characters/${char_name}.yaml を読んで、あなたの性格と設定を完全にインストールしてください。"
@@ -350,11 +351,11 @@ main() {
             sleep 0.5
 
             # 3. キャラクター名を自己認識させる
-            tmux send-keys -t "${target}" "あなたの名前は ${char_name} です。所属は ${platoon} です。これ以降、この人格として振る舞い、タスクを実行してください。"
+            tmux send-keys -t "${target}" "あなたの名前は ${char_name} です。所属は ${platoon_session} です。これ以降、この人格として振る舞い、タスクを実行してください。"
             tmux send-keys -t "${target}" Enter
             sleep 0.3
         done
-        log_success "  └─ ${platoon} 指示書伝達完了"
+        log_success "  └─ ${platoon_session} 指示書伝達完了"
         sleep 1
     done
 
